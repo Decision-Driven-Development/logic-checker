@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ MIT License
+  ~
+  ~ Copyright (c) 2024 Decision-Driven Development
+  ~
+  ~ Permission is hereby granted, free of charge, to any person obtaining a copy
+  ~ of this software and associated documentation files (the "Software"), to deal
+  ~ in the Software without restriction, including without limitation the rights
+  ~ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  ~ copies of the Software, and to permit persons to whom the Software is
+  ~ furnished to do so, subject to the following conditions:
+  ~
+  ~ The above copyright notice and this permission notice shall be included in all
+  ~ copies or substantial portions of the Software.
+  ~
+  ~ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  ~ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  ~ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  ~ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  ~ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  ~ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  ~ SOFTWARE.
+  ~
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.jcabi</groupId>
+        <artifactId>parent</artifactId>
+        <version>0.67.0</version>
+    </parent>
+
+    <groupId>io.github.decision-driven</groupId>
+    <artifactId>logic-checker</artifactId>
+    <version>0.0.1</version>
+    <packaging>jar</packaging>
+
+    <name>Abstract business logic checker</name>
+    <description>A tool to check the correctness of business-logic, described by decision tables and commands</description>
+    <url>https://github.com/Decision-Driven-Development/logic-checker</url>
+    <inceptionYear>2024</inceptionYear>
+    <organization>
+        <name>Decision-Driven Development</name>
+        <url>https://github.com/Decision-Driven-Development</url>
+    </organization>
+    <licenses>
+        <license>
+            <name>MIT</name>
+            <url>https://raw.githubusercontent.com/Decision-Driven-Development/logic-checker/master/LICENSE</url>
+            <distribution>site</distribution>
+            <comments>MIT License</comments>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>1</id>
+            <name>Eugene Terekhov</name>
+            <email>nergal@psu.ru</email>
+            <url>https://github.com/nergal-perm</url>
+            <roles>
+                <role>Architect</role>
+                <role>Developer</role>
+            </roles>
+            <timezone>+4</timezone>
+        </developer>
+    </developers>
+    <contributors>
+        <contributor>
+            <name>Nikita Batin</name>
+            <url>https://github.com/citerm</url>
+            <roles>
+                <role>Architect</role>
+            </roles>
+            <timezone>+3</timezone>
+        </contributor>
+    </contributors>
+
+    <issueManagement>
+        <system>github</system>
+        <url>https://github.com/Decision-Driven-Development/logic-checker/issues</url>
+    </issueManagement>
+    <ciManagement>
+        <system>github</system>
+        <url>https://github.com/Decision-Driven-Development/logic-checker/actions</url>
+    </ciManagement>
+    <scm>
+        <connection>scm:git:github.com:Decision-Driven-Development/logic-checker.git</connection>
+        <developerConnection>scm:git:github.com:Decision-Driven-Development/logic-checker.git</developerConnection>
+        <url>https://github.com/Decision-Driven-Development/logic-checker</url>
+    </scm>
+
+    <dependencies>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>17</source>
+                    <target>17</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>qulice</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.qulice</groupId>
+                        <artifactId>qulice-maven-plugin</artifactId>
+                        <version>0.22.2</version>
+                        <configuration>
+                            <license>file:${basedir}/LICENSE</license>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

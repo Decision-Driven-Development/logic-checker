@@ -24,6 +24,7 @@
 
 package ru.ewc.checklogic;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -33,16 +34,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
-import lombok.Getter;
 import lombok.SneakyThrows;
+import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.yaml.snakeyaml.Yaml;
 import ru.ewc.decisions.api.Locators;
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * End-to-end tests based on yaml descriptions.
@@ -50,15 +48,23 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 0.1
  */
 @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
-class StateBasedTest {
+public final class LogicChecker {
     /**
-     * The soft assertions to gather all the failures.
+     * The logger.
      */
-    private SoftAssertions softly;
+    private static final Logger LOGGER = Logger.getLogger(LogicChecker.class.getName());
 
-    @BeforeEach
-    void setUp() {
-        this.softly = new SoftAssertions();
+    /**
+     * The template for the assertion message.
+     */
+    private static final String AV_TEMPLATE = "Command '%s'[%d] should be available";
+
+    private LogicChecker() {
+        // Utility class
+    }
+
+    public static void main(final String[] args) {
+        readFileNames().forEach(test -> testPerformingFileBasedTest(test, new SoftAssertions()));
     }
 
     @SneakyThrows
@@ -79,28 +85,32 @@ class StateBasedTest {
     }
 
     @SneakyThrows
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("readFileNames")
-    void testPerformingFileBasedTest(final TestData test) {
+    static void testPerformingFileBasedTest(final TestData test, final SoftAssertions softly) {
         final Computation target = new Computation(
             Computation.uriFrom(getFinalPathTo("tables")),
             Computation.uriFrom(getFinalPathTo("commands")),
-            Computation.uriFrom(test.file)
+            Files.newInputStream(new File(test.file()).toPath())
         );
-        for (int i = 0; i < test.commands.size(); i++) {
-            Transition command = test.commands.get(i);
-            assertThat(target.decideFor(command.name, command.request))
-                .describedAs(String.format("Command '%s'[%d] should be available", command.name, i + 1))
-                .containsEntry("available", "true");
-            target.perform(command);
+        try {
+            for (int idx = 0; idx < test.commands.size(); idx += 1) {
+                final Transition command = test.commands.get(idx);
+                Assertions.assertThat(target.decideFor(command.name(), command.request()))
+                    .describedAs(String.format(LogicChecker.AV_TEMPLATE, command.name(), idx + 1))
+                    .containsEntry("available", "true");
+                target.perform(command);
+            }
+            for (final String table : test.expectations.keySet()) {
+                softly
+                    .assertThat(target.decideFor(table))
+                    .describedAs(String.format("Table '%s'", table))
+                    .isEqualTo(test.expectations.get(table));
+            }
+            softly.assertAll();
+            LOGGER.info("Running test for %s... done".formatted(test.toString()));
+        } catch (final AssertionError error) {
+            LOGGER.severe("Running test for %s... failed".formatted(test.toString()));
+            LOGGER.severe(error.getMessage());
         }
-        for (final String table : test.expectations.keySet()) {
-            this.softly
-                .assertThat(target.decideFor(table))
-                .describedAs(String.format("Table '%s'", table))
-                .isEqualTo(test.expectations.get(table));
-        }
-        this.softly.assertAll();
     }
 
     @SuppressWarnings("unchecked")
@@ -121,15 +131,21 @@ class StateBasedTest {
     @SuppressWarnings("unchecked")
     private static List<Transition> extractCommands(final Object next) {
         final Map<String, List<Object>> commands = (Map<String, List<Object>>) next;
-        return commands.getOrDefault("commands", List.of()).stream()
-            .map(entry -> {
-                Map<String, Object> map = (Map<String, Object>) entry;
-                return new Transition((String) map.get("name"), requestLocator((Map<String, Object>) map.get("request")));
-            })
+        return commands.getOrDefault("commands", List.of())
+            .stream()
+            .map(entry -> transitionFrom((Map<String, Object>) entry))
             .toList();
     }
 
-    private static Locators requestLocator(Map<String, Object> entry) {
+    @SuppressWarnings("unchecked")
+    private static Transition transitionFrom(final Map<String, Object> entry) {
+        return new Transition(
+            (String) entry.get("name"),
+            requestLocator((Map<String, Object>) entry.get("request"))
+        );
+    }
+
+    private static Locators requestLocator(final Map<String, Object> entry) {
         return new Locators(Map.of("request", new InMemoryStorage(entry)));
     }
 
@@ -157,33 +173,15 @@ class StateBasedTest {
     /**
      * I am the helper class containing the data for parameterized state tests.
      *
+     * @param file The path to the file containing state and expectations.
+     * @param commands The collection of commands to execute before the decision.
+     * @param expectations The collection of expected decision table results.
      * @since 0.2.3
      */
-    @Getter
-    @SuppressWarnings("PMD.TestClassWithoutTestCases")
-    public static class TestData {
-        /**
-         * Path to the file containing state and expectations.
-         */
-        private final String file;
-
-        /**
-         * The collection of commands to execute before the decision.
-         */
-        private final List<Transition> commands;
-
-        /**
-         * The collection of expected decision table results.
-         */
-        private final Map<String, Map<String, String>> expectations;
-
-        TestData(final String file,
-                 final List<Transition> commands,
-                 final Map<String, Map<String, String>> expectations) {
-            this.file = file;
-            this.commands = commands;
-            this.expectations = expectations;
-        }
+    public record TestData(
+        String file,
+        List<Transition> commands,
+        Map<String, Map<String, String>> expectations) {
 
         @Override
         public String toString() {

@@ -24,11 +24,8 @@
 
 package ru.ewc.checklogic;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.nio.file.Files;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -45,12 +42,15 @@ import ru.ewc.decisions.api.Locators;
  * @since 0.1.0
  */
 @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
-public class Computation {
+public final class Computation {
     /**
      * Facade for making all the decisions.
      */
     private final DecitaFacade decisions;
 
+    /**
+     * Facade for executing all the commands.
+     */
     private final CommandsFacade commands;
 
     /**
@@ -62,14 +62,13 @@ public class Computation {
      * Ctor.
      *
      * @param tables Path to the folder with decision tables.
-     * @param test Path to yaml describing the current system's state.
+     * @param commands Path to the folder with commands.
+     * @param stream Path to yaml describing the current system's state.
      */
-    public Computation(final URI tables, final URI commands, final URI test) throws IOException {
+    public Computation(final URI tables, final URI commands, final InputStream stream) {
         this.decisions = new DecitaFacade(tables, ".csv", ";");
         this.commands = new CommandsFacade(commands, this.decisions);
-        try (InputStream stream = Files.newInputStream(new File(test).toPath())) {
-            this.state = stateFrom(stream);
-        }
+        this.state = stateFrom(stream);
     }
 
     /**
@@ -92,15 +91,21 @@ public class Computation {
      * Computes the decision for a specified table.
      *
      * @param table Name of the tables to make a decision against.
+     * @param locators The locators to use for the decision.
      * @return The collection of outcomes from the specified table.
      * @throws DecitaException If the table could not be found or computed.
      */
-    public Map<String, String> decideFor(final String table, Locators locators) throws DecitaException {
+    public Map<String, String> decideFor(final String table, final Locators locators)
+        throws DecitaException {
         return this.decisions.decisionFor(table, this.state.mergedWith(locators));
     }
 
     public Map<String, String> decideFor(final String table) throws DecitaException {
         return this.decisions.decisionFor(table, this.state);
+    }
+
+    public void perform(final Transition command) {
+        this.commands.perform(command.name(), this.state.mergedWith(command.request()));
     }
 
     /**
@@ -132,7 +137,4 @@ public class Computation {
         return e -> new InMemoryStorage(e.getValue());
     }
 
-    public void perform(Transition command) {
-        commands.perform(command.name, this.state.mergedWith(command.request));
-    }
 }

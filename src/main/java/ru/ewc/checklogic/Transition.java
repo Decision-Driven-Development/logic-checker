@@ -25,13 +25,14 @@ package ru.ewc.checklogic;
 
 import ru.ewc.decisions.api.Locators;
 
-public class Transition {
-    final String name;
-
-    final Locators request;
-
-    public Transition(String name, Locators request) {
-        this.name = name;
-        this.request = request;
-    }
+/**
+ * The Transition class represents a transition in a decision-making process.
+ * Each transition has a name and a request, represented by a Locators object.
+ *
+ * @param name The name of the command that triggers the transition.
+ * @param request The request data that is needed for the transition.
+ *
+ * @since 0.3.0
+ */
+public record Transition(String name, Locators request) {
 }

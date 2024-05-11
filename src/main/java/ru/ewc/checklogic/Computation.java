@@ -21,60 +21,54 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package ru.ewc.checklogic;
 
-import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
-import java.nio.file.Files;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import lombok.SneakyThrows;
 import org.yaml.snakeyaml.Yaml;
-import ru.ewc.decita.ComputationContext;
-import ru.ewc.decita.DecisionTable;
-import ru.ewc.decita.DecitaException;
-import ru.ewc.decita.DecitaFacade;
-import ru.ewc.decita.InMemoryStorage;
-import ru.ewc.decita.Locator;
-import ru.ewc.decita.Locators;
-import ru.ewc.decita.input.ContentReader;
-import ru.ewc.decita.input.PlainTextContentReader;
+import ru.ewc.commands.CommandsFacade;
+import ru.ewc.decisions.api.DecitaException;
+import ru.ewc.decisions.api.DecitaFacade;
+import ru.ewc.decisions.api.Locator;
+import ru.ewc.decisions.api.Locators;
 
 /**
- * I am a unique instance of a {@link DecisionTable} computation.
+ * I am a unique instance of a decision table computation.
  *
  * @since 0.1.0
  */
 @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
-public class Computation {
+public final class Computation {
     /**
-     * An instance of object that reads all the tables from disk.
+     * Facade for making all the decisions.
      */
-    private final ContentReader tables;
+    private final DecitaFacade decisions;
 
     /**
-     * A URI pointing to a state yaml file.
+     * Facade for executing all the commands.
      */
-    private final URI state;
+    private final CommandsFacade commands;
 
     /**
-     * Default Ctor.
+     * The current state of the system.
      */
-    public Computation() {
-        this(() -> new Locators(Map.of()), null);
-    }
+    private final Locators state;
 
     /**
      * Ctor.
      *
-     * @param tables Reader that can read tables data from the file system.
-     * @param state Path to yaml describing the current system's state.
+     * @param tables Path to the folder with decision tables.
+     * @param commands Path to the folder with commands.
+     * @param stream Path to yaml describing the current system's state.
      */
-    private Computation(final ContentReader tables, final URI state) {
-        this.tables = tables;
-        this.state = state;
+    public Computation(final URI tables, final URI commands, final InputStream stream) {
+        this.decisions = new DecitaFacade(tables, ".csv", ";");
+        this.commands = new CommandsFacade(commands, this.decisions);
+        this.state = stateFrom(stream);
     }
 
     /**
@@ -94,62 +88,24 @@ public class Computation {
     }
 
     /**
-     * Reads all the tables from disk in a format suitable to construct {@link ComputationContext}.
-     *
-     * @return A dictionary of {@link DecisionTable}s.
-     */
-    public Locators tablesAsLocators() {
-        return this.tables.allTables();
-    }
-
-    /**
-     * Creates a copy of this instance with a new path to state yaml.
-     *
-     * @param path Path to a file that holds the current state's description.
-     * @return A new instance of {@link Computation}.
-     */
-    public Computation statePath(final String path) {
-        return new Computation(
-            this.tables,
-            uriFrom(path)
-        );
-    }
-
-    /**
-     * Creates a copy of this instance with a new path to tables folder.
-     *
-     * @param path Path to a folder containing all the decision tables.
-     * @return A new instance of {@link Computation}.
-     */
-    public Computation tablePath(final String path) {
-        return new Computation(
-            new PlainTextContentReader(uriFrom(path), ".csv", ";"),
-            this.state
-        );
-    }
-
-    /**
-     * Converts yaml data read from input stream to a correct {@link InMemoryStorage} object.
-     *
-     * @return The collection of {@link InMemoryStorage} objects.
-     */
-    @SneakyThrows
-    public Locators currentState() {
-        try (InputStream stream = Files.newInputStream(new File(this.state).toPath())) {
-            return stateFrom(stream);
-        }
-    }
-
-    /**
      * Computes the decision for a specified table.
      *
      * @param table Name of the tables to make a decision against.
+     * @param locators The locators to use for the decision.
      * @return The collection of outcomes from the specified table.
      * @throws DecitaException If the table could not be found or computed.
      */
+    public Map<String, String> decideFor(final String table, final Locators locators)
+        throws DecitaException {
+        return this.decisions.decisionFor(table, this.state.mergedWith(locators));
+    }
+
     public Map<String, String> decideFor(final String table) throws DecitaException {
-        final DecitaFacade facade = new DecitaFacade(this::tablesAsLocators);
-        return facade.decisionFor(table, this.currentState());
+        return this.decisions.decisionFor(table, this.state);
+    }
+
+    public void perform(final Transition command) {
+        this.commands.perform(command.name(), this.state.mergedWith(command.request()));
     }
 
     /**
@@ -158,14 +114,18 @@ public class Computation {
      * @param stream InputStream containing state info.
      * @return Collection of {@link Locator} objects, containing desired state.
      */
-    @SuppressWarnings("unchecked")
     private static Locators stateFrom(final InputStream stream) {
         return new Locators(
-            ((Map<String, Map<String, Object>>) new Yaml().loadAll(stream).iterator().next())
+            stateFromFile(stream)
                 .entrySet()
                 .stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entryToLocator()))
         );
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Map<String, Object>> stateFromFile(final InputStream stream) {
+        return (Map<String, Map<String, Object>>) new Yaml().loadAll(stream).iterator().next();
     }
 
     /**
@@ -176,4 +136,5 @@ public class Computation {
     private static Function<Map.Entry<String, Map<String, Object>>, Locator> entryToLocator() {
         return e -> new InMemoryStorage(e.getValue());
     }
+
 }

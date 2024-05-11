@@ -1,7 +1,5 @@
-request:
-  player: "X"
-  move: "A1"
 table:
+  nextPlayer: "O"
   currentPlayer: "X"
 cells:
   A1: "empty"
@@ -14,5 +12,12 @@ cells:
   C2: "empty"
   C3: "empty"
 ---
-computed_move:
-  available: "true"
+commands:
+  - name: "computed_move"
+    request:
+      player: "X"
+      move: "A1"
+---
+game_state:
+  is_over: "false"
+  winner: "none"

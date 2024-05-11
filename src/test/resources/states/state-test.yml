@@ -9,6 +9,8 @@ market:
 currentPlayer:
   name: "Eugene"
 ---
+commands: []
+---
 sample-table:
   text: "hello world"
   outcome: "true"

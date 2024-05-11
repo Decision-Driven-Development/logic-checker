@@ -9,4 +9,4 @@ cells::C1;~;~;~;~;~;~;empty;~;~
 cells::C2;~;~;~;~;~;~;~;empty;~
 cells::C3;~;~;~;~;~;~;~;~;empty
 ---
-is_empty;true;true;true;true;true;true;true;true;true
+is_empty;true;true;true;true;true;true;true;true;true;false

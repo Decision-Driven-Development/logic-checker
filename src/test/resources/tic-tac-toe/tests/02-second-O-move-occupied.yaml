@@ -14,5 +14,7 @@ cells:
   C2: "empty"
   C3: "empty"
 ---
+commands: []
+---
 computed_move:
   available: "false"

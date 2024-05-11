@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -42,6 +41,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.yaml.snakeyaml.Yaml;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * End-to-end tests based on yaml descriptions.
@@ -74,8 +74,7 @@ class StateBasedTest {
                         throw new IllegalStateException(exception);
                     }
                     return createTestData(path, stream);
-                })
-            .filter(Objects::nonNull);
+                });
     }
 
     @SneakyThrows
@@ -84,9 +83,13 @@ class StateBasedTest {
     void testPerformingFileBasedTest(final TestData test) {
         final Computation target = new Computation(
             Computation.uriFrom(getFinalPathTo("tables")),
+            Computation.uriFrom(getFinalPathTo("commands")),
             Computation.uriFrom(test.file)
         );
         for (final String command : test.commands) {
+            assertThat(target.decideFor(command))
+                .describedAs(String.format("Command '%s' should be available", command))
+                .containsEntry("available", "true");
             target.perform(command);
         }
         for (final String table : test.expectations.keySet()) {

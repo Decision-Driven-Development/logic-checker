@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.yaml.snakeyaml.Yaml;
+import ru.ewc.commands.CommandsFacade;
 import ru.ewc.decisions.api.DecitaException;
 import ru.ewc.decisions.api.DecitaFacade;
 import ru.ewc.decisions.api.Locator;
@@ -48,7 +49,9 @@ public class Computation {
     /**
      * Facade for making all the decisions.
      */
-    private final DecitaFacade facade;
+    private final DecitaFacade decisions;
+
+    private final CommandsFacade commands;
 
     /**
      * The current state of the system.
@@ -59,11 +62,12 @@ public class Computation {
      * Ctor.
      *
      * @param tables Path to the folder with decision tables.
-     * @param path Path to yaml describing the current system's state.
+     * @param test Path to yaml describing the current system's state.
      */
-    public Computation(final URI tables, final URI path) throws IOException {
-        this.facade = new DecitaFacade(tables, ".csv", ";");
-        try (InputStream stream = Files.newInputStream(new File(path).toPath())) {
+    public Computation(final URI tables, final URI commands, final URI test) throws IOException {
+        this.decisions = new DecitaFacade(tables, ".csv", ";");
+        this.commands = new CommandsFacade(commands, this.decisions);
+        try (InputStream stream = Files.newInputStream(new File(test).toPath())) {
             this.state = stateFrom(stream);
         }
     }
@@ -92,7 +96,7 @@ public class Computation {
      * @throws DecitaException If the table could not be found or computed.
      */
     public Map<String, String> decideFor(final String table) throws DecitaException {
-        return this.facade.decisionFor(table, this.state);
+        return this.decisions.decisionFor(table, this.state);
     }
 
     /**
@@ -125,6 +129,6 @@ public class Computation {
     }
 
     public void perform(String command) {
-        this.facade.decisionFor(command, this.state);
+        commands.perform(command, this.state);
     }
 }

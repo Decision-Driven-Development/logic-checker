@@ -28,7 +28,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -39,10 +42,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.yaml.snakeyaml.Yaml;
-import ru.ewc.decisions.core.DecisionTable;
 
 /**
- * Tests for {@link DecisionTable}.
+ * End-to-end tests based on yaml descriptions.
  *
  * @since 0.1
  */
@@ -80,9 +82,13 @@ class StateBasedTest {
     @ParameterizedTest(name = "{0}")
     @MethodSource("readFileNames")
     void testPerformingFileBasedTest(final TestData test) {
-        final Computation target = new Computation()
-            .tablePath(getFinalPathTo("tables"))
-            .statePath(test.file);
+        final Computation target = new Computation(
+            Computation.uriFrom(getFinalPathTo("tables")),
+            Computation.uriFrom(test.file)
+        );
+        for (final String command : test.commands) {
+            target.perform(command);
+        }
         for (final String table : test.expectations.keySet()) {
             this.softly
                 .assertThat(target.decideFor(table))
@@ -96,11 +102,21 @@ class StateBasedTest {
     private static TestData createTestData(final String path, final InputStream stream) {
         final Iterator<Object> iterator = new Yaml().loadAll(stream).iterator();
         iterator.next();
-        TestData result = null;
+        List<String> commands = new ArrayList<>(1);
         if (iterator.hasNext()) {
-            result = new TestData(path, (Map<String, Map<String, String>>) iterator.next());
+            commands = extractCommands(iterator.next());
         }
-        return result;
+        Map<String, Map<String, String>> expectations = new HashMap<>();
+        if (iterator.hasNext()) {
+            expectations = (Map<String, Map<String, String>>) iterator.next();
+        }
+        return new TestData(path, commands, expectations);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static List<String> extractCommands(final Object next) {
+        final Map<String, List<String>> commands = (Map<String, List<String>>) next;
+        return commands.get("commands");
     }
 
     /**
@@ -138,12 +154,20 @@ class StateBasedTest {
         private final String file;
 
         /**
+         * The collection of commands to execute before the decision.
+         */
+        private final List<String> commands;
+
+        /**
          * The collection of expected decision table results.
          */
         private final Map<String, Map<String, String>> expectations;
 
-        TestData(final String file, final Map<String, Map<String, String>> expectations) {
+        TestData(final String file,
+                 final List<String> commands,
+                 final Map<String, Map<String, String>> expectations) {
             this.file = file;
+            this.commands = commands;
             this.expectations = expectations;
         }
 

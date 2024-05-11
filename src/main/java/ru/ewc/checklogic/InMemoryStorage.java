@@ -54,7 +54,7 @@ public final class InMemoryStorage implements Locator {
     }
 
     @Override
-    public void setFragmentValue(String fragment, String value) {
+    public void setFragmentValue(final String fragment, final String value) {
         this.storage.put(fragment, value);
     }
 }

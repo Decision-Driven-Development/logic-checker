@@ -25,13 +25,13 @@
 package ru.ewc.checklogic;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import lombok.SneakyThrows;
 import org.yaml.snakeyaml.Yaml;
 import ru.ewc.decisions.api.DecitaException;
 import ru.ewc.decisions.api.DecitaFacade;
@@ -46,31 +46,26 @@ import ru.ewc.decisions.api.Locators;
 @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
 public class Computation {
     /**
-     * Facade for making all the decisions
+     * Facade for making all the decisions.
      */
     private final DecitaFacade facade;
 
     /**
-     * A URI pointing to a state yaml file.
+     * The current state of the system.
      */
-    private final URI state;
-
-    /**
-     * Default Ctor.
-     */
-    public Computation() {
-        this(new DecitaFacade(() -> new Locators(Map.of())), null);
-    }
+    private final Locators state;
 
     /**
      * Ctor.
      *
-     * @param facade Reader that can read tables data from the file system.
-     * @param state Path to yaml describing the current system's state.
+     * @param tables Path to the folder with decision tables.
+     * @param path Path to yaml describing the current system's state.
      */
-    private Computation(final DecitaFacade facade, final URI state) {
-        this.facade = facade;
-        this.state = state;
+    public Computation(final URI tables, final URI path) throws IOException {
+        this.facade = new DecitaFacade(tables, ".csv", ";");
+        try (InputStream stream = Files.newInputStream(new File(path).toPath())) {
+            this.state = stateFrom(stream);
+        }
     }
 
     /**
@@ -90,44 +85,6 @@ public class Computation {
     }
 
     /**
-     * Creates a copy of this instance with a new path to state yaml.
-     *
-     * @param path Path to a file that holds the current state's description.
-     * @return A new instance of {@link Computation}.
-     */
-    public Computation statePath(final String path) {
-        return new Computation(
-            this.facade,
-            uriFrom(path)
-        );
-    }
-
-    /**
-     * Creates a copy of this instance with a new path to tables folder.
-     *
-     * @param path Path to a folder containing all the decision tables.
-     * @return A new instance of {@link Computation}.
-     */
-    public Computation tablePath(final String path) {
-        return new Computation(
-            new DecitaFacade(uriFrom(path), ".csv", ";"),
-            this.state
-        );
-    }
-
-    /**
-     * Converts yaml data read from input stream to a correct {@link InMemoryStorage} object.
-     *
-     * @return The collection of {@link InMemoryStorage} objects.
-     */
-    @SneakyThrows
-    public Locators currentState() {
-        try (InputStream stream = Files.newInputStream(new File(this.state).toPath())) {
-            return stateFrom(stream);
-        }
-    }
-
-    /**
      * Computes the decision for a specified table.
      *
      * @param table Name of the tables to make a decision against.
@@ -135,7 +92,7 @@ public class Computation {
      * @throws DecitaException If the table could not be found or computed.
      */
     public Map<String, String> decideFor(final String table) throws DecitaException {
-        return this.facade.decisionFor(table, this.currentState());
+        return this.facade.decisionFor(table, this.state);
     }
 
     /**
@@ -144,14 +101,18 @@ public class Computation {
      * @param stream InputStream containing state info.
      * @return Collection of {@link Locator} objects, containing desired state.
      */
-    @SuppressWarnings("unchecked")
     private static Locators stateFrom(final InputStream stream) {
         return new Locators(
-            ((Map<String, Map<String, Object>>) new Yaml().loadAll(stream).iterator().next())
+            stateFromFile(stream)
                 .entrySet()
                 .stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entryToLocator()))
         );
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Map<String, Object>> stateFromFile(final InputStream stream) {
+        return (Map<String, Map<String, Object>>) new Yaml().loadAll(stream).iterator().next();
     }
 
     /**
@@ -161,5 +122,9 @@ public class Computation {
      */
     private static Function<Map.Entry<String, Map<String, Object>>, Locator> entryToLocator() {
         return e -> new InMemoryStorage(e.getValue());
+    }
+
+    public void perform(String command) {
+        this.facade.decisionFor(command, this.state);
     }
 }

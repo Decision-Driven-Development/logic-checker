@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package ru.ewc.checklogic;
 
 import java.io.File;
@@ -32,27 +33,22 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import org.yaml.snakeyaml.Yaml;
-import ru.ewc.decita.ComputationContext;
-import ru.ewc.decita.DecisionTable;
-import ru.ewc.decita.DecitaException;
-import ru.ewc.decita.DecitaFacade;
-import ru.ewc.decita.InMemoryStorage;
-import ru.ewc.decita.Locator;
-import ru.ewc.decita.Locators;
-import ru.ewc.decita.input.ContentReader;
-import ru.ewc.decita.input.PlainTextContentReader;
+import ru.ewc.decisions.api.DecitaException;
+import ru.ewc.decisions.api.DecitaFacade;
+import ru.ewc.decisions.api.Locator;
+import ru.ewc.decisions.api.Locators;
 
 /**
- * I am a unique instance of a {@link DecisionTable} computation.
+ * I am a unique instance of a decision table computation.
  *
  * @since 0.1.0
  */
 @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
 public class Computation {
     /**
-     * An instance of object that reads all the tables from disk.
+     * Facade for making all the decisions
      */
-    private final ContentReader tables;
+    private final DecitaFacade facade;
 
     /**
      * A URI pointing to a state yaml file.
@@ -63,17 +59,17 @@ public class Computation {
      * Default Ctor.
      */
     public Computation() {
-        this(() -> new Locators(Map.of()), null);
+        this(new DecitaFacade(() -> new Locators(Map.of())), null);
     }
 
     /**
      * Ctor.
      *
-     * @param tables Reader that can read tables data from the file system.
+     * @param facade Reader that can read tables data from the file system.
      * @param state Path to yaml describing the current system's state.
      */
-    private Computation(final ContentReader tables, final URI state) {
-        this.tables = tables;
+    private Computation(final DecitaFacade facade, final URI state) {
+        this.facade = facade;
         this.state = state;
     }
 
@@ -94,15 +90,6 @@ public class Computation {
     }
 
     /**
-     * Reads all the tables from disk in a format suitable to construct {@link ComputationContext}.
-     *
-     * @return A dictionary of {@link DecisionTable}s.
-     */
-    public Locators tablesAsLocators() {
-        return this.tables.allTables();
-    }
-
-    /**
      * Creates a copy of this instance with a new path to state yaml.
      *
      * @param path Path to a file that holds the current state's description.
@@ -110,7 +97,7 @@ public class Computation {
      */
     public Computation statePath(final String path) {
         return new Computation(
-            this.tables,
+            this.facade,
             uriFrom(path)
         );
     }
@@ -123,7 +110,7 @@ public class Computation {
      */
     public Computation tablePath(final String path) {
         return new Computation(
-            new PlainTextContentReader(uriFrom(path), ".csv", ";"),
+            new DecitaFacade(uriFrom(path), ".csv", ";"),
             this.state
         );
     }
@@ -148,8 +135,7 @@ public class Computation {
      * @throws DecitaException If the table could not be found or computed.
      */
     public Map<String, String> decideFor(final String table) throws DecitaException {
-        final DecitaFacade facade = new DecitaFacade(this::tablesAsLocators);
-        return facade.decisionFor(table, this.currentState());
+        return this.facade.decisionFor(table, this.currentState());
     }
 
     /**

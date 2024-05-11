@@ -39,7 +39,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.yaml.snakeyaml.Yaml;
-import ru.ewc.decita.DecisionTable;
+import ru.ewc.decisions.core.DecisionTable;
 
 /**
  * Tests for {@link DecisionTable}.

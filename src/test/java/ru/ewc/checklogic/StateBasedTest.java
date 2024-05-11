@@ -41,6 +41,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.yaml.snakeyaml.Yaml;
+import ru.ewc.decisions.api.Locators;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -86,9 +87,10 @@ class StateBasedTest {
             Computation.uriFrom(getFinalPathTo("commands")),
             Computation.uriFrom(test.file)
         );
-        for (final String command : test.commands) {
-            assertThat(target.decideFor(command))
-                .describedAs(String.format("Command '%s' should be available", command))
+        for (int i = 0; i < test.commands.size(); i++) {
+            Transition command = test.commands.get(i);
+            assertThat(target.decideFor(command.name, command.request))
+                .describedAs(String.format("Command '%s'[%d] should be available", command.name, i + 1))
                 .containsEntry("available", "true");
             target.perform(command);
         }
@@ -105,7 +107,7 @@ class StateBasedTest {
     private static TestData createTestData(final String path, final InputStream stream) {
         final Iterator<Object> iterator = new Yaml().loadAll(stream).iterator();
         iterator.next();
-        List<String> commands = new ArrayList<>(1);
+        List<Transition> commands = new ArrayList<>(1);
         if (iterator.hasNext()) {
             commands = extractCommands(iterator.next());
         }
@@ -117,9 +119,18 @@ class StateBasedTest {
     }
 
     @SuppressWarnings("unchecked")
-    private static List<String> extractCommands(final Object next) {
-        final Map<String, List<String>> commands = (Map<String, List<String>>) next;
-        return commands.get("commands");
+    private static List<Transition> extractCommands(final Object next) {
+        final Map<String, List<Object>> commands = (Map<String, List<Object>>) next;
+        return commands.getOrDefault("commands", List.of()).stream()
+            .map(entry -> {
+                Map<String, Object> map = (Map<String, Object>) entry;
+                return new Transition((String) map.get("name"), requestLocator((Map<String, Object>) map.get("request")));
+            })
+            .toList();
+    }
+
+    private static Locators requestLocator(Map<String, Object> entry) {
+        return new Locators(Map.of("request", new InMemoryStorage(entry)));
     }
 
     /**
@@ -159,7 +170,7 @@ class StateBasedTest {
         /**
          * The collection of commands to execute before the decision.
          */
-        private final List<String> commands;
+        private final List<Transition> commands;
 
         /**
          * The collection of expected decision table results.
@@ -167,7 +178,7 @@ class StateBasedTest {
         private final Map<String, Map<String, String>> expectations;
 
         TestData(final String file,
-                 final List<String> commands,
+                 final List<Transition> commands,
                  final Map<String, Map<String, String>> expectations) {
             this.file = file;
             this.commands = commands;

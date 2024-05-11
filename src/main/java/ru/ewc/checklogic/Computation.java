@@ -95,6 +95,10 @@ public class Computation {
      * @return The collection of outcomes from the specified table.
      * @throws DecitaException If the table could not be found or computed.
      */
+    public Map<String, String> decideFor(final String table, Locators locators) throws DecitaException {
+        return this.decisions.decisionFor(table, this.state.mergedWith(locators));
+    }
+
     public Map<String, String> decideFor(final String table) throws DecitaException {
         return this.decisions.decisionFor(table, this.state);
     }
@@ -128,7 +132,7 @@ public class Computation {
         return e -> new InMemoryStorage(e.getValue());
     }
 
-    public void perform(String command) {
-        commands.perform(command, this.state);
+    public void perform(Transition command) {
+        commands.perform(command.name, this.state.mergedWith(command.request));
     }
 }

@@ -113,7 +113,7 @@
     <dependency>
       <groupId>io.github.nergal-perm</groupId>
       <artifactId>java-decita</artifactId>
-      <version>0.5.1-RC</version>
+      <version>0.5.1</version>
     </dependency>
     <dependency>
       <groupId>com.jcabi</groupId>

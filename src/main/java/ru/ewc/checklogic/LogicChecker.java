@@ -64,6 +64,9 @@ public final class LogicChecker {
     }
 
     public static void main(final String[] args) {
+        if (args.length > 0) {
+            System.setProperty("sources", args[0]);
+        }
         readFileNames().forEach(test -> testPerformingFileBasedTest(test, new SoftAssertions()));
     }
 
@@ -157,7 +160,9 @@ public final class LogicChecker {
      */
     private static String getFinalPathTo(final String resource) {
         final String states;
-        if (System.getProperties().containsKey(resource)) {
+        if (System.getProperties().containsKey("sources")) {
+            states = String.format("%s/%s", System.getProperty("sources"), resource);
+        } else if (System.getProperties().containsKey(resource)) {
             states = System.getProperty(resource);
         } else {
             states = String.format(

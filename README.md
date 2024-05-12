@@ -5,29 +5,111 @@
 
 A tool to check the correctness of business-logic, described by decision tables and commands
 
-### Auto testing
+## Source files format
 
-If the state yaml files contain two sections, separated with `---`, it is possible to use them as
-autotests. It can be done with following Maven command:
+### Folder structure
 
-```shell
-mvn clean compile test -Dtest=StateBasedTest -Dtables=<path-to-tables-folder> -Dstates=<path-to-states-folder>
-```
+The tool is able to run autotests for decision tables and state machines. The folder structure for 
+every project should consist of the following folders:
 
-This command will scan all the yaml files in specified `states` folder and check if the expectations stated in
-the second section of those files hold true.
+- `commands` - folder with commands described in yaml format
+- `tables` - folder with decision tables
+- `states` - folder with initial state descriptions and test expectations
 
-The expectations should be stated in following format:
+### Commands
+
+Commands should be described like that:
 
 ```yaml
-table-name:
-  outcome1: "expected value"
-  outcome2: "expected value"
-another-table:
-  outcome1: "expected value"
-  outcome2: "expected value"
+operations:
+  - "cells::${request::move} -> ${request::player}"
+  - "table::currentPlayer -> ${table::nextPlayer}"
+  - "table::nextPlayer -> ${request::player}"
 ```
 
-All the expected values should be Strings.
+The only required top-level section is `operations`. It should contain a list of operations, in a 
+format of `target -> value`. The target must point to a valid Coordinate, i.e. a field of an entity
+in the system's state. The value can be a constant or a reference to another valid Coordinate. 
 
-Example of the state with expectation could be found in [state-test.yml](https://github.com/nergal-perm/Decision-Driven-Development/logic-checker/master/src/test/resources/states/state-test.yml).
+References are written in a format of `${source::field}`, they can be nested and point to any valid
+Coordinate.
+
+### Decision tables
+
+For the decision table to be processed, it should be in CSV format with semicolon (`;`) as a separator.
+The columns of the table represent rules, except for the first one, which contains the "base" of each
+condition. The rows in the first section (before `---`) represent the conditions, and the rows in the second
+section (after `---`) represent the outcomes.
+
+Every value in the conditions section should refer to a specific data fragment, which can be located
+by its description, called `Coordinate`. Coordinates consist of two parts: `Locator` - that is the
+name of the data domain, and `Identifier` - that is the name of the data fragment. Those parts are separated
+by `::`. For example, value `ui_button_create::enabled` refers to the `enabled` fragment of the
+`ui_button_create` locator.
+
+For the constant values, the `Locator` part can be omitted, so the value `5` refers to a constant value `5`.
+For the sake of completeness, the `Locator` part for constant values is `constant`, so it is possible to
+write `constant::5` instead of just `5` (but it is not necessary).
+
+The table cells in the conditions section should contain the condition description, consisting of
+the logical operator (if any), followed by the comparison operator (if any), followed by the value.
+
+If the comparison operator is omitted, it is assumed to be `==`, which means that the "base" value of
+the condition should be equal to the cell value for the condition to be true. Other comparison operators
+are `>` and `<`.
+
+The logical operators are used to modify the condition itself. The operator `~` means "any", so it is
+effectively means that the condition is always true. The operator `!` means "not", so it negates the
+specified condition.
+
+### Tests
+
+The tests are described in yaml format. The file should contain several sections, separated by `---`.
+
+1. Initial state - the description of the initial state of the system. It should contain the description
+of the data fragments, which are the Coordinates of the system's state. An example of the initial state
+description:
+
+```yaml
+request:
+  player: "O"
+  move: "A1"
+table:
+  currentPlayer: "X"
+cells:
+  A1: "empty"
+...
+```
+
+2. Commands - the list of commands to be executed. The commands are described like that:
+
+```yaml
+commands:
+  - name: "computed_move"
+    request:
+      player: "X"
+      move: "A1"
+```
+
+So, every command should have a name and a description of the request. The request should contain the
+description of the data fragments, which are the Coordinates of the system's state.
+
+3. Expectations - the expected result of decision tables computation after all the commands are executed.
+The expectations should be described in the following format:
+
+```yaml
+game_state:
+  is_over: "false"
+  winner: "none"
+```
+
+It looks like the description of the initial state, but the upper-level keys are the names of the 
+decision tables, and the lower-level keys are the names of the outcomes with their expected values.
+
+## Running the tests
+
+The tests are run by issuing the following command:
+
+```bash
+java -jar logic-checker.jar <absolute-path-to-the-project-folder>
+```

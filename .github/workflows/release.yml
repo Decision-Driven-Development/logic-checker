@@ -3,17 +3,15 @@ name: "Release"
 on:
   push:
     tags:
-      - 'v*'
-
+      - "v*"
 jobs:
   tagged-release:
     name: "Tagged Release"
-    runs-on: {{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: ["ubuntu-latest"]
         java: [17]
-
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4

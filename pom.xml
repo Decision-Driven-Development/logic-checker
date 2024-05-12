@@ -36,7 +36,7 @@
 
   <groupId>io.github.decision-driven</groupId>
   <artifactId>logic-checker</artifactId>
-  <version>0.0.2</version>
+  <version>0.0.3</version>
   <packaging>jar</packaging>
 
   <name>Abstract business logic checker</name>

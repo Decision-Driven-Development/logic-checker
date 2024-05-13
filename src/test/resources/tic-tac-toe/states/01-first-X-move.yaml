@@ -21,3 +21,8 @@ commands:
 game_state:
   is_over: "false"
   winner: "none"
+cells:
+  A1: "X"
+table:
+  nextPlayer: "X"
+  currentPlayer: "O"

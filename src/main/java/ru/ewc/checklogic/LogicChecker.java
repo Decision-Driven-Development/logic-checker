@@ -103,10 +103,17 @@ public final class LogicChecker {
                 target.perform(command);
             }
             for (final String table : test.expectations.keySet()) {
-                softly
-                    .assertThat(target.decideFor(table))
-                    .describedAs(String.format("Table '%s'", table))
-                    .isEqualTo(test.expectations.get(table));
+                if (target.hasStateFor(table)) {
+                    softly
+                        .assertThat(target.stateFor(table, test.expectations.get(table)))
+                        .describedAs(String.format("State for entity '%s'", table))
+                        .containsExactlyInAnyOrderEntriesOf(test.expectations.get(table));
+                } else {
+                    softly
+                        .assertThat(target.decideFor(table))
+                        .describedAs(String.format("Table '%s'", table))
+                        .isEqualTo(test.expectations.get(table));
+                }
             }
             softly.assertAll();
             LOGGER.info("Running test for %s... done".formatted(test.toString()));

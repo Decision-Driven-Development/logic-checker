@@ -26,11 +26,13 @@ package ru.ewc.checklogic;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.yaml.snakeyaml.Yaml;
 import ru.ewc.commands.CommandsFacade;
+import ru.ewc.decisions.api.ComputationContext;
 import ru.ewc.decisions.api.DecitaException;
 import ru.ewc.decisions.api.DecitaFacade;
 import ru.ewc.decisions.api.Locator;
@@ -106,6 +108,20 @@ public final class Computation {
 
     public void perform(final Transition command) {
         this.commands.perform(command.name(), this.state.mergedWith(command.request()));
+    }
+
+    public boolean hasStateFor(String table) {
+        return this.state.hasLocator(table);
+    }
+
+    public Map<String, String> stateFor(String table, Map<String, String> state) {
+        final Locator locator = this.state.locatorFor(table);
+        final ComputationContext context = new ComputationContext(this.state);
+        Map<String, String> actual = new HashMap<>(state.size());
+        for (String s : state.keySet()) {
+            actual.put(s, locator.fragmentBy(s, context));
+        }
+        return actual;
     }
 
     /**

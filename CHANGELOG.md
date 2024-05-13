@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.2.0](https://github.com/Decision-Driven-Development/logic-checker/compare/v0.1.1...v0.2.0) (2024-05-13)
+
+
+### Features
+
+* ability to make assertions against state ([0ec58d0](https://github.com/Decision-Driven-Development/logic-checker/commit/0ec58d0d82be55fa1f6bb8b9537868378f0142d9)), closes [#6](https://github.com/Decision-Driven-Development/logic-checker/issues/6)
+
 ### [0.1.1](https://github.com/Decision-Driven-Development/logic-checker/compare/v0.1.0...v0.1.1) (2024-05-12)
 
 ## [0.1.0](https://github.com/Decision-Driven-Development/logic-checker/compare/v0.0.3...v0.1.0) (2024-05-12)

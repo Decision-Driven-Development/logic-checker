@@ -67,7 +67,7 @@ public final class LogicChecker {
         if (args.length > 0) {
             System.setProperty("sources", args[0]);
         }
-        readFileNames().forEach(test -> testPerformingFileBasedTest(test, new SoftAssertions()));
+        readFileNames().forEach(test -> performTest(test, new SoftAssertions()));
     }
 
     @SneakyThrows
@@ -88,7 +88,7 @@ public final class LogicChecker {
     }
 
     @SneakyThrows
-    static void testPerformingFileBasedTest(final TestData test, final SoftAssertions softly) {
+    static void performTest(final TestData test, final SoftAssertions softly) {
         final Computation target = new Computation(
             Computation.uriFrom(getFinalPathTo("tables")),
             Computation.uriFrom(getFinalPathTo("commands")),

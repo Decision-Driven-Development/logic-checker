@@ -110,16 +110,16 @@ public final class Computation {
         this.commands.perform(command.name(), this.state.mergedWith(command.request()));
     }
 
-    public boolean hasStateFor(String table) {
+    public boolean hasStateFor(final String table) {
         return this.state.hasLocator(table);
     }
 
-    public Map<String, String> stateFor(String table, Map<String, String> state) {
+    public Map<String, String> stateFor(final String table, final Map<String, String> entities) {
         final Locator locator = this.state.locatorFor(table);
         final ComputationContext context = new ComputationContext(this.state);
-        Map<String, String> actual = new HashMap<>(state.size());
-        for (String s : state.keySet()) {
-            actual.put(s, locator.fragmentBy(s, context));
+        final Map<String, String> actual = new HashMap<>(entities.size());
+        for (final String fragment : entities.keySet()) {
+            actual.put(fragment, locator.fragmentBy(fragment, context));
         }
         return actual;
     }

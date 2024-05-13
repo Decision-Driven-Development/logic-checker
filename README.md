@@ -94,8 +94,8 @@ commands:
 So, every command should have a name and a description of the request. The request should contain the
 description of the data fragments, which are the Coordinates of the system's state.
 
-3. Expectations - the expected result of decision tables computation after all the commands are executed.
-The expectations should be described in the following format:
+3. Expectations - the expected result of decision tables computation OR state of the entities after 
+all the commands are executed. The expectations should be described in the following format:
 
 ```yaml
 game_state:
@@ -103,8 +103,9 @@ game_state:
   winner: "none"
 ```
 
-It looks like the description of the initial state, but the upper-level keys are the names of the 
-decision tables, and the lower-level keys are the names of the outcomes with their expected values.
+If it is the assertion on a decision table, then the upper-level key should be the name of the 
+decision table, and the lower-level keys are the names of the outcomes with their expected values.
+If it is the assertion on a state, then it's the same format as in the initial state description.
 
 ## Running the tests
 

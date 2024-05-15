@@ -26,7 +26,6 @@ package ru.ewc.checklogic;
 
 import com.renomad.minum.web.FullSystem;
 import com.renomad.minum.web.RequestLine;
-import com.renomad.minum.web.Response;
 import com.renomad.minum.web.WebFramework;
 import java.io.File;
 import java.io.IOException;
@@ -44,6 +43,7 @@ import lombok.SneakyThrows;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.yaml.snakeyaml.Yaml;
+import ru.ewc.checklogic.server.StatePage;
 import ru.ewc.decisions.api.Locators;
 
 /**
@@ -71,11 +71,8 @@ public final class LogicChecker {
         if (args.length == 1 && "server".equals(args[0])) {
             final FullSystem minum = FullSystem.initialize();
             final WebFramework web = minum.getWebFramework();
-            web.registerPath(
-                RequestLine.Method.GET,
-                "",
-                r -> Response.htmlOk("<h1>It works!</h1>")
-            );
+            final StatePage state = new StatePage();
+            web.registerPath(RequestLine.Method.GET, "", state::statePage);
             minum.block();
         }
         if (args.length > 0) {

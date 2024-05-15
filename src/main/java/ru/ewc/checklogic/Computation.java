@@ -114,6 +114,7 @@ public final class Computation {
         return this.state.hasLocator(table);
     }
 
+    // @todo #10 Get the whole stored State (no table computations, just stored values)
     public Map<String, String> stateFor(final String table, final Map<String, String> entities) {
         final Locator locator = this.state.locatorFor(table);
         final ComputationContext context = new ComputationContext(this.state);

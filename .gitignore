@@ -29,3 +29,6 @@ replay_pid*
 *.ipr
 *.iws
 .idea/
+
+# Runtime artifacts
+SYSTEM_RUNNING

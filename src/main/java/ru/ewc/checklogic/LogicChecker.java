@@ -24,6 +24,10 @@
 
 package ru.ewc.checklogic;
 
+import com.renomad.minum.web.FullSystem;
+import com.renomad.minum.web.RequestLine;
+import com.renomad.minum.web.Response;
+import com.renomad.minum.web.WebFramework;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -64,6 +68,16 @@ public final class LogicChecker {
     }
 
     public static void main(final String[] args) {
+        if (args.length == 1 && "server".equals(args[0])) {
+            final FullSystem minum = FullSystem.initialize();
+            final WebFramework web = minum.getWebFramework();
+            web.registerPath(
+                RequestLine.Method.GET,
+                "",
+                r -> Response.htmlOk("<h1>It works!</h1>")
+            );
+            minum.block();
+        }
         if (args.length > 0) {
             System.setProperty("sources", args[0]);
         }

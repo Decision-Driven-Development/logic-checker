@@ -6,4 +6,5 @@ module logic.checker {
     requires org.hamcrest;
     requires net.bytebuddy;
     requires java.logging;
+    requires minum;
 }

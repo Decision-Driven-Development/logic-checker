@@ -57,4 +57,9 @@ public final class InMemoryStorage implements Locator {
     public void setFragmentValue(final String fragment, final String value) {
         this.storage.put(fragment, value);
     }
+
+    @Override
+    public Map<String, Object> state() {
+        return this.storage;
+    }
 }

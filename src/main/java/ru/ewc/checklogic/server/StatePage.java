@@ -33,6 +33,9 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.stream.Collectors;
+import ru.ewc.checklogic.Computation;
+import ru.ewc.checklogic.Transition;
+import ru.ewc.decisions.api.Locators;
 
 /**
  * I am the configuration and logic for the state web page.
@@ -45,7 +48,13 @@ public final class StatePage {
      */
     private final TemplateProcessor template;
 
-    public StatePage() {
+    /**
+     * An instance of an object tracking the application state.
+     */
+    private final Computation computation;
+
+    public StatePage(final Computation computation) {
+        this.computation = computation;
         this.template = TemplateProcessor.buildProcessor(
             readFileFromResources("templates/state.html")
         );
@@ -53,6 +62,7 @@ public final class StatePage {
 
     // @todo #10 Design the html for the state page
     public Response statePage(final Request request) {
+        this.computation.perform(new Transition("initialize", new Locators(Map.of())));
         return Response.htmlOk(this.template.renderTemplate(Map.of()));
     }
 

@@ -13,6 +13,8 @@ cells:
   C3: "empty"
 ---
 commands:
+  - name: "initialize"
+    request: {}
   - name: "computed_move"
     request:
       player: "X"

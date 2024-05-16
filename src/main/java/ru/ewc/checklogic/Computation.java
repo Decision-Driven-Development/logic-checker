@@ -55,6 +55,7 @@ public final class Computation {
      */
     private final CommandsFacade commands;
 
+    // @todo #12 Expose the state of the Locators
     /**
      * The current state of the system.
      */
@@ -68,9 +69,14 @@ public final class Computation {
      * @param stream Path to yaml describing the current system's state.
      */
     public Computation(final URI tables, final URI commands, final InputStream stream) {
+        this(tables, commands, stateFromFile(stream));
+    }
+
+    // @todo #12 Encapsulate state dictionaries into a dedicated object
+    public Computation(final URI tables, final URI commands, final Map<String, Map<String, Object>> state) {
         this.decisions = new DecitaFacade(tables, ".csv", ";");
         this.commands = new CommandsFacade(commands, this.decisions);
-        this.state = stateFrom(stream);
+        this.state = stateFrom(state);
     }
 
     /**
@@ -131,9 +137,9 @@ public final class Computation {
      * @param stream InputStream containing state info.
      * @return Collection of {@link Locator} objects, containing desired state.
      */
-    private static Locators stateFrom(final InputStream stream) {
+    private static Locators stateFrom(final Map<String, Map<String, Object>> stream) {
         return new Locators(
-            stateFromFile(stream)
+            stream
                 .entrySet()
                 .stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entryToLocator()))
@@ -153,5 +159,4 @@ public final class Computation {
     private static Function<Map.Entry<String, Map<String, Object>>, Locator> entryToLocator() {
         return e -> new InMemoryStorage(e.getValue());
     }
-
 }

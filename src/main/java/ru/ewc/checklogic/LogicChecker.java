@@ -67,18 +67,26 @@ public final class LogicChecker {
         // Utility class
     }
 
+    // @todo #12 Load the whole set of all the storage Locators
     public static void main(final String[] args) {
-        if (args.length == 1 && "server".equals(args[0])) {
+        if (args.length > 1 && "server".equals(args[0])) {
+            System.setProperty("sources", args[1]);
+            final Computation target = new Computation(
+                Computation.uriFrom(getFinalPathTo("tables")),
+                Computation.uriFrom(getFinalPathTo("commands")),
+                new HashMap<>()
+            );
             final FullSystem minum = FullSystem.initialize();
             final WebFramework web = minum.getWebFramework();
-            final StatePage state = new StatePage();
+            final StatePage state = new StatePage(target);
             web.registerPath(RequestLine.Method.GET, "", state::statePage);
             minum.block();
+        } else {
+            if (args.length > 0) {
+                System.setProperty("sources", args[0]);
+            }
+            readFileNames().forEach(test -> performTest(test, new SoftAssertions()));
         }
-        if (args.length > 0) {
-            System.setProperty("sources", args[0]);
-        }
-        readFileNames().forEach(test -> performTest(test, new SoftAssertions()));
     }
 
     @SneakyThrows

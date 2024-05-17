@@ -63,7 +63,7 @@ public final class StatePage {
     // @todo #10 Design the html for the state page
     public Response statePage(final Request request) {
         this.computation.perform(new Transition("initialize", new Locators(Map.of())));
-        return Response.htmlOk(this.template.renderTemplate(Map.of()));
+        return Response.htmlOk(this.template.renderTemplate(Map.of("state", "No state yet")));
     }
 
     private static String readFileFromResources(final String file) {

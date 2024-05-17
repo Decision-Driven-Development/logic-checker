@@ -24,13 +24,11 @@
 
 package ru.ewc.checklogic;
 
-import java.io.InputStream;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.yaml.snakeyaml.Yaml;
 import ru.ewc.commands.CommandsFacade;
 import ru.ewc.decisions.api.ComputationContext;
 import ru.ewc.decisions.api.DecitaException;
@@ -64,19 +62,18 @@ public final class Computation {
     /**
      * Ctor.
      *
-     * @param tables Path to the folder with decision tables.
-     * @param commands Path to the folder with commands.
-     * @param stream Path to yaml describing the current system's state.
+     * @param decisions An instance of {@link DecitaFacade} to make decisions.
+     * @param commands An instance of {@link CommandsFacade} to execute commands.
+     * @param locators An instance of {@link Locators} to store the state.
      */
-    public Computation(final URI tables, final URI commands, final InputStream stream) {
-        this(tables, commands, stateFromFile(stream));
-    }
-
-    // @todo #12 Encapsulate state dictionaries into a dedicated object
-    public Computation(final URI tables, final URI commands, final Map<String, Map<String, Object>> state) {
-        this.decisions = new DecitaFacade(tables, ".csv", ";");
-        this.commands = new CommandsFacade(commands, this.decisions);
-        this.state = stateFrom(state);
+    public Computation(
+        final DecitaFacade decisions,
+        final CommandsFacade commands,
+        final Locators locators
+    ) {
+        this.decisions = decisions;
+        this.commands = commands;
+        this.state = locators;
     }
 
     /**
@@ -124,11 +121,15 @@ public final class Computation {
     public Map<String, String> stateFor(final String table, final Map<String, String> entities) {
         final Locator locator = this.state.locatorFor(table);
         final ComputationContext context = new ComputationContext(this.state);
-        final Map<String, String> actual = new HashMap<>(entities.size());
+        final Map<String, String> actual = HashMap.newHashMap(entities.size());
         for (final String fragment : entities.keySet()) {
             actual.put(fragment, locator.fragmentBy(fragment, context));
         }
         return actual;
+    }
+
+    public Computation withState(final Map<String, Map<String, Object>> incoming) {
+        return new Computation(this.decisions, this.commands, stateFrom(incoming));
     }
 
     /**
@@ -146,11 +147,6 @@ public final class Computation {
         );
     }
 
-    @SuppressWarnings("unchecked")
-    private static Map<String, Map<String, Object>> stateFromFile(final InputStream stream) {
-        return (Map<String, Map<String, Object>>) new Yaml().loadAll(stream).iterator().next();
-    }
-
     /**
      * Converts a {@link Map.Entry} to a {@link Locator} object.
      *
@@ -159,4 +155,5 @@ public final class Computation {
     private static Function<Map.Entry<String, Map<String, Object>>, Locator> entryToLocator() {
         return e -> new InMemoryStorage(e.getValue());
     }
+
 }

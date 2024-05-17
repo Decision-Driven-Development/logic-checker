@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,12 +39,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.SneakyThrows;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.yaml.snakeyaml.Yaml;
 import ru.ewc.checklogic.server.StatePage;
+import ru.ewc.commands.CommandsFacade;
+import ru.ewc.decisions.api.DecitaFacade;
 import ru.ewc.decisions.api.Locators;
 
 /**
@@ -67,25 +71,30 @@ public final class LogicChecker {
         // Utility class
     }
 
-    // @todo #12 Load the whole set of all the storage Locators
     public static void main(final String[] args) {
-        if (args.length > 1 && "server".equals(args[0])) {
-            System.setProperty("sources", args[1]);
-            final Computation target = new Computation(
-                Computation.uriFrom(getFinalPathTo("tables")),
-                Computation.uriFrom(getFinalPathTo("commands")),
-                new HashMap<>()
-            );
+        if (args.length == 0) {
+            throw new IllegalArgumentException("Please provide the path to the resources");
+        }
+        final String root = args[0];
+        final DecitaFacade decisions = new DecitaFacade(
+            Path.of(root, "tables").toUri(),
+            ".csv",
+            ";"
+        );
+        final Computation initial = new Computation(
+            decisions,
+            new CommandsFacade(Path.of(root, "commands").toUri(), decisions),
+            stateFromAppConfig(Path.of(root, "application.yaml").toFile())
+        );
+        if (args.length > 1 && "server".equals(args[1])) {
             final FullSystem minum = FullSystem.initialize();
             final WebFramework web = minum.getWebFramework();
-            final StatePage state = new StatePage(target);
+            final StatePage state = new StatePage(initial);
             web.registerPath(RequestLine.Method.GET, "", state::statePage);
             minum.block();
         } else {
-            if (args.length > 0) {
-                System.setProperty("sources", args[0]);
-            }
-            readFileNames().forEach(test -> performTest(test, new SoftAssertions()));
+            System.setProperty("sources", root);
+            readFileNames().forEach(test -> performTest(test, new SoftAssertions(), initial));
         }
     }
 
@@ -93,8 +102,9 @@ public final class LogicChecker {
     static Stream<TestData> readFileNames() {
         return Files.walk(Paths.get(Computation.uriFrom(getFinalPathTo("states"))))
             .filter(Files::isRegularFile)
-            .map(path -> path.toFile().getAbsolutePath())
             .map(
+                path -> path.toFile().getAbsolutePath()
+            ).map(
                 path -> {
                     final InputStream stream;
                     try {
@@ -107,11 +117,13 @@ public final class LogicChecker {
     }
 
     @SneakyThrows
-    static void performTest(final TestData test, final SoftAssertions softly) {
-        final Computation target = new Computation(
-            Computation.uriFrom(getFinalPathTo("tables")),
-            Computation.uriFrom(getFinalPathTo("commands")),
-            Files.newInputStream(new File(test.file()).toPath())
+    static void performTest(
+        final TestData test,
+        final SoftAssertions softly,
+        final Computation initial
+    ) {
+        final Computation target = initial.withState(
+            stateFromFile(Files.newInputStream(new File(test.file()).toPath()))
         );
         try {
             for (int idx = 0; idx < test.commands.size(); idx += 1) {
@@ -140,6 +152,26 @@ public final class LogicChecker {
             LOGGER.severe("Running test for %s... failed".formatted(test.toString()));
             LOGGER.severe(error.getMessage());
         }
+    }
+
+    @SneakyThrows
+    @SuppressWarnings("unchecked")
+    private static Locators stateFromAppConfig(final File file) {
+        final Map<String, Object> config = new Yaml().load(Files.newInputStream(file.toPath()));
+        final Stream<String> names = ((List<String>) config.get("locators")).stream();
+        return new Locators(
+            names.collect(
+                Collectors.toMap(
+                    name -> name,
+                    name -> new InMemoryStorage(new HashMap<>())
+                )
+            )
+        );
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Map<String, Object>> stateFromFile(final InputStream stream) {
+        return (Map<String, Map<String, Object>>) new Yaml().loadAll(stream).iterator().next();
     }
 
     @SuppressWarnings("unchecked")

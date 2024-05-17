@@ -53,7 +53,6 @@ public final class Computation {
      */
     private final CommandsFacade commands;
 
-    // @todo #12 Expose the state of the Locators
     /**
      * The current state of the system.
      */
@@ -117,7 +116,6 @@ public final class Computation {
         return this.state.hasLocator(table);
     }
 
-    // @todo #10 Get the whole stored State (no table computations, just stored values)
     public Map<String, String> stateFor(final String table, final Map<String, String> entities) {
         final Locator locator = this.state.locatorFor(table);
         final ComputationContext context = new ComputationContext(this.state);
@@ -130,6 +128,10 @@ public final class Computation {
 
     public Computation withState(final Map<String, Map<String, Object>> incoming) {
         return new Computation(this.decisions, this.commands, stateFrom(incoming));
+    }
+
+    public Map<String, Map<String, Object>> storedState() {
+        return this.state.state();
     }
 
     /**
@@ -155,5 +157,4 @@ public final class Computation {
     private static Function<Map.Entry<String, Map<String, Object>>, Locator> entryToLocator() {
         return e -> new InMemoryStorage(e.getValue());
     }
-
 }

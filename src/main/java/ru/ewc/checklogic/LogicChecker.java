@@ -24,9 +24,6 @@
 
 package ru.ewc.checklogic;
 
-import com.renomad.minum.web.FullSystem;
-import com.renomad.minum.web.RequestLine;
-import com.renomad.minum.web.WebFramework;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,8 +42,7 @@ import lombok.SneakyThrows;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.yaml.snakeyaml.Yaml;
-import ru.ewc.checklogic.server.CommandPage;
-import ru.ewc.checklogic.server.StatePage;
+import ru.ewc.checklogic.server.WebServer;
 import ru.ewc.commands.CommandsFacade;
 import ru.ewc.decisions.api.DecitaFacade;
 import ru.ewc.decisions.api.Locators;
@@ -72,7 +68,6 @@ public final class LogicChecker {
         // Utility class
     }
 
-    // @todo #20 Implement a registry of pages and their endpoints
     public static void main(final String[] args) {
         if (args.length == 0) {
             throw new IllegalArgumentException("Please provide the path to the resources");
@@ -83,22 +78,16 @@ public final class LogicChecker {
             ".csv",
             ";"
         );
-        final Computation initial = new Computation(
+        final Computation computation = new Computation(
             decisions,
             new CommandsFacade(Path.of(root, "commands").toUri(), decisions),
             stateFromAppConfig(Path.of(root, "application.yaml").toFile())
         );
         if (args.length > 1 && "server".equals(args[1])) {
-            final FullSystem minum = FullSystem.initialize();
-            final WebFramework web = minum.getWebFramework();
-            final StatePage state = new StatePage(initial);
-            web.registerPath(RequestLine.Method.GET, "", state::statePage);
-            final CommandPage command = new CommandPage(initial);
-            web.registerPath(RequestLine.Method.POST, "command", command::commandPage);
-            minum.block();
+            new WebServer(computation).start();
         } else {
             System.setProperty("sources", root);
-            readFileNames().forEach(test -> performTest(test, new SoftAssertions(), initial));
+            readFileNames().forEach(test -> performTest(test, new SoftAssertions(), computation));
         }
     }
 

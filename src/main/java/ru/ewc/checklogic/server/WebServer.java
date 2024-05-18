@@ -23,42 +23,40 @@
  */
 package ru.ewc.checklogic.server;
 
-import com.renomad.minum.web.Request;
-import com.renomad.minum.web.Response;
+import com.renomad.minum.web.FullSystem;
 import com.renomad.minum.web.WebFramework;
-import java.util.Map;
 import ru.ewc.checklogic.Computation;
-import ru.ewc.checklogic.Transition;
-import ru.ewc.decisions.api.Locators;
 
 /**
- * I am a configuration object for all the command-related endpoints.
+ * I am the web server for the CheckLogic application. My main responsibility is to configure the
+ * routes, initialize and start the server.
  *
  * @since 0.3.0
  */
-public final class CommandPage implements Endpoints {
+public final class WebServer {
     /**
-     * The computation to be used for the command processing.
+     * The computation to be used for the web server.
      */
     private final Computation computation;
 
     /**
      * Ctor.
      *
-     * @param computation The computation to be used for the command processing.
+     * @param computation The computation to be used for the web server.
      */
-    public CommandPage(final Computation computation) {
+    public WebServer(final Computation computation) {
         this.computation = computation;
     }
 
-    @Override
-    public void register(final WebFramework web) {
-        web.registerPath(POST, "command", this::commandPage);
+    public void start() {
+        final FullSystem minum = FullSystem.initialize();
+        final WebFramework web = minum.getWebFramework();
+        registerEndpoints(web, new StatePage(this.computation));
+        registerEndpoints(web, new CommandPage(this.computation));
+        minum.block();
     }
 
-    public Response commandPage(final Request request) {
-        final String command = request.body().asString("command");
-        this.computation.perform(new Transition(command, new Locators(Map.of())));
-        return Response.redirectTo("/");
+    private static void registerEndpoints(final WebFramework web, final Endpoints endpoints) {
+        endpoints.register(web);
     }
 }

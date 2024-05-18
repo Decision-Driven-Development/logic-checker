@@ -26,6 +26,7 @@ package ru.ewc.checklogic.server;
 import com.renomad.minum.templating.TemplateProcessor;
 import com.renomad.minum.web.Request;
 import com.renomad.minum.web.Response;
+import com.renomad.minum.web.WebFramework;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,7 +41,7 @@ import ru.ewc.checklogic.Computation;
  *
  * @since 0.3.0
  */
-public final class StatePage {
+public final class StatePage implements Endpoints {
     /**
      * The template processor for the State page.
      */
@@ -58,9 +59,13 @@ public final class StatePage {
         );
     }
 
+    @Override
+    public void register(final WebFramework web) {
+        web.registerPath(GET, "", this::statePage);
+    }
+
     // @todo #9 Output all the commands as buttons on the page
     // @todo #9 Get a modal with command description and parameters on button click
-    // @todo #9 Implement an endpoint to run a command
     public Response statePage(final Request request) {
         final StoredState stored = new StoredState(this.computation.storedState());
         return Response.htmlOk(this.template.renderTemplate(Map.of("state", stored.asHtmlList())));

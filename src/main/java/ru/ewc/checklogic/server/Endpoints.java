@@ -23,42 +23,29 @@
  */
 package ru.ewc.checklogic.server;
 
-import com.renomad.minum.web.Request;
-import com.renomad.minum.web.Response;
+import com.renomad.minum.web.RequestLine;
 import com.renomad.minum.web.WebFramework;
-import java.util.Map;
-import ru.ewc.checklogic.Computation;
-import ru.ewc.checklogic.Transition;
-import ru.ewc.decisions.api.Locators;
 
 /**
- * I am a configuration object for all the command-related endpoints.
+ * I am an interface for all the classes that define the endpoints for the web server.
  *
  * @since 0.3.0
  */
-public final class CommandPage implements Endpoints {
+interface Endpoints {
     /**
-     * The computation to be used for the command processing.
+     * The shortcut to define an endpoint for a GET method.
      */
-    private final Computation computation;
+    RequestLine.Method GET = RequestLine.Method.GET;
 
     /**
-     * Ctor.
+     * The shortcut to define an endpoint for a POST method.
+     */
+    RequestLine.Method POST = RequestLine.Method.POST;
+
+    /**
+     * Register the endpoints with the web server.
      *
-     * @param computation The computation to be used for the command processing.
+     * @param web The web framework to register endpoints in.
      */
-    public CommandPage(final Computation computation) {
-        this.computation = computation;
-    }
-
-    @Override
-    public void register(final WebFramework web) {
-        web.registerPath(POST, "command", this::commandPage);
-    }
-
-    public Response commandPage(final Request request) {
-        final String command = request.body().asString("command");
-        this.computation.perform(new Transition(command, new Locators(Map.of())));
-        return Response.redirectTo("/");
-    }
+    void register(WebFramework web);
 }

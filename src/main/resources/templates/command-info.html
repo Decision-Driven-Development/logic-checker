@@ -21,18 +21,14 @@
   ~ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   ~ SOFTWARE.
   -->
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Simple HTML Page</title>
-    <script src="https://unpkg.com/htmx.org@1.9.12"
-            integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2"
-            crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="static/main.css">
-</head>
-<body>
-<h1>State entities</h1>
-{{ state }}
-<button hx-get="/command" hx-target="body" hx-swap="beforeend" hx-vals='{"command":"initialize"}'>Initialize</button>
-</body>
-</html>
+<div id="modal" _="on closeModal add .closing then wait for animationend then remove me">
+    <div class="modal-underlay" _="on click trigger closeModal"></div>
+    <div class="modal-content">
+        <h1>{{ command_name }}</h1>
+        No arguments are required for this command.
+        <br>
+        <br>
+        <input id="command" type="hidden" name="command" value="{{ command_name }}"/>
+        <button _="on click trigger closeModal" hx-post="/command" hx-include="#command">Execute</button>
+    </div>
+</div>

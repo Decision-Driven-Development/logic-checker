@@ -24,7 +24,9 @@
 package ru.ewc.checklogic.server;
 
 import com.renomad.minum.web.RequestLine;
+import com.renomad.minum.web.StatusLine;
 import com.renomad.minum.web.WebFramework;
+import java.util.Map;
 
 /**
  * I am an interface for all the classes that define the endpoints for the web server.
@@ -41,6 +43,26 @@ interface Endpoints {
      * The shortcut to define an endpoint for a POST method.
      */
     RequestLine.Method POST = RequestLine.Method.POST;
+
+    /**
+     * Content type for CSS files.
+     */
+    Map<String, String> CSS = Map.of("Content-Type", "text/css");
+
+    /**
+     * Content type for plain text.
+     */
+    Map<String, String> PLAIN_TEXT = Map.of("Content-Type", "text/plain");
+
+    /**
+     * The status codes for the 200 OK response.
+     */
+    StatusLine.StatusCode OK = StatusLine.StatusCode.CODE_200_OK;
+
+    /**
+     * The status codes for the 404 Not Found response.
+     */
+    StatusLine.StatusCode NOT_FOUND = StatusLine.StatusCode.CODE_404_NOT_FOUND;
 
     /**
      * Register the endpoints with the web server.

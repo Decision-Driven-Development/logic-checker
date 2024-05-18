@@ -23,44 +23,29 @@
  */
 package ru.ewc.checklogic.server;
 
-import com.renomad.minum.templating.TemplateProcessor;
 import com.renomad.minum.web.Request;
 import com.renomad.minum.web.Response;
 import com.renomad.minum.web.WebFramework;
-import java.util.Map;
-import ru.ewc.checklogic.Computation;
 
 /**
- * I am the configuration and logic for the state web page.
+ * I am a class providing access to static files, packed inside a jar.
  *
  * @since 0.3.0
  */
-public final class StatePage implements Endpoints {
-    /**
-     * The template processor for the State page.
-     */
-    private final TemplateProcessor template;
-
-    /**
-     * An instance of an object tracking the application state.
-     */
-    private final Computation computation;
-
-    public StatePage(final Computation computation) {
-        this.computation = computation;
-        this.template = TemplateProcessor.buildProcessor(
-            WebResource.readFileFromResources("templates/state.html")
-        );
-    }
-
+public final class StaticResources implements Endpoints {
     @Override
     public void register(final WebFramework web) {
-        web.registerPath(GET, "", this::statePage);
+        web.registerPartialPath(GET, "static", StaticResources::staticResource);
     }
 
-    // @todo #9 Output all the commands as buttons on the page
-    public Response statePage(final Request request) {
-        final StoredState stored = new StoredState(this.computation.storedState());
-        return Response.htmlOk(this.template.renderTemplate(Map.of("state", stored.asHtmlList())));
+    private static Response staticResource(final Request request) {
+        final Response result;
+        if (request.requestLine().getPathDetails().isolatedPath().endsWith("main.css")) {
+            final String body = WebResource.readFileFromResources("static/main.css");
+            result = new Response(OK, body, CSS);
+        } else {
+            result = new Response(NOT_FOUND, "", PLAIN_TEXT);
+        }
+        return result;
     }
 }

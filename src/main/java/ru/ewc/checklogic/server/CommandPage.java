@@ -23,6 +23,7 @@
  */
 package ru.ewc.checklogic.server;
 
+import com.renomad.minum.templating.TemplateProcessor;
 import com.renomad.minum.web.Request;
 import com.renomad.minum.web.Response;
 import com.renomad.minum.web.WebFramework;
@@ -43,22 +44,36 @@ public final class CommandPage implements Endpoints {
     private final Computation computation;
 
     /**
+     * The template processor for the Command page.
+     */
+    private final TemplateProcessor template;
+
+    /**
      * Ctor.
      *
      * @param computation The computation to be used for the command processing.
      */
     public CommandPage(final Computation computation) {
         this.computation = computation;
+        this.template = TemplateProcessor.buildProcessor(
+            WebResource.readFileFromResources("templates/command-info.html")
+        );
     }
 
     @Override
     public void register(final WebFramework web) {
-        web.registerPath(POST, "command", this::commandPage);
+        web.registerPath(POST, "command", this::executeCommand);
+        web.registerPath(GET, "command", this::commandInfo);
     }
 
-    public Response commandPage(final Request request) {
+    public Response executeCommand(final Request request) {
         final String command = request.body().asString("command");
         this.computation.perform(new Transition(command, new Locators(Map.of())));
-        return Response.redirectTo("/");
+        return Response.htmlOk("OK", Map.of("HX-Redirect", "/"));
+    }
+
+    public Response commandInfo(final Request request) {
+        final String command = request.requestLine().queryString().getOrDefault("command", "");
+        return Response.htmlOk(this.template.renderTemplate(Map.of("command_name", command)));
     }
 }

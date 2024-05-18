@@ -53,6 +53,7 @@ public final class WebServer {
         final WebFramework web = minum.getWebFramework();
         registerEndpoints(web, new StatePage(this.computation));
         registerEndpoints(web, new CommandPage(this.computation));
+        registerEndpoints(web, new StaticResources());
         minum.block();
     }
 

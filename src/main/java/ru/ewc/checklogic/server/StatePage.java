@@ -60,6 +60,9 @@ public final class StatePage {
         );
     }
 
+    // @todo #9 Output all the commands as buttons on the page
+    // @todo #9 Get a modal with command description and parameters on button click
+    // @todo #9 Implement an endpoint to run a command
     public Response statePage(final Request request) {
         this.computation.perform(new Transition("initialize", new Locators(Map.of())));
         final StoredState stored = new StoredState(this.computation.storedState());

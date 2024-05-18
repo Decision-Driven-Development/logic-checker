@@ -34,8 +34,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.stream.Collectors;
 import ru.ewc.checklogic.Computation;
-import ru.ewc.checklogic.Transition;
-import ru.ewc.decisions.api.Locators;
 
 /**
  * I am the configuration and logic for the state web page.
@@ -64,7 +62,6 @@ public final class StatePage {
     // @todo #9 Get a modal with command description and parameters on button click
     // @todo #9 Implement an endpoint to run a command
     public Response statePage(final Request request) {
-        this.computation.perform(new Transition("initialize", new Locators(Map.of())));
         final StoredState stored = new StoredState(this.computation.storedState());
         return Response.htmlOk(this.template.renderTemplate(Map.of("state", stored.asHtmlList())));
     }

@@ -45,6 +45,7 @@ import lombok.SneakyThrows;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.yaml.snakeyaml.Yaml;
+import ru.ewc.checklogic.server.CommandPage;
 import ru.ewc.checklogic.server.StatePage;
 import ru.ewc.commands.CommandsFacade;
 import ru.ewc.decisions.api.DecitaFacade;
@@ -71,6 +72,7 @@ public final class LogicChecker {
         // Utility class
     }
 
+    // @todo #20 Implement a registry of pages and their endpoints
     public static void main(final String[] args) {
         if (args.length == 0) {
             throw new IllegalArgumentException("Please provide the path to the resources");
@@ -91,6 +93,8 @@ public final class LogicChecker {
             final WebFramework web = minum.getWebFramework();
             final StatePage state = new StatePage(initial);
             web.registerPath(RequestLine.Method.GET, "", state::statePage);
+            final CommandPage command = new CommandPage(initial);
+            web.registerPath(RequestLine.Method.POST, "command", command::commandPage);
             minum.block();
         } else {
             System.setProperty("sources", root);

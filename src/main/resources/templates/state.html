@@ -29,5 +29,9 @@
 <body>
 <h1>State entities</h1>
 {{ state }}
+<form method="post" action="/command">
+    <input type="hidden" name="command" value="initialize">
+    <input type="submit" value="Initialize">
+</form>
 </body>
 </html>

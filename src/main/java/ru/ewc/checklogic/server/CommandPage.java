@@ -29,8 +29,6 @@ import com.renomad.minum.web.Response;
 import com.renomad.minum.web.WebFramework;
 import java.util.Map;
 import ru.ewc.checklogic.Computation;
-import ru.ewc.checklogic.Transition;
-import ru.ewc.decisions.api.Locators;
 
 /**
  * I am a configuration object for all the command-related endpoints.
@@ -68,7 +66,7 @@ public final class CommandPage implements Endpoints {
 
     public Response executeCommand(final Request request) {
         final String command = request.body().asString("command");
-        this.computation.perform(new Transition(command, new Locators(Map.of())));
+        this.computation.perform(command);
         return Response.htmlOk("OK", Map.of("HX-Redirect", "/"));
     }
 

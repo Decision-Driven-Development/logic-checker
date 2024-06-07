@@ -29,23 +29,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.SneakyThrows;
-import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.yaml.snakeyaml.Yaml;
 import ru.ewc.checklogic.server.WebServer;
-import ru.ewc.commands.CommandsFacade;
-import ru.ewc.decisions.api.DecitaFacade;
-import ru.ewc.decisions.api.Locators;
+import ru.ewc.decisions.api.ComputationContext;
+import ru.ewc.decisions.api.Locator;
+import ru.ewc.state.State;
 
 /**
  * End-to-end tests based on yaml descriptions.
@@ -59,85 +55,51 @@ public final class LogicChecker {
      */
     private static final Logger LOGGER = Logger.getLogger(LogicChecker.class.getName());
 
-    /**
-     * The template for the assertion message.
-     */
-    private static final String AV_TEMPLATE = "Command '%s'[%d] should be available";
-
     private LogicChecker() {
         // Utility class
     }
 
-    public static void main(final String[] args) {
+    public static void main(final String[] args) throws IOException {
         if (args.length == 0) {
             throw new IllegalArgumentException("Please provide the path to the resources");
         }
         final String root = args[0];
-        final DecitaFacade decisions = new DecitaFacade(
-            Path.of(root, "tables").toUri(),
-            ".csv",
-            ";"
-        );
-        final Computation computation = new Computation(
-            decisions,
-            new CommandsFacade(Path.of(root, "commands").toUri(), decisions),
-            stateFromAppConfig(Path.of(root, "application.yaml").toFile())
-        );
         if (args.length > 1 && "server".equals(args[1])) {
-            new WebServer(computation).start();
+            final ComputationContext context = new ComputationContext(
+                stateFromAppConfig(FileUtils.applicationConfig(root)),
+                Path.of(root, "tables").toUri(),
+                Path.of(root, "commands").toUri()
+            );
+            new WebServer(new Computation(context)).start();
         } else {
             System.setProperty("sources", root);
-            readFileNames().forEach(test -> performTest(test, new SoftAssertions(), computation));
+            final SoftAssertions softly = new SoftAssertions();
+            FileUtils.readFileNames().forEach(test -> performTest(test, softly, root));
         }
-    }
-
-    @SneakyThrows
-    static Stream<TestData> readFileNames() {
-        return Files.walk(Paths.get(Computation.uriFrom(getFinalPathTo("states"))))
-            .filter(Files::isRegularFile)
-            .map(
-                path -> path.toFile().getAbsolutePath()
-            ).map(
-                path -> {
-                    final InputStream stream;
-                    try {
-                        stream = Files.newInputStream(Paths.get(path));
-                    } catch (final IOException exception) {
-                        throw new IllegalStateException(exception);
-                    }
-                    return createTestData(path, stream);
-                });
     }
 
     @SneakyThrows
     static void performTest(
         final TestData test,
         final SoftAssertions softly,
-        final Computation initial
+        final String root
     ) {
-        final Computation target = initial.withState(
-            stateFromFile(Files.newInputStream(new File(test.file()).toPath()))
+        final Computation target = new Computation(
+            new ComputationContext(
+                stateFromFile(Files.newInputStream(new File(test.file()).toPath()), root),
+                Path.of(FileUtils.getFinalPathTo("tables")).toUri(),
+                Path.of(FileUtils.getFinalPathTo("commands")).toUri()
+            )
         );
         try {
-            for (int idx = 0; idx < test.commands.size(); idx += 1) {
-                final Transition command = test.commands.get(idx);
-                Assertions.assertThat(target.decideFor(command.name(), command.request()))
-                    .describedAs(String.format(LogicChecker.AV_TEMPLATE, command.name(), idx + 1))
-                    .containsEntry("available", "true");
-                target.perform(command);
+            if (!test.command.isEmpty()) {
+                target.perform(test.command);
             }
-            for (final String table : test.expectations.keySet()) {
-                if (target.hasStateFor(table)) {
-                    softly
-                        .assertThat(target.stateFor(table, test.expectations.get(table)))
-                        .describedAs(String.format("State for entity '%s'", table))
-                        .containsExactlyInAnyOrderEntriesOf(test.expectations.get(table));
-                } else {
-                    softly
-                        .assertThat(target.decideFor(table))
-                        .describedAs(String.format("Table '%s'", table))
-                        .isEqualTo(test.expectations.get(table));
-                }
+            for (final String locator : test.expectations.keySet()) {
+                softly
+                    .assertThat(target.stateFor(locator, test.expectations.get(locator)))
+                    .describedAs(String.format("State for entity '%s'", locator))
+                    .containsExactlyInAnyOrderEntriesOf(test.expectations.get(locator));
             }
             softly.assertAll();
             LOGGER.info("Running test for %s... done".formatted(test.toString()));
@@ -149,10 +111,10 @@ public final class LogicChecker {
 
     @SneakyThrows
     @SuppressWarnings("unchecked")
-    private static Locators stateFromAppConfig(final File file) {
-        final Map<String, Object> config = new Yaml().load(Files.newInputStream(file.toPath()));
+    private static State stateFromAppConfig(final InputStream file) {
+        final Map<String, Object> config = new Yaml().load(file);
         final Stream<String> names = ((List<String>) config.get("locators")).stream();
-        return new Locators(
+        return new State(
             names.collect(
                 Collectors.toMap(
                     name -> name,
@@ -163,80 +125,31 @@ public final class LogicChecker {
     }
 
     @SuppressWarnings("unchecked")
-    private static Map<String, Map<String, Object>> stateFromFile(final InputStream stream) {
-        return (Map<String, Map<String, Object>>) new Yaml().loadAll(stream).iterator().next();
-    }
-
-    @SuppressWarnings("unchecked")
-    private static TestData createTestData(final String path, final InputStream stream) {
-        final Iterator<Object> iterator = new Yaml().loadAll(stream).iterator();
-        iterator.next();
-        List<Transition> commands = new ArrayList<>(1);
-        if (iterator.hasNext()) {
-            commands = extractCommands(iterator.next());
-        }
-        Map<String, Map<String, String>> expectations = new HashMap<>();
-        if (iterator.hasNext()) {
-            expectations = (Map<String, Map<String, String>>) iterator.next();
-        }
-        return new TestData(path, commands, expectations);
-    }
-
-    @SuppressWarnings("unchecked")
-    private static List<Transition> extractCommands(final Object next) {
-        final Map<String, List<Object>> commands = (Map<String, List<Object>>) next;
-        return commands.getOrDefault("commands", List.of())
-            .stream()
-            .map(entry -> transitionFrom((Map<String, Object>) entry))
-            .toList();
-    }
-
-    @SuppressWarnings("unchecked")
-    private static Transition transitionFrom(final Map<String, Object> entry) {
-        return new Transition(
-            (String) entry.get("name"),
-            requestLocator((Map<String, Object>) entry.get("request"))
-        );
-    }
-
-    private static Locators requestLocator(final Map<String, Object> entry) {
-        return new Locators(Map.of("request", new InMemoryStorage(entry)));
-    }
-
-    /**
-     * Gets the path to a folder with specified resources.
-     *
-     * @param resource Resource name to get its folder.
-     * @return Path to a resource folder as a String.
-     */
-    private static String getFinalPathTo(final String resource) {
-        final String states;
-        if (System.getProperties().containsKey("sources")) {
-            states = String.format("%s/%s", System.getProperty("sources"), resource);
-        } else if (System.getProperties().containsKey(resource)) {
-            states = System.getProperty(resource);
-        } else {
-            states = String.format(
-                "%s%s%s",
-                System.getProperty("user.dir"),
-                "/src/test/resources/",
-                resource
-            );
-        }
-        return states;
+    private static State stateFromFile(
+        final InputStream stream,
+        final String root
+    ) throws IOException {
+        final Map<String, Object> config = new Yaml().load(FileUtils.applicationConfig(root));
+        final List<String> names = (List<String>) config.get("locators");
+        final Map<String, Locator> locators = HashMap.newHashMap(names.size());
+        names.forEach(name -> locators.put(name, new InMemoryStorage(new HashMap<>())));
+        final Map<String, Map<String, Object>> raw =
+            (Map<String, Map<String, Object>>) new Yaml().loadAll(stream).iterator().next();
+        raw.keySet().forEach(name -> locators.put(name, new InMemoryStorage(raw.get(name))));
+        return new State(locators);
     }
 
     /**
      * I am the helper class containing the data for parameterized state tests.
      *
      * @param file The path to the file containing state and expectations.
-     * @param commands The collection of commands to execute before the decision.
+     * @param command The name of the command to execute before the decision.
      * @param expectations The collection of expected decision table results.
      * @since 0.2.3
      */
     public record TestData(
         String file,
-        List<Transition> commands,
+        String command,
         Map<String, Map<String, String>> expectations) {
 
         @Override

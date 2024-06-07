@@ -1,3 +1,6 @@
+request:
+  player: "X"
+  move: "A1"
 table:
   nextPlayer: "O"
   currentPlayer: "X"
@@ -12,13 +15,7 @@ cells:
   C2: "empty"
   C3: "empty"
 ---
-commands:
-  - name: "initialize"
-    request: {}
-  - name: "computed_move"
-    request:
-      player: "X"
-      move: "A1"
+command: "computed_move"
 ---
 game_state:
   is_over: "false"

@@ -1,8 +1,6 @@
 request: {}
 ---
-commands:
-  - name: "initialize"
-    request: {}
+command: "initialize"
 ---
 table:
   currentPlayer: "X"

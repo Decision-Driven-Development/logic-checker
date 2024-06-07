@@ -27,14 +27,7 @@ package ru.ewc.checklogic;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import ru.ewc.commands.CommandsFacade;
 import ru.ewc.decisions.api.ComputationContext;
-import ru.ewc.decisions.api.DecitaException;
-import ru.ewc.decisions.api.DecitaFacade;
-import ru.ewc.decisions.api.Locator;
-import ru.ewc.decisions.api.Locators;
 
 /**
  * I am a unique instance of a decision table computation.
@@ -44,35 +37,12 @@ import ru.ewc.decisions.api.Locators;
 @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
 public final class Computation {
     /**
-     * Facade for making all the decisions.
+     * The context of the computation.
      */
-    private final DecitaFacade decisions;
+    private final ComputationContext context;
 
-    /**
-     * Facade for executing all the commands.
-     */
-    private final CommandsFacade commands;
-
-    /**
-     * The current state of the system.
-     */
-    private final Locators state;
-
-    /**
-     * Ctor.
-     *
-     * @param decisions An instance of {@link DecitaFacade} to make decisions.
-     * @param commands An instance of {@link CommandsFacade} to execute commands.
-     * @param locators An instance of {@link Locators} to store the state.
-     */
-    public Computation(
-        final DecitaFacade decisions,
-        final CommandsFacade commands,
-        final Locators locators
-    ) {
-        this.decisions = decisions;
-        this.commands = commands;
-        this.state = locators;
+    public Computation(final ComputationContext context) {
+        this.context = context;
     }
 
     /**
@@ -91,70 +61,19 @@ public final class Computation {
         return URI.create(result.toString());
     }
 
-    /**
-     * Computes the decision for a specified table.
-     *
-     * @param table Name of the tables to make a decision against.
-     * @param locators The locators to use for the decision.
-     * @return The collection of outcomes from the specified table.
-     * @throws DecitaException If the table could not be found or computed.
-     */
-    public Map<String, String> decideFor(final String table, final Locators locators)
-        throws DecitaException {
-        return this.decisions.decisionFor(table, this.state.mergedWith(locators));
-    }
-
-    public Map<String, String> decideFor(final String table) throws DecitaException {
-        return this.decisions.decisionFor(table, this.state);
-    }
-
-    public void perform(final Transition command) {
-        this.commands.perform(command.name(), this.state.mergedWith(command.request()));
-    }
-
-    public boolean hasStateFor(final String table) {
-        return this.state.hasLocator(table);
+    public void perform(final String command) {
+        this.context.perform(command);
     }
 
     public Map<String, String> stateFor(final String table, final Map<String, String> entities) {
-        final Locator locator = this.state.locatorFor(table);
-        final ComputationContext context = new ComputationContext(this.state);
         final Map<String, String> actual = HashMap.newHashMap(entities.size());
         for (final String fragment : entities.keySet()) {
-            actual.put(fragment, locator.fragmentBy(fragment, context));
+            actual.put(fragment, this.context.valueFor(table, fragment));
         }
         return actual;
     }
 
-    public Computation withState(final Map<String, Map<String, Object>> incoming) {
-        return new Computation(this.decisions, this.commands, stateFrom(incoming));
-    }
-
     public Map<String, Map<String, Object>> storedState() {
-        return this.state.state();
-    }
-
-    /**
-     * Loads the state from the specified {@code InputStream}.
-     *
-     * @param stream InputStream containing state info.
-     * @return Collection of {@link Locator} objects, containing desired state.
-     */
-    private static Locators stateFrom(final Map<String, Map<String, Object>> stream) {
-        return new Locators(
-            stream
-                .entrySet()
-                .stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, entryToLocator()))
-        );
-    }
-
-    /**
-     * Converts a {@link Map.Entry} to a {@link Locator} object.
-     *
-     * @return A function that converts a {@link Map.Entry} to a {@link Locator} object.
-     */
-    private static Function<Map.Entry<String, Map<String, Object>>, Locator> entryToLocator() {
-        return e -> new InMemoryStorage(e.getValue());
+        return this.context.state();
     }
 }

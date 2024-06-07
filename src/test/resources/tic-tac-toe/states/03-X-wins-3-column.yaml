@@ -1,3 +1,6 @@
+request:
+  player: "X"
+  move: "C3"
 table:
   currentPlayer: "X"
 cells:
@@ -11,11 +14,7 @@ cells:
   C2: "empty"
   C3: "empty"
 ---
-commands:
-  - name: "computed_move"
-    request:
-      player: "X"
-      move: "C3"
+command: "computed_move"
 ---
 game_state:
   is_over: "true"

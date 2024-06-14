@@ -64,12 +64,15 @@ public final class CommandPage implements Endpoints {
         web.registerPath(GET, "command", this::commandInfo);
     }
 
+    // @todo #25 Pass the filled parameters to the command
+    // @todo #25 Handle the errors gracefully (show some modal with error description?)
     public Response executeCommand(final Request request) {
         final String command = request.body().asString("command");
         this.computation.perform(command);
         return Response.htmlOk("OK", Map.of("HX-Redirect", "/"));
     }
 
+    // @todo #25 Extract all the required parameters from the command's description
     public Response commandInfo(final Request request) {
         final String command = request.requestLine().queryString().getOrDefault("command", "");
         return Response.htmlOk(this.template.renderTemplate(Map.of("command_name", command)));

@@ -26,6 +26,7 @@ package ru.ewc.checklogic;
 
 import java.net.URI;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import ru.ewc.decisions.api.ComputationContext;
 
@@ -74,6 +75,10 @@ public final class Computation {
     }
 
     public Map<String, Map<String, Object>> storedState() {
-        return this.context.state();
+        return this.context.storedState();
+    }
+
+    public List<String> commandNames() {
+        return this.context.commandNames();
     }
 }

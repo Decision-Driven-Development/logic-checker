@@ -33,6 +33,9 @@
 <body>
 <h1>State entities</h1>
 {{ state }}
+<hr>
+<h1>Commands</h1>
+{{ commands }}
 <button hx-get="/command" hx-target="body" hx-swap="beforeend" hx-vals='{"command":"initialize"}'>Initialize</button>
 </body>
 </html>

@@ -58,9 +58,16 @@ public final class StatePage implements Endpoints {
         web.registerPath(GET, "", this::statePage);
     }
 
-    // @todo #9 Output all the commands as buttons on the page
     public Response statePage(final Request request) {
         final StoredState stored = new StoredState(this.computation.storedState());
-        return Response.htmlOk(this.template.renderTemplate(Map.of("state", stored.asHtmlList())));
+        final CommandNames commands = new CommandNames(this.computation.commandNames());
+        return Response.htmlOk(
+            this.template.renderTemplate(
+                Map.of(
+                    "state", stored.asHtmlList(),
+                    "commands", commands.asHtmlList()
+                )
+            )
+        );
     }
 }

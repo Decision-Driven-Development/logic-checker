@@ -29,6 +29,7 @@ import com.renomad.minum.web.Response;
 import com.renomad.minum.web.WebFramework;
 import java.util.Map;
 import ru.ewc.checklogic.Computation;
+import ru.ewc.decisions.api.DecitaException;
 
 /**
  * I am a configuration object for all the command-related endpoints.
@@ -44,7 +45,12 @@ public final class CommandPage implements Endpoints {
     /**
      * The template processor for the Command page.
      */
-    private final TemplateProcessor template;
+    private final TemplateProcessor description;
+
+    /**
+     * The template processor for the error page.
+     */
+    private final TemplateProcessor error;
 
     /**
      * Ctor.
@@ -53,8 +59,11 @@ public final class CommandPage implements Endpoints {
      */
     public CommandPage(final Computation computation) {
         this.computation = computation;
-        this.template = TemplateProcessor.buildProcessor(
+        this.description = TemplateProcessor.buildProcessor(
             WebResource.readFileFromResources("templates/command-info.html")
+        );
+        this.error = TemplateProcessor.buildProcessor(
+            WebResource.readFileFromResources("templates/command-error.html")
         );
     }
 
@@ -65,16 +74,28 @@ public final class CommandPage implements Endpoints {
     }
 
     // @todo #25 Pass the filled parameters to the command
-    // @todo #25 Handle the errors gracefully (show some modal with error description?)
     public Response executeCommand(final Request request) {
         final String command = request.body().asString("command");
-        this.computation.perform(command);
-        return Response.htmlOk("OK", Map.of("HX-Redirect", "/"));
+        Response response;
+        try {
+            this.computation.perform(command);
+            response = Response.htmlOk("OK", Map.of("HX-Redirect", "/"));
+        } catch (final DecitaException exception) {
+            response = Response.htmlOk(
+                this.error.renderTemplate(
+                    Map.of(
+                        "error", exception.getMessage()
+                    )
+                )
+            );
+        }
+        return response;
     }
 
     // @todo #25 Extract all the required parameters from the command's description
+    // @todo #25 Implement the check for the command's decision table
     public Response commandInfo(final Request request) {
         final String command = request.requestLine().queryString().getOrDefault("command", "");
-        return Response.htmlOk(this.template.renderTemplate(Map.of("command_name", command)));
+        return Response.htmlOk(this.description.renderTemplate(Map.of("command_name", command)));
     }
 }

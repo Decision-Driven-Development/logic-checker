@@ -29,6 +29,7 @@
         <br>
         <br>
         <input id="command" type="hidden" name="command" value="{{ command_name }}"/>
-        <button _="on click trigger closeModal" hx-post="/command" hx-include="#command">Execute</button>
+        <button hx-post="/command" hx-include="#command"
+                hx-target="#modal" hx-swap="outerHTML">Execute</button>
     </div>
 </div>

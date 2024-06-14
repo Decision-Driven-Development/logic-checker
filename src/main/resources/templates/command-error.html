@@ -21,21 +21,11 @@
   ~ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   ~ SOFTWARE.
   -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Simple HTML Page</title>
-    <script src="https://unpkg.com/htmx.org@1.9.12"
-            integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2"
-            crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
-    <link rel="stylesheet" href="static/main.css">
-</head>
-<body>
-<h1>State entities</h1>
-{{ state }}
-<hr>
-<h1>Commands</h1>
-{{ commands }}
-</body>
-</html>
+<div id="modal" _="on closeModal add .closing then wait for animationend then remove me">
+    <div class="modal-underlay" _="on click trigger closeModal"></div>
+    <div class="modal-content">
+        <h1>Error</h1>
+        <p>{{ error }}</p>
+        <button _="on click trigger closeModal">Close</button>
+    </div>
+</div>

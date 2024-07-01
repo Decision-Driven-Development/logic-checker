@@ -28,7 +28,7 @@ import com.renomad.minum.web.Request;
 import com.renomad.minum.web.Response;
 import com.renomad.minum.web.WebFramework;
 import java.util.Map;
-import ru.ewc.checklogic.Computation;
+import ru.ewc.checklogic.ServerContext;
 
 /**
  * I am the configuration and logic for the state web page.
@@ -44,9 +44,9 @@ public final class StatePage implements Endpoints {
     /**
      * An instance of an object tracking the application state.
      */
-    private final Computation computation;
+    private final ServerContext computation;
 
-    public StatePage(final Computation computation) {
+    public StatePage(final ServerContext computation) {
         this.computation = computation;
         this.template = TemplateProcessor.buildProcessor(
             WebResource.readFileFromResources("templates/state.html")

@@ -40,6 +40,7 @@ import org.yaml.snakeyaml.Yaml;
  *
  * @since 0.3.0
  */
+@SuppressWarnings("PMD.ProhibitPublicStaticMethods")
 public final class FileUtils {
     /**
      * Primary hidden constructor.
@@ -48,36 +49,13 @@ public final class FileUtils {
         // Utility class
     }
 
-    static InputStream applicationConfig(final String root) throws IOException {
+    public static InputStream applicationConfig(final String root) throws IOException {
         return Files.newInputStream(Path.of(root, "application.yaml"));
     }
 
-    /**
-     * Gets the path to a folder with specified resources.
-     *
-     * @param resource Resource name to get its folder.
-     * @return Path to a resource folder as a String.
-     */
-    static String getFinalPathTo(final String resource) {
-        final String states;
-        if (System.getProperties().containsKey("sources")) {
-            states = String.format("%s/%s", System.getProperty("sources"), resource);
-        } else if (System.getProperties().containsKey(resource)) {
-            states = System.getProperty(resource);
-        } else {
-            states = String.format(
-                "%s%s%s",
-                System.getProperty("user.dir"),
-                "/src/test/resources/",
-                resource
-            );
-        }
-        return states;
-    }
-
     @SneakyThrows
-    static Stream<LogicChecker.TestData> readFileNames() {
-        return Files.walk(Paths.get(Computation.uriFrom(getFinalPathTo("states"))))
+    public static Stream<TestData> readFileNames(final String root) {
+        return Files.walk(Path.of(root, "states"))
             .filter(Files::isRegularFile)
             .map(
                 path -> path.toFile().getAbsolutePath()
@@ -94,7 +72,7 @@ public final class FileUtils {
     }
 
     @SuppressWarnings("unchecked")
-    private static LogicChecker.TestData createTestData(
+    private static TestData createTestData(
         final String path,
         final InputStream stream
     ) {
@@ -110,7 +88,7 @@ public final class FileUtils {
         if (iterator.hasNext()) {
             expectations = (Map<String, Map<String, String>>) iterator.next();
         }
-        return new LogicChecker.TestData(path, command, expectations);
+        return new TestData(path, command, expectations);
     }
 
     @SuppressWarnings("unchecked")

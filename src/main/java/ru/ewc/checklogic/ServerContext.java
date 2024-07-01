@@ -24,7 +24,6 @@
 
 package ru.ewc.checklogic;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,30 +35,14 @@ import ru.ewc.decisions.api.ComputationContext;
  * @since 0.1.0
  */
 @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
-public final class Computation {
+public final class ServerContext {
     /**
      * The context of the computation.
      */
     private final ComputationContext context;
 
-    public Computation(final ComputationContext context) {
+    public ServerContext(final ComputationContext context) {
         this.context = context;
-    }
-
-    /**
-     * Converts a string representation of the file system path to a correct URI.
-     *
-     * @param path File system path as a String.
-     * @return URI that corresponds to a given path.
-     */
-    public static URI uriFrom(final String path) {
-        final StringBuilder result = new StringBuilder("file:/");
-        if (path.charAt(0) == '/') {
-            result.append(path.replace('\\', '/').substring(1));
-        } else {
-            result.append(path.replace('\\', '/'));
-        }
-        return URI.create(result.toString());
     }
 
     public void perform(final String command) {

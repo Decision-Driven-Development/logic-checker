@@ -28,7 +28,7 @@ import com.renomad.minum.web.Request;
 import com.renomad.minum.web.Response;
 import com.renomad.minum.web.WebFramework;
 import java.util.Map;
-import ru.ewc.checklogic.Computation;
+import ru.ewc.checklogic.ServerContext;
 import ru.ewc.decisions.api.DecitaException;
 
 /**
@@ -40,7 +40,7 @@ public final class CommandPage implements Endpoints {
     /**
      * The computation to be used for the command processing.
      */
-    private final Computation computation;
+    private final ServerContext computation;
 
     /**
      * The template processor for the Command page.
@@ -57,7 +57,7 @@ public final class CommandPage implements Endpoints {
      *
      * @param computation The computation to be used for the command processing.
      */
-    public CommandPage(final Computation computation) {
+    public CommandPage(final ServerContext computation) {
         this.computation = computation;
         this.description = TemplateProcessor.buildProcessor(
             WebResource.readFileFromResources("templates/command-info.html")

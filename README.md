@@ -109,8 +109,10 @@ If it is the assertion on a state, then it's the same format as in the initial s
 
 ## Running the tests
 
-The tests are run by issuing the following command:
+The tests are run by:
 
-```bash
-java -jar logic-checker.jar <absolute-path-to-the-project-folder>
-```
+1. starting the web server and passing the absolute path to the project folder as an argument:
+    ```bash
+    java -jar logic-checker.jar <absolute-path-to-the-app-resources>
+    ```
+2. and then heading to the `http://localhost:8080/test` in the browser.

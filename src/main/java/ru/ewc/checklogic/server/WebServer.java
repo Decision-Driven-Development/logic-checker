@@ -25,7 +25,7 @@ package ru.ewc.checklogic.server;
 
 import com.renomad.minum.web.FullSystem;
 import com.renomad.minum.web.WebFramework;
-import ru.ewc.checklogic.Computation;
+import ru.ewc.checklogic.ServerContext;
 
 /**
  * I am the web server for the CheckLogic application. My main responsibility is to configure the
@@ -35,24 +35,32 @@ import ru.ewc.checklogic.Computation;
  */
 public final class WebServer {
     /**
-     * The computation to be used for the web server.
+     * The context (all the paths) to be used for the web server.
      */
-    private final Computation computation;
+    private final ServerContext context;
+
+    /**
+     * The root path for the external business logic resources.
+     */
+    private final String root;
 
     /**
      * Ctor.
      *
-     * @param computation The computation to be used for the web server.
+     * @param context The computation to be used for the web server.
+     * @param root The root path for the external business logic resources.
      */
-    public WebServer(final Computation computation) {
-        this.computation = computation;
+    public WebServer(final ServerContext context, final String root) {
+        this.context = context;
+        this.root = root;
     }
 
     public void start() {
         final FullSystem minum = FullSystem.initialize();
         final WebFramework web = minum.getWebFramework();
-        registerEndpoints(web, new StatePage(this.computation));
-        registerEndpoints(web, new CommandPage(this.computation));
+        registerEndpoints(web, new StatePage(this.context));
+        registerEndpoints(web, new CommandPage(this.context));
+        registerEndpoints(web, new ResultOfTestsPage(this.root));
         registerEndpoints(web, new StaticResources());
         minum.block();
     }

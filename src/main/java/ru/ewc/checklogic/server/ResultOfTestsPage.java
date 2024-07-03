@@ -45,7 +45,6 @@ import ru.ewc.checklogic.InMemoryStorage;
 import ru.ewc.checklogic.ServerContext;
 import ru.ewc.checklogic.TestData;
 import ru.ewc.checklogic.TestResult;
-import ru.ewc.decisions.api.ComputationContext;
 import ru.ewc.decisions.api.Locator;
 import ru.ewc.state.State;
 
@@ -107,11 +106,9 @@ public final class ResultOfTestsPage implements Endpoints {
     private TestResult performTest(final TestData test) {
         final SoftAssertions softly = new SoftAssertions();
         final ServerContext target = new ServerContext(
-            new ComputationContext(
-                stateFromFile(Files.newInputStream(new File(test.file()).toPath()), this.root),
-                Path.of(this.root, "tables").toUri(),
-                Path.of(this.root, "commands").toUri()
-            )
+            stateFromFile(Files.newInputStream(new File(test.file()).toPath()), this.root),
+            Path.of(this.root, "tables").toUri(),
+            Path.of(this.root, "commands").toUri()
         );
         TestResult result;
         try {

@@ -24,11 +24,13 @@
 
 package ru.ewc.checklogic;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import ru.ewc.decisions.api.ComputationContext;
 import ru.ewc.decisions.api.DecitaException;
+import ru.ewc.state.State;
 
 /**
  * I am a unique instance of a decision table computation.
@@ -38,12 +40,30 @@ import ru.ewc.decisions.api.DecitaException;
 @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
 public final class ServerContext {
     /**
+     * The stored state of the system, persisted between requests.
+     */
+    private final State state;
+
+    /**
+     * The URI of the tables folder, used to recreate the computation context for each request.
+     */
+    private final URI tables;
+
+    /**
+     * The URI of the commands folder, used to recreate the computation context for each request.
+     */
+    private final URI commands;
+
+    /**
      * The context of the computation.
      */
-    private final ComputationContext context;
+    private ComputationContext context;
 
-    public ServerContext(final ComputationContext context) {
-        this.context = context;
+    public ServerContext(final State initial, final URI tables, final URI commands) {
+        this.state = initial;
+        this.tables = tables;
+        this.commands = commands;
+        this.context = new ComputationContext(initial, tables, commands);
     }
 
     public void perform(final String command) {
@@ -59,6 +79,7 @@ public final class ServerContext {
                 }
             });
         this.context.perform(command);
+        this.context = new ComputationContext(this.state, this.tables, this.commands);
     }
 
     public Map<String, String> stateFor(final String table, final Map<String, String> entities) {

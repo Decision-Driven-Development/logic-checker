@@ -24,7 +24,6 @@
 
 package ru.ewc.checklogic;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -35,7 +34,6 @@ import java.util.stream.Stream;
 import lombok.SneakyThrows;
 import org.yaml.snakeyaml.Yaml;
 import ru.ewc.checklogic.server.WebServer;
-import ru.ewc.decisions.api.ComputationContext;
 import ru.ewc.state.State;
 
 /**
@@ -50,18 +48,17 @@ public final class LogicChecker {
         // Utility class
     }
 
-    // @todo #25 Recreate ComputationContext for each request
-    public static void main(final String[] args) throws IOException {
+    public static void main(final String[] args) {
         if (args.length != 1) {
             throw new IllegalArgumentException("Please provide the path to the resources");
         }
         final String root = args[0];
-        new WebServer(new ServerContext(getContext(root)), root).start();
+        new WebServer(context(root), root).start();
     }
 
     @SneakyThrows
-    private static ComputationContext getContext(final String root) {
-        return new ComputationContext(
+    private static ServerContext context(final String root) {
+        return new ServerContext(
             stateFromAppConfig(FileUtils.applicationConfig(root)),
             Path.of(root, "tables").toUri(),
             Path.of(root, "commands").toUri()

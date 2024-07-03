@@ -107,4 +107,8 @@ public final class ServerContext {
     public Map<String, List<String>> commandData() {
         return this.context.commandData();
     }
+
+    public boolean isAvailable(String command, String field) {
+        return this.context.decisionFor(command).get(field).equalsIgnoreCase("true");
+    }
 }

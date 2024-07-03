@@ -65,7 +65,7 @@ public final class StatePage implements Endpoints {
             this.template.renderTemplate(
                 Map.of(
                     "state", stored.asHtmlList(),
-                    "commands", commands.namesAsHtmlList()
+                    "commands", commands.namesAsHtmlList(this.computation)
                 )
             )
         );

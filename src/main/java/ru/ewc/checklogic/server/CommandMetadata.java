@@ -58,18 +58,23 @@ public class CommandMetadata {
     /**
      * Converts the command names to an HTML list.
      *
+     * @param computation The server context to get the existing commands from.
      * @return The command names as an HTML list to be used in a page template.
      */
-    public String namesAsHtmlList() {
+    public String namesAsHtmlList(final ServerContext computation) {
         return "<ul>%s</ul>".formatted(
             this.names.stream()
-                .map("""
-                    <button class="btn btn-primary"
+                .map(command -> """
+                    <button class="btn %2$s"
                     hx-get="/command" hx-target="body" hx-swap="beforeend"
                     hx-vals='{"command":"%1$s"}'>%1$s</button>
-                    """::formatted
+                    """.formatted(command, buttonCssClass(computation, command))
                 ).collect(Collectors.joining())
         );
+    }
+
+    private static String buttonCssClass(ServerContext computation, String command) {
+        return computation.isAvailable(command, "available") ? "btn-success" : "btn-secondary";
     }
 
     /**

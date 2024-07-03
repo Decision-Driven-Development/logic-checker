@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import ru.ewc.decisions.api.ComputationContext;
+import ru.ewc.decisions.api.DecitaException;
 
 /**
  * I am a unique instance of a decision table computation.
@@ -59,6 +60,16 @@ public final class ServerContext {
 
     public Map<String, Map<String, Object>> storedState() {
         return this.context.storedState();
+    }
+
+    public String valueFor(final String locator, final String fragment) {
+        String value;
+        try {
+            value = this.context.valueFor(locator, fragment);
+        } catch (final DecitaException exception) {
+            value = "";
+        }
+        return value;
     }
 
     public Map<String, List<String>> commandData() {

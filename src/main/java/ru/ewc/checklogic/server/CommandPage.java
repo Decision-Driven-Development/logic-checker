@@ -100,7 +100,7 @@ public final class CommandPage implements Endpoints {
             this.description.renderTemplate(
                 Map.of(
                     "command_name", command,
-                    "command_args", String.join(",", commands.commandArgsAsHtmlForm(command))
+                    "command_args", commands.commandArgsAsHtmlForm(command, this.computation)
                 )
             )
         );

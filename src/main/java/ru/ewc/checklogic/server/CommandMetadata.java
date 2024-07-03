@@ -26,6 +26,7 @@ package ru.ewc.checklogic.server;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import ru.ewc.checklogic.ServerContext;
 
 /**
  * I am a class encapsulating commands metadata. My main responsibility is to present that metadata
@@ -74,15 +75,20 @@ public class CommandMetadata {
      * Presents the command arguments as an HTML form to accept the user input.
      *
      * @param command Command name to get the arguments for.
+     * @param context The server context to get the existing arguments values from.
      * @return The command arguments as an HTML form to be used in a page template.
      */
-    public String commandArgsAsHtmlForm(final String command) {
+    public String commandArgsAsHtmlForm(final String command, final ServerContext context) {
         return "<ul>%s</ul>".formatted(
-            this.metadata.get(command).stream()
-                .map("""
-                    <li>%s</li>
-                    """::formatted
-                ).collect(Collectors.joining())
+            this.metadata.get(command).stream().map(
+                arg -> """
+                    <li>%s - %s</li>
+                    """.formatted(arg, extractValue(context, arg))
+            ).collect(Collectors.joining())
         );
+    }
+
+    private static String extractValue(final ServerContext context, final String arg) {
+        return context.valueFor(arg.split("::")[0], arg.split("::")[1]);
     }
 }

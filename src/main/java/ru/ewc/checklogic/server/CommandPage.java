@@ -92,10 +92,17 @@ public final class CommandPage implements Endpoints {
         return response;
     }
 
-    // @todo #25 Extract all the required parameters from the command's description
     // @todo #25 Implement the check for the command's decision table
     public Response commandInfo(final Request request) {
         final String command = request.requestLine().queryString().getOrDefault("command", "");
-        return Response.htmlOk(this.description.renderTemplate(Map.of("command_name", command)));
+        final CommandMetadata commands = new CommandMetadata(this.computation.commandData());
+        return Response.htmlOk(
+            this.description.renderTemplate(
+                Map.of(
+                    "command_name", command,
+                    "command_args", String.join(",", commands.commandArgsAsHtmlForm(command))
+                )
+            )
+        );
     }
 }

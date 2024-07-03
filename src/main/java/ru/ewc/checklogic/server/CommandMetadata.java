@@ -24,27 +24,34 @@
 package ru.ewc.checklogic.server;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * I am a class encapsulating the command names. My main responsibility is to present those names
+ * I am a class encapsulating commands metadata. My main responsibility is to present that metadata
  * in a human-readable form.
  *
  * @since 0.3.0
  */
-public class CommandNames {
+public class CommandMetadata {
     /**
      * The names of the commands.
      */
     private final List<String> names;
 
     /**
+     * The map of commands metadata.
+     */
+    private final Map<String, List<String>> metadata;
+
+    /**
      * Ctor.
      *
-     * @param names The names of the commands.
+     * @param metadata The map of commands metadata.
      */
-    public CommandNames(final List<String> names) {
-        this.names = names;
+    public CommandMetadata(final Map<String, List<String>> metadata) {
+        this.names = metadata.keySet().stream().toList();
+        this.metadata = metadata;
     }
 
     /**
@@ -52,12 +59,28 @@ public class CommandNames {
      *
      * @return The command names as an HTML list to be used in a page template.
      */
-    public String asHtmlList() {
+    public String namesAsHtmlList() {
         return "<ul>%s</ul>".formatted(
             this.names.stream()
                 .map("""
                     <button hx-get="/command" hx-target="body" hx-swap="beforeend"
                     hx-vals='{"command":"%1$s"}'>%1$s</button>
+                    """::formatted
+                ).collect(Collectors.joining())
+        );
+    }
+
+    /**
+     * Presents the command arguments as an HTML form to accept the user input.
+     *
+     * @param command Command name to get the arguments for.
+     * @return The command arguments as an HTML form to be used in a page template.
+     */
+    public String commandArgsAsHtmlForm(final String command) {
+        return "<ul>%s</ul>".formatted(
+            this.metadata.get(command).stream()
+                .map("""
+                    <li>%s</li>
                     """::formatted
                 ).collect(Collectors.joining())
         );

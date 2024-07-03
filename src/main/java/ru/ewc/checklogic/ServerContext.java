@@ -61,7 +61,7 @@ public final class ServerContext {
         return this.context.storedState();
     }
 
-    public List<String> commandNames() {
-        return this.context.commandNames();
+    public Map<String, List<String>> commandData() {
+        return this.context.commandData();
     }
 }

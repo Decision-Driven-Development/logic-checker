@@ -80,7 +80,7 @@ public class CommandMetadata {
      * @return The command arguments as an HTML form to be used in a page template.
      */
     public String commandArgsAsHtmlForm(final String command, final ServerContext context) {
-        return this.metadata.get(command).stream().map(
+        return this.metadata.get(command).stream().distinct().map(
             arg -> new StringBuilder()
                 .append("<div class='mb-3'>")
                 .append("<label for='%1$s' class='form-label'>%1$s:</label>")

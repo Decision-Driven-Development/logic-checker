@@ -24,9 +24,13 @@
 package ru.ewc.checklogic.server;
 
 import com.renomad.minum.templating.TemplateProcessor;
+import com.renomad.minum.web.Body;
 import com.renomad.minum.web.Request;
 import com.renomad.minum.web.Response;
 import com.renomad.minum.web.WebFramework;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 import ru.ewc.checklogic.ServerContext;
 import ru.ewc.decisions.api.DecitaException;
@@ -73,12 +77,12 @@ public final class CommandPage implements Endpoints {
         web.registerPath(GET, "command", this::commandInfo);
     }
 
-    // @todo #25 Pass the filled parameters to the command
     public Response executeCommand(final Request request) {
         final String command = request.body().asString("command");
+        final Map<String, String> args = CommandPage.extractArgsFrom(request.body());
         Response response;
         try {
-            this.computation.perform(command);
+            this.computation.perform(command, args);
             response = Response.htmlOk("OK", Map.of("HX-Redirect", "/"));
         } catch (final DecitaException exception) {
             response = Response.htmlOk(
@@ -105,4 +109,17 @@ public final class CommandPage implements Endpoints {
             )
         );
     }
+
+    private static Map<String, String> extractArgsFrom(final Body body) {
+        final Map<String, String> result = new HashMap<>();
+        body.getKeys().forEach(
+            key -> {
+                final String decoded = URLDecoder.decode(key, StandardCharsets.UTF_8);
+                if (decoded.contains("::") && !body.asString(key).endsWith("=")) {
+                    result.put(decoded, body.asString(key));
+                }
+            });
+        return result;
+    }
+
 }

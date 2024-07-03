@@ -47,6 +47,17 @@ public final class ServerContext {
     }
 
     public void perform(final String command) {
+        this.perform(command, Map.of());
+    }
+
+    public void perform(final String command, final Map<String, String> args) {
+        args.forEach(
+            (key, value) -> {
+                if (!value.isEmpty()) {
+                    final String[] split = key.split("::");
+                    this.context.setValueFor(split[0], split[1], value);
+                }
+            });
         this.context.perform(command);
     }
 

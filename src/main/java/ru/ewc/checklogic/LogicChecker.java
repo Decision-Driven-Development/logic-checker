@@ -50,6 +50,7 @@ public final class LogicChecker {
         // Utility class
     }
 
+    // @todo #25 Recreate ComputationContext for each request
     public static void main(final String[] args) throws IOException {
         if (args.length != 1) {
             throw new IllegalArgumentException("Please provide the path to the resources");

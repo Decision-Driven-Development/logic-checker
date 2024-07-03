@@ -25,11 +25,10 @@
     <div class="modal-underlay" _="on click trigger closeModal"></div>
     <div class="modal-content">
         <h1>{{ command_name }}</h1>
-        {{ command_args }}
-        <br>
-        <br>
-        <input id="command" type="hidden" name="command" value="{{ command_name }}"/>
-        <button hx-post="/command" hx-include="#command"
-                hx-target="#modal" hx-swap="outerHTML">Execute</button>
+        <form hx-post="/command" hx-include="#command" hx-target="#modal" hx-swap="outerHTML">
+            {{ command_args }}
+            <input id="command" type="hidden" name="command" value="{{ command_name }}"/>
+            <button class="btn btn-primary" type="submit">Execute</button>
+        </form>
     </div>
 </div>

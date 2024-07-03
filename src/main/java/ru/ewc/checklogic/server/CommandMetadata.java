@@ -64,7 +64,8 @@ public class CommandMetadata {
         return "<ul>%s</ul>".formatted(
             this.names.stream()
                 .map("""
-                    <button hx-get="/command" hx-target="body" hx-swap="beforeend"
+                    <button class="btn btn-primary"
+                    hx-get="/command" hx-target="body" hx-swap="beforeend"
                     hx-vals='{"command":"%1$s"}'>%1$s</button>
                     """::formatted
                 ).collect(Collectors.joining())
@@ -79,13 +80,15 @@ public class CommandMetadata {
      * @return The command arguments as an HTML form to be used in a page template.
      */
     public String commandArgsAsHtmlForm(final String command, final ServerContext context) {
-        return "<ul>%s</ul>".formatted(
-            this.metadata.get(command).stream().map(
-                arg -> """
-                    <li>%s - %s</li>
-                    """.formatted(arg, extractValue(context, arg))
-            ).collect(Collectors.joining())
-        );
+        return this.metadata.get(command).stream().map(
+            arg -> new StringBuilder()
+                .append("<div class='mb-3'>")
+                .append("<label for='%1$s' class='form-label'>%1$s:</label>")
+                .append("<input type='text' id='%1$s' name='%1$s' value='%2$s' ")
+                .append("class='form-control'>")
+                .append("</div>").toString()
+                .formatted(arg, extractValue(context, arg))
+        ).collect(Collectors.joining());
     }
 
     private static String extractValue(final ServerContext context, final String arg) {

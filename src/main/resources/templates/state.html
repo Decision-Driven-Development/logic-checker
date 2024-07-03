@@ -45,7 +45,7 @@
     </div>
     <div class="col">
         <h1>Context</h1>
-        <form>
+        <form class="mb-3" hx-post="/context" hx-target="#commands" hx-swap="innerHTML">
             <div class="mb-3">
                 <label class="col-form-label" for="availOutcome">Availability outcome field:</label>
                 <input class="form-control" type="text" id="availOutcome" name="availOutcome"
@@ -64,7 +64,7 @@
             <button class="btn btn-primary" type="submit">Update commands</button>
         </form>
         <h1>Commands</h1>
-        {{ commands }}
+        <div id="commands"></div>
     </div>
 </div>
 </body>

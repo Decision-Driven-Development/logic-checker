@@ -60,14 +60,6 @@ public final class StatePage implements Endpoints {
 
     public Response statePage(final Request request) {
         final StoredState stored = new StoredState(this.computation.storedState());
-        final CommandMetadata commands = new CommandMetadata(this.computation.commandData());
-        return Response.htmlOk(
-            this.template.renderTemplate(
-                Map.of(
-                    "state", stored.asHtmlList(),
-                    "commands", commands.namesAsHtmlList(this.computation)
-                )
-            )
-        );
+        return Response.htmlOk(this.template.renderTemplate(Map.of("state", stored.asHtmlList())));
     }
 }

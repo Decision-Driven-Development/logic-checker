@@ -96,7 +96,6 @@ public final class CommandPage implements Endpoints {
         return response;
     }
 
-    // @todo #25 Implement the check for the command's decision table
     public Response commandInfo(final Request request) {
         final String command = request.requestLine().queryString().getOrDefault("command", "");
         final CommandMetadata commands = new CommandMetadata(this.computation.commandData());

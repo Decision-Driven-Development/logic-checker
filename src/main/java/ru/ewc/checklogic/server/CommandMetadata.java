@@ -59,22 +59,19 @@ public class CommandMetadata {
      * Converts the command names to an HTML list.
      *
      * @param computation The server context to get the existing commands from.
+     * @param outcome The decision table's outcome field that shows command's availability.
      * @return The command names as an HTML list to be used in a page template.
      */
-    public String namesAsHtmlList(final ServerContext computation) {
+    public String namesAsHtmlList(final ServerContext computation, final String outcome) {
         return "<ul>%s</ul>".formatted(
-            this.names.stream()
-                .map(command -> """
+            this.names.stream().map(
+                command -> """
                     <button class="btn %2$s"
                     hx-get="/command" hx-target="body" hx-swap="beforeend"
                     hx-vals='{"command":"%1$s"}'>%1$s</button>
-                    """.formatted(command, buttonCssClass(computation, command))
-                ).collect(Collectors.joining())
+                    """.formatted(command, buttonCssClass(computation, command, outcome))
+            ).collect(Collectors.joining())
         );
-    }
-
-    private static String buttonCssClass(ServerContext computation, String command) {
-        return computation.isAvailable(command, "available") ? "btn-success" : "btn-secondary";
     }
 
     /**
@@ -94,6 +91,20 @@ public class CommandMetadata {
                 .append("</div>").toString()
                 .formatted(arg, extractValue(context, arg))
         ).collect(Collectors.joining());
+    }
+
+    private static String buttonCssClass(
+        final ServerContext computation,
+        final String command,
+        final String availability
+    ) {
+        final String result;
+        if (computation.isAvailable(command, availability)) {
+            result = "btn-success";
+        } else {
+            result = "btn-secondary";
+        }
+        return result;
     }
 
     private static String extractValue(final ServerContext context, final String arg) {

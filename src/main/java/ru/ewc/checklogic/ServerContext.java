@@ -108,7 +108,16 @@ public final class ServerContext {
         return this.context.commandData();
     }
 
-    public boolean isAvailable(String command, String field) {
-        return this.context.decisionFor(command).get(field).equalsIgnoreCase("true");
+    public boolean isAvailable(final String command, final String field) {
+        return "true".equalsIgnoreCase(this.context.decisionFor(command).get(field));
+    }
+
+    public void update(final String req, final List<String> values) {
+        values.forEach(
+            value -> {
+                final String[] split = value.split(":");
+                this.context.setValueFor(req, split[0].trim(), split[1].trim());
+            });
+        this.context = new ComputationContext(this.state, this.tables, this.commands);
     }
 }

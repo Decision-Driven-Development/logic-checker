@@ -23,50 +23,45 @@
  */
 package ru.ewc.checklogic.server;
 
-import com.renomad.minum.web.FullSystem;
+import com.renomad.minum.web.Request;
+import com.renomad.minum.web.Response;
 import com.renomad.minum.web.WebFramework;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import ru.ewc.checklogic.ServerContext;
 
 /**
- * I am the web server for the CheckLogic application. My main responsibility is to configure the
- * routes, initialize and start the server.
+ * I am the configuration and logic for the context web page.
  *
- * @since 0.3.0
+ * @since 0.3.1
  */
-public final class WebServer {
+public final class ContextPage implements Endpoints {
     /**
-     * The context (all the paths) to be used for the web server.
+     * The server context.
      */
     private final ServerContext context;
 
-    /**
-     * The root path for the external business logic resources.
-     */
-    private final String root;
-
-    /**
-     * Ctor.
-     *
-     * @param context The computation to be used for the web server.
-     * @param root The root path for the external business logic resources.
-     */
-    public WebServer(final ServerContext context, final String root) {
+    public ContextPage(final ServerContext context) {
         this.context = context;
-        this.root = root;
     }
 
-    public void start() {
-        final FullSystem minum = FullSystem.initialize();
-        final WebFramework web = minum.getWebFramework();
-        registerEndpoints(web, new StatePage(this.context));
-        registerEndpoints(web, new CommandPage(this.context));
-        registerEndpoints(web, new ResultOfTestsPage(this.root));
-        registerEndpoints(web, new ContextPage(this.context));
-        registerEndpoints(web, new StaticResources());
-        minum.block();
+    @Override
+    public void register(final WebFramework web) {
+        web.registerPath(POST, "context", this::contextPage);
     }
 
-    private static void registerEndpoints(final WebFramework web, final Endpoints endpoints) {
-        endpoints.register(web);
+    private Response contextPage(final Request request) {
+        final String field = request.body().asString("availOutcome");
+        final String req = request.body().asString("reqLocator");
+        this.updateContext(req, request.body().asString("reqValues"));
+        final CommandMetadata commands = new CommandMetadata(this.context.commandData());
+        return Response.htmlOk(commands.namesAsHtmlList(this.context, field));
+    }
+
+    private void updateContext(final String req, final String values) {
+        final String decoded = URLDecoder.decode(values, StandardCharsets.UTF_8);
+        this.context.update(req, Arrays.stream(decoded.split("\n")).collect(Collectors.toList()));
     }
 }

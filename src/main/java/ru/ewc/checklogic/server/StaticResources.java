@@ -40,7 +40,7 @@ public final class StaticResources implements Endpoints {
 
     private static Response staticResource(final Request request) {
         final Response result;
-        if (request.requestLine().getPathDetails().isolatedPath().endsWith("main.css")) {
+        if (request.requestLine().getPathDetails().getIsolatedPath().endsWith("main.css")) {
             final String body = WebResource.readFileFromResources("static/main.css");
             result = new Response(OK, body, CSS);
         } else {

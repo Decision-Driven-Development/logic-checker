@@ -44,6 +44,25 @@
         {{ state }}
     </div>
     <div class="col">
+        <h1>Context</h1>
+        <form>
+            <div class="mb-3">
+                <label class="col-form-label" for="availOutcome">Availability outcome field:</label>
+                <input class="form-control" type="text" id="availOutcome" name="availOutcome"
+                       value="available">
+            </div>
+            <div class="mb-3">
+                <label class="col-form-label" for="reqLocator">Request Locator name:</label>
+                <input class="form-control" type="text" id="reqLocator" name="reqLocator"
+                       value="request">
+            </div>
+            <div class="mb-3">
+                <label class="col-form-label" for="reqValues">Request values:</label>
+                <textarea class="form-control" id="reqValues" name="reqValues"
+                          rows="3">player: Nikita</textarea>
+            </div>
+            <button class="btn btn-primary" type="submit">Update commands</button>
+        </form>
         <h1>Commands</h1>
         {{ commands }}
     </div>

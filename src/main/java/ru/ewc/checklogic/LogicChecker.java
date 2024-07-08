@@ -25,7 +25,6 @@
 package ru.ewc.checklogic;
 
 import java.io.InputStream;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,21 +52,12 @@ public final class LogicChecker {
             throw new IllegalArgumentException("Please provide the path to the resources");
         }
         final String root = args[0];
-        new WebServer(context(root), root).start();
-    }
-
-    @SneakyThrows
-    private static ServerContext context(final String root) {
-        return new ServerContext(
-            stateFromAppConfig(FileUtils.applicationConfig(root)),
-            Path.of(root, "tables").toUri(),
-            Path.of(root, "commands").toUri()
-        );
+        new WebServer(ServerContext.contextForFolder(root), root).start();
     }
 
     @SneakyThrows
     @SuppressWarnings("unchecked")
-    private static State stateFromAppConfig(final InputStream file) {
+    static State stateFromAppConfig(final InputStream file) {
         final Map<String, Object> config = new Yaml().load(file);
         final Stream<String> names = ((List<String>) config.get("locators")).stream();
         return new State(

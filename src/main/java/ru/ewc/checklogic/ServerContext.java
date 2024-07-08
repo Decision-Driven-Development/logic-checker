@@ -25,9 +25,11 @@
 package ru.ewc.checklogic;
 
 import java.net.URI;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.SneakyThrows;
 import ru.ewc.decisions.api.ComputationContext;
 import ru.ewc.decisions.api.DecitaException;
 import ru.ewc.state.State;
@@ -59,11 +61,17 @@ public final class ServerContext {
      */
     private ComputationContext context;
 
+    /**
+     * The cached request parameters.
+     */
+    private final Map<String, String> parameters;
+
     public ServerContext(final State initial, final URI tables, final URI commands) {
         this.state = initial;
         this.tables = tables;
         this.commands = commands;
         this.context = new ComputationContext(initial, tables, commands);
+        this.parameters = new HashMap<>(2);
     }
 
     public void perform(final String command) {
@@ -119,5 +127,25 @@ public final class ServerContext {
                 this.context.setValueFor(req, split[0].trim(), split[1].trim());
             });
         this.context = new ComputationContext(this.state, this.tables, this.commands);
+    }
+
+    public String cached(final String parameter) {
+        return this.parameters.getOrDefault(parameter, "");
+    }
+
+    public void cache(final String parameter, final String value) {
+        this.parameters.put(parameter, value);
+    }
+
+    @SneakyThrows
+    static ServerContext contextForFolder(final String root) {
+        final ServerContext result = new ServerContext(
+            LogicChecker.stateFromAppConfig(FileUtils.applicationConfig(root)),
+            Path.of(root, "tables").toUri(),
+            Path.of(root, "commands").toUri()
+        );
+        result.cache("available", "available");
+        result.cache("request", "request");
+        return result;
     }
 }

@@ -45,16 +45,16 @@
     </div>
     <div class="col">
         <h1>Context</h1>
-        <form class="mb-3" hx-post="/context" hx-target="#commands" hx-swap="innerHTML">
+        <form class="mb-3" hx-post="/context" hx-target="#commands" hx-swap="innerHTML" hx-trigger="submit, load">
             <div class="mb-3">
                 <label class="col-form-label" for="availOutcome">Availability outcome field:</label>
                 <input class="form-control" type="text" id="availOutcome" name="availOutcome"
-                       value="available">
+                       value="{{ available }}">
             </div>
             <div class="mb-3">
                 <label class="col-form-label" for="reqLocator">Request Locator name:</label>
                 <input class="form-control" type="text" id="reqLocator" name="reqLocator"
-                       value="request">
+                       value="{{ request }}">
             </div>
             <div class="mb-3">
                 <label class="col-form-label" for="reqValues">Request values:</label>
@@ -64,7 +64,7 @@
             <button class="btn btn-primary" type="submit">Update commands</button>
         </form>
         <h1>Commands</h1>
-        <div id="commands"></div>
+        <div id="commands" class="btn-group-vertical"></div>
     </div>
 </div>
 </body>

@@ -80,15 +80,19 @@ public class CommandMetadata {
      * @return The command arguments as an HTML form to be used in a page template.
      */
     public String commandArgsAsHtmlForm(final String command, final ServerContext context) {
-        return this.metadata.get(command).stream().distinct().map(
-            arg -> new StringBuilder()
-                .append("<div class='mb-3'>")
-                .append("<label for='%1$s' class='form-label'>%1$s:</label>")
-                .append("<input type='text' id='%1$s' name='%1$s' value='%2$s' ")
-                .append("class='form-control'>")
-                .append("</div>").toString()
-                .formatted(arg, extractValue(context, arg))
-        ).collect(Collectors.joining());
+        return this.metadata.get(command).stream()
+            .distinct()
+            .filter(arg -> context.cached("request").equals(arg.split("::")[0]))
+            .map(
+                arg -> new StringBuilder()
+                    .append("<div class='mb-3'>")
+                    .append("<label for='%1$s' class='form-label'>%1$s:</label>")
+                    .append("<input type='text' id='%1$s' name='%1$s' value='%2$s' ")
+                    .append("class='form-control'>")
+                    .append("</div>").toString()
+                    .formatted(arg, extractValue(context, arg))
+            )
+            .collect(Collectors.joining());
     }
 
     private static String buttonCssClass(

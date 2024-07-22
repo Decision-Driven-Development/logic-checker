@@ -121,12 +121,8 @@ public final class ServerContext {
     }
 
     public void update(final List<String> values) {
-        this.state.locators().put(requestLocatorName(), InMemoryStorage.from(values));
+        this.state.locators().put(this.cached("request"), InMemoryStorage.from(values));
         this.context = new ComputationContext(this.state, this.tables, this.commands);
-    }
-
-    public String requestLocatorName() {
-        return this.cached("request");
     }
 
     public String cached(final String parameter) {

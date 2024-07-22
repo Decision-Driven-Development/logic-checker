@@ -35,6 +35,7 @@ import ru.ewc.decisions.api.Locator;
  *
  * @since 0.2
  */
+@SuppressWarnings("PMD.ProhibitPublicStaticMethods")
 public final class InMemoryStorage implements Locator {
     /**
      * Simple key-value storage.
@@ -50,7 +51,7 @@ public final class InMemoryStorage implements Locator {
         this.storage = storage;
     }
 
-    public static InMemoryStorage from(List<String> values) {
+    public static InMemoryStorage from(final List<String> values) {
         final InMemoryStorage storage = new InMemoryStorage(HashMap.newHashMap(values.size()));
         values.forEach(
             value -> {

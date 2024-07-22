@@ -120,13 +120,13 @@ public final class ServerContext {
         return "true".equalsIgnoreCase(this.context.decisionFor(command).get(field));
     }
 
-    public void update(final String req, final List<String> values) {
-        values.forEach(
-            value -> {
-                final String[] split = value.split(":");
-                this.context.setValueFor(req, split[0].trim(), split[1].trim());
-            });
+    public void update(final List<String> values) {
+        this.state.locators().put(requestLocatorName(), InMemoryStorage.from(values));
         this.context = new ComputationContext(this.state, this.tables, this.commands);
+    }
+
+    public String requestLocatorName() {
+        return this.cached("request");
     }
 
     public String cached(final String parameter) {

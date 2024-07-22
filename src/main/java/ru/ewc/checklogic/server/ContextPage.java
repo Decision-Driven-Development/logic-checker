@@ -55,21 +55,17 @@ public final class ContextPage implements Endpoints {
     private Response contextPage(final Request request) {
         this.context.cache("available", request.body().asString("availOutcome"));
         this.context.cache("request", request.body().asString("reqLocator"));
-        this.updateContext(this.requestLocator(), request.body().asString("reqValues"));
+        this.updateContext(request.body().asString("reqValues"));
         final CommandMetadata commands = new CommandMetadata(this.context.commandData());
         return Response.htmlOk(commands.namesAsHtmlList(this.context, this.availabilityField()));
-    }
-
-    private String requestLocator() {
-        return this.context.cached("request");
     }
 
     private String availabilityField() {
         return this.context.cached("available");
     }
 
-    private void updateContext(final String req, final String values) {
+    private void updateContext(final String values) {
         final String decoded = URLDecoder.decode(values, StandardCharsets.UTF_8);
-        this.context.update(req, Arrays.stream(decoded.split("\n")).collect(Collectors.toList()));
+        this.context.update(Arrays.stream(decoded.split("\n")).collect(Collectors.toList()));
     }
 }

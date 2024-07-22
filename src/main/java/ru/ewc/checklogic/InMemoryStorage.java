@@ -23,6 +23,8 @@
  */
 package ru.ewc.checklogic;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import ru.ewc.decisions.api.ComputationContext;
 import ru.ewc.decisions.api.Locator;
@@ -46,6 +48,16 @@ public final class InMemoryStorage implements Locator {
      */
     public InMemoryStorage(final Map<String, Object> storage) {
         this.storage = storage;
+    }
+
+    public static InMemoryStorage from(List<String> values) {
+        final InMemoryStorage storage = new InMemoryStorage(HashMap.newHashMap(values.size()));
+        values.forEach(
+            value -> {
+                final String[] split = value.split(":");
+                storage.setFragmentValue(split[0].trim(), split[1].trim());
+            });
+        return storage;
     }
 
     @Override

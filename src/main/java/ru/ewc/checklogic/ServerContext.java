@@ -134,6 +134,7 @@ public final class ServerContext {
     }
 
     @SneakyThrows
+    // @todo #33 Move server context creation to a factory
     static ServerContext contextForFolder(final String root) {
         final ServerContext result = new ServerContext(
             LogicChecker.stateFromAppConfig(FileUtils.applicationConfig(root)),

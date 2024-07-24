@@ -28,46 +28,31 @@ import com.renomad.minum.web.Request;
 import com.renomad.minum.web.Response;
 import com.renomad.minum.web.WebFramework;
 import java.util.Map;
-import ru.ewc.checklogic.ServerContext;
 
 /**
- * I am the configuration and logic for the state web page.
+ * I am the configuration and logic for the index web page.
  *
- * @since 0.3.0
+ * @since 0.3.2
  */
-public final class StatePage implements Endpoints {
+public final class IndexPage implements Endpoints {
     /**
      * The template processor for the State page.
      */
     private final TemplateProcessor template;
 
-    /**
-     * An instance of an object tracking the application state.
-     */
-    private final ServerContext computation;
-
-    public StatePage(final ServerContext computation) {
-        this.computation = computation;
+    public IndexPage() {
         this.template = TemplateProcessor.buildProcessor(
-            WebResource.readFileFromResources("templates/state.html")
+            WebResource.readFileFromResources("templates/index.html")
         );
     }
 
     @Override
     public void register(final WebFramework web) {
-        web.registerPath(GET, "state", this::statePage);
+        web.registerPath(GET, "", this::indexPage);
     }
 
-    public Response statePage(final Request request) {
-        final StoredState stored = new StoredState(this.computation.storedState());
-        return Response.htmlOk(
-            this.template.renderTemplate(
-                Map.of(
-                    "state", stored.asHtmlList(),
-                    "available", this.computation.cached("available"),
-                    "request", this.computation.cached("request")
-                )
-            )
-        );
+    @SuppressWarnings("PMD.UnusedFormalParameter")
+    private Response indexPage(final Request request) {
+        return Response.htmlOk(this.template.renderTemplate(Map.of()));
     }
 }

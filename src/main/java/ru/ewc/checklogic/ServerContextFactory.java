@@ -23,33 +23,36 @@
  */
 package ru.ewc.checklogic;
 
-import java.util.List;
-import java.util.Map;
+import java.nio.file.Path;
+import ru.ewc.state.State;
 
 /**
- * I am the context for the server. I provide the server with the necessary information to perform
- * the commands, to store the state of the system and to make decisions based on the state.
+ * I am a factory for creating server contexts.
  *
  * @since 0.3.2
  */
-public interface ServerContext {
-    void perform(String command);
+public class ServerContextFactory {
+    /**
+     * The root path for the external business logic resources.
+     */
+    private final String root;
 
-    void perform(String command, Map<String, String> args);
+    public ServerContextFactory(final String root) {
+        this.root = root;
+    }
 
-    Map<String, String> stateFor(String table, Map<String, String> entities);
-
-    Map<String, Map<String, Object>> storedState();
-
-    String valueFor(String locator, String fragment);
-
-    Map<String, List<String>> commandData();
-
-    boolean isAvailable(String command, String field);
-
-    void update(List<String> values);
-
-    String cached(String parameter);
-
-    void cache(String parameter, String value);
+    /**
+     * Creates a new server context.
+     *
+     * @param initial The initial state of the system.
+     * @return A new server context.
+     */
+    // @todo #33 Decide on what type of ServerContext to create
+    public ServerContext instance(final State initial) {
+        return new FullServerContext(
+            initial,
+            Path.of(this.root, "tables").toUri(),
+            Path.of(this.root, "commands").toUri()
+        );
+    }
 }

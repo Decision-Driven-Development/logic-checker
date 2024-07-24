@@ -83,7 +83,7 @@ public final class CommandPage implements Endpoints {
         Response response;
         try {
             this.computation.perform(command, args);
-            response = Response.htmlOk("OK", Map.of("HX-Redirect", "/"));
+            response = Response.htmlOk("OK", Map.of("HX-Redirect", "/state"));
         } catch (final DecitaException exception) {
             response = Response.htmlOk(
                 this.error.renderTemplate(

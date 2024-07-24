@@ -52,7 +52,7 @@ public final class LogicChecker {
             throw new IllegalArgumentException("Please provide the path to the resources");
         }
         final String root = args[0];
-        new WebServer(ServerContext.contextForFolder(root), root).start();
+        new WebServer(FullServerContext.contextForFolder(root), root).start();
     }
 
     @SneakyThrows

@@ -31,7 +31,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +42,7 @@ import org.yaml.snakeyaml.Yaml;
 import ru.ewc.checklogic.FileUtils;
 import ru.ewc.checklogic.InMemoryStorage;
 import ru.ewc.checklogic.ServerContext;
+import ru.ewc.checklogic.ServerContextFactory;
 import ru.ewc.checklogic.TestData;
 import ru.ewc.checklogic.TestResult;
 import ru.ewc.decisions.api.Locator;
@@ -105,10 +105,8 @@ public final class ResultOfTestsPage implements Endpoints {
     @SneakyThrows
     private TestResult performTest(final TestData test) {
         final SoftAssertions softly = new SoftAssertions();
-        final ServerContext target = new ServerContext(
-            stateFromFile(Files.newInputStream(new File(test.file()).toPath()), this.root),
-            Path.of(this.root, "tables").toUri(),
-            Path.of(this.root, "commands").toUri()
+        final ServerContext target = new ServerContextFactory(this.root).instance(
+            stateFromFile(Files.newInputStream(new File(test.file()).toPath()), this.root)
         );
         TestResult result;
         try {

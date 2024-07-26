@@ -28,7 +28,6 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import lombok.SneakyThrows;
 import ru.ewc.decisions.api.ComputationContext;
 import ru.ewc.decisions.api.DecitaException;
 import ru.ewc.state.State;
@@ -142,13 +141,16 @@ public final class FullServerContext implements ServerContext {
         this.parameters.put(parameter, value);
     }
 
-    @SneakyThrows
-    static ServerContext contextForFolder(final String root) {
-        final ServerContext result = new ServerContextFactory(root).instance(
-            LogicChecker.stateFromAppConfig(FileUtils.applicationConfig(root))
-        );
-        result.cache("available", "available");
-        result.cache("request", "request");
-        return result;
+    @Override
+    public void putLocators(final Map<String, Map<String, Object>> raw) {
+        raw.forEach(
+            (name, data) -> {
+                final InMemoryStorage storage = new InMemoryStorage(new HashMap<>(data.size()));
+                data.forEach(
+                    (fragment, value) -> storage.setFragmentValue(fragment, value.toString())
+                );
+                this.state.locators().put(name, storage);
+            });
+        this.context = new ComputationContext(this.state, this.tables, this.commands);
     }
 }

@@ -52,4 +52,6 @@ public interface ServerContext {
     String cached(String parameter);
 
     void cache(String parameter, String value);
+
+    void putLocators(Map<String, Map<String, Object>> raw);
 }

@@ -49,10 +49,6 @@ public final class FileUtils {
         // Utility class
     }
 
-    public static InputStream applicationConfig(final String root) throws IOException {
-        return Files.newInputStream(Path.of(root, "application.yaml"));
-    }
-
     @SneakyThrows
     public static Stream<TestData> readFileNames(final String root) {
         return Files.walk(Path.of(root, "states"))

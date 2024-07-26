@@ -23,7 +23,18 @@
  */
 package ru.ewc.checklogic;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import lombok.SneakyThrows;
+import org.yaml.snakeyaml.Yaml;
+import ru.ewc.decisions.api.Locator;
 import ru.ewc.state.State;
 
 /**
@@ -53,6 +64,70 @@ public class ServerContextFactory {
             initial,
             Path.of(this.root, "tables").toUri(),
             Path.of(this.root, "commands").toUri()
+        );
+    }
+
+    /**
+     * Creates a new server context from the application configuration.
+     *
+     * @return A new server context initialized with the basic set of empty Locators.
+     */
+    @SneakyThrows
+    public ServerContext initialState() {
+        final FullServerContext result = new FullServerContext(
+            this.loadInitialState(),
+            Path.of(this.root, "tables").toUri(),
+            Path.of(this.root, "commands").toUri()
+        );
+        result.cache("available", "available");
+        result.cache("request", "request");
+        return result;
+    }
+
+    /**
+     * Creates a new server context from a state file. Used in state-based tests, where each test
+     * gets its own initial state, described in test "Arrange" section.
+     *
+     * @param file The stream of the test file's contents.
+     * @return A new server context initialized with state described in test file.
+     */
+    @SneakyThrows
+    public ServerContext fromStateFile(final InputStream file) {
+        final State state = this.loadInitialState();
+        state.locators().putAll(locatorsFromFile(file));
+        return new FullServerContext(
+            state,
+            Path.of(this.root, "tables").toUri(),
+            Path.of(this.root, "commands").toUri()
+        );
+    }
+
+    private static Map<String, Locator> locatorsFromFile(final InputStream file) {
+        final Map<String, Map<String, Object>> raw =
+            (Map<String, Map<String, Object>>) new Yaml().loadAll(file).iterator().next();
+        final Map<String, Locator> locators = new HashMap<>(raw.size());
+        raw.forEach((name, data) -> locators.put(name, new InMemoryStorage(data)));
+        return locators;
+    }
+
+    private State loadInitialState() throws IOException {
+        return ServerContextFactory.stateFromAppConfig(
+            Files.newInputStream(Path.of(this.root, "application.yaml"))
+        );
+    }
+
+    @SneakyThrows
+    @SuppressWarnings("unchecked")
+    private static State stateFromAppConfig(final InputStream file) {
+        final Map<String, Object> config = new Yaml().load(file);
+        final Stream<String> names = ((List<String>) config.get("locators")).stream();
+        return new State(
+            names.collect(
+                Collectors.toMap(
+                    name -> name,
+                    name -> new InMemoryStorage(new HashMap<>())
+                )
+            )
         );
     }
 }

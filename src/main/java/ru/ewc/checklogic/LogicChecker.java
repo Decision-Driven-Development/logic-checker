@@ -24,16 +24,7 @@
 
 package ru.ewc.checklogic;
 
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import lombok.SneakyThrows;
-import org.yaml.snakeyaml.Yaml;
 import ru.ewc.checklogic.server.WebServer;
-import ru.ewc.state.State;
 
 /**
  * End-to-end tests based on yaml descriptions.
@@ -42,7 +33,6 @@ import ru.ewc.state.State;
  */
 @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
 public final class LogicChecker {
-
     private LogicChecker() {
         // Utility class
     }
@@ -52,21 +42,6 @@ public final class LogicChecker {
             throw new IllegalArgumentException("Please provide the path to the resources");
         }
         final String root = args[0];
-        new WebServer(FullServerContext.contextForFolder(root), root).start();
-    }
-
-    @SneakyThrows
-    @SuppressWarnings("unchecked")
-    static State stateFromAppConfig(final InputStream file) {
-        final Map<String, Object> config = new Yaml().load(file);
-        final Stream<String> names = ((List<String>) config.get("locators")).stream();
-        return new State(
-            names.collect(
-                Collectors.toMap(
-                    name -> name,
-                    name -> new InMemoryStorage(new HashMap<>())
-                )
-            )
-        );
+        new WebServer(new ServerContextFactory(root).initialState(), root).start();
     }
 }

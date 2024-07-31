@@ -23,7 +23,10 @@
  */
 package ru.ewc.checklogic;
 
+import java.io.File;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -74,6 +77,16 @@ public final class StateFactory {
     public StateFactory with(final InputStream file) {
         this.src = file;
         return this;
+    }
+
+    @SneakyThrows
+    public void initialize() {
+        final File config = Path.of(this.root, "application.yaml").toFile();
+        if (!config.exists() && config.createNewFile()) {
+            try (OutputStream out = Files.newOutputStream(config.toPath())) {
+                out.write("locators:\n  - request\n".getBytes(StandardCharsets.UTF_8));
+            }
+        }
     }
 
     @SuppressWarnings("unchecked")

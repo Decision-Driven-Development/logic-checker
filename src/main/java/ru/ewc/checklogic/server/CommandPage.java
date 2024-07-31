@@ -32,7 +32,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import ru.ewc.checklogic.ServerContext;
+import ru.ewc.checklogic.FullServerContext;
 import ru.ewc.decisions.api.DecitaException;
 
 /**
@@ -44,7 +44,7 @@ public final class CommandPage implements Endpoints {
     /**
      * The computation to be used for the command processing.
      */
-    private final ServerContext computation;
+    private final FullServerContext computation;
 
     /**
      * The template processor for the Command page.
@@ -61,7 +61,7 @@ public final class CommandPage implements Endpoints {
      *
      * @param computation The computation to be used for the command processing.
      */
-    public CommandPage(final ServerContext computation) {
+    public CommandPage(final FullServerContext computation) {
         this.computation = computation;
         this.description = TemplateProcessor.buildProcessor(
             WebResource.readFileFromResources("templates/command-info.html")

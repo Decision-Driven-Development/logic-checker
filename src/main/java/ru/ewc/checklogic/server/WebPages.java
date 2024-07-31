@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import org.assertj.core.api.SoftAssertions;
 import ru.ewc.checklogic.FileUtils;
-import ru.ewc.checklogic.ServerContext;
+import ru.ewc.checklogic.FullServerContext;
 import ru.ewc.checklogic.ServerContextFactory;
 import ru.ewc.checklogic.TestData;
 import ru.ewc.checklogic.TestResult;
@@ -75,7 +75,7 @@ public final class WebPages {
         );
     }
 
-    public Response statePage(final ServerContext context) {
+    public Response statePage(final FullServerContext context) {
         final StoredState stored = new StoredState(context.storedState());
         return Response.htmlOk(
             this.templateNamed(
@@ -97,7 +97,7 @@ public final class WebPages {
     @SneakyThrows
     private TestResult performTest(final TestData test) {
         final SoftAssertions softly = new SoftAssertions();
-        final ServerContext target = new ServerContextFactory(this.root)
+        final FullServerContext target = new ServerContextFactory(this.root)
             .fromStateFile(Files.newInputStream(new File(test.file()).toPath()));
         TestResult result;
         try {

@@ -46,7 +46,7 @@ public class ServerContextFactory {
      *
      * @return A new server context initialized with the basic set of empty Locators.
      */
-    public ServerContext initialState() {
+    public FullServerContext initialState() {
         final FullServerContext result = new FullServerContext(
             new StateFactory(this.root),
             Path.of(this.root, "tables").toUri(),
@@ -64,7 +64,7 @@ public class ServerContextFactory {
      * @param file The stream of the test file's contents.
      * @return A new server context initialized with state described in test file.
      */
-    public ServerContext fromStateFile(final InputStream file) {
+    public FullServerContext fromStateFile(final InputStream file) {
         return new FullServerContext(
             new StateFactory(this.root).with(file),
             Path.of(this.root, "tables").toUri(),

@@ -25,7 +25,7 @@ package ru.ewc.checklogic.server;
 
 import com.renomad.minum.web.FullSystem;
 import com.renomad.minum.web.WebFramework;
-import ru.ewc.checklogic.ServerContext;
+import ru.ewc.checklogic.FullServerContext;
 
 /**
  * I am the web server for the CheckLogic application. My main responsibility is to configure the
@@ -37,14 +37,14 @@ public final class WebServer {
     /**
      * The context (all the paths) to be used for the web server.
      */
-    private final ServerContext context;
+    private final FullServerContext context;
 
     /**
      * Ctor.
      *
      * @param context The computation to be used for the web server.
      */
-    public WebServer(final ServerContext context) {
+    public WebServer(final FullServerContext context) {
         this.context = context;
     }
 

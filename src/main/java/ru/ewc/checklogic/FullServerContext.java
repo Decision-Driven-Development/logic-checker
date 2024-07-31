@@ -38,7 +38,7 @@ import ru.ewc.state.State;
  * @since 0.1.0
  */
 @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
-public final class FullServerContext implements ServerContext {
+public final class FullServerContext {
     /**
      * The root path for the external business logic resources.
      */
@@ -47,7 +47,7 @@ public final class FullServerContext implements ServerContext {
     /**
      * The stored state of the system, persisted between requests.
      */
-    private final State state;
+    private State state;
 
     /**
      * The URI of the tables folder, used to recreate the computation context for each request.
@@ -69,21 +69,26 @@ public final class FullServerContext implements ServerContext {
      */
     private final Map<String, String> parameters;
 
+    /**
+     * The factory for the states.
+     */
+    private final StateFactory states;
+
+    // @todo #34 Reduce the number of ServerContext methods
     FullServerContext(final StateFactory initial, final URI tables, final URI commands) {
-        this.root = initial.getRoot();
-        this.state = initial.initialState();
+        this.states = initial;
+        this.root = this.states.getRoot();
+        this.state = this.states.initialState();
         this.tables = tables;
         this.commands = commands;
         this.context = new ComputationContext(this.state, tables, commands);
         this.parameters = new HashMap<>(2);
     }
 
-    @Override
     public void perform(final String command) {
         this.perform(command, Map.of());
     }
 
-    @Override
     public void perform(final String command, final Map<String, String> args) {
         args.forEach(
             (key, value) -> {
@@ -96,7 +101,6 @@ public final class FullServerContext implements ServerContext {
         this.context = new ComputationContext(this.state, this.tables, this.commands);
     }
 
-    @Override
     public Map<String, String> stateFor(final String table, final Map<String, String> entities) {
         final Map<String, String> actual = HashMap.newHashMap(entities.size());
         for (final String fragment : entities.keySet()) {
@@ -105,12 +109,10 @@ public final class FullServerContext implements ServerContext {
         return actual;
     }
 
-    @Override
     public Map<String, Map<String, Object>> storedState() {
         return this.context.storedState();
     }
 
-    @Override
     public String valueFor(final String locator, final String fragment) {
         String value;
         try {
@@ -121,33 +123,27 @@ public final class FullServerContext implements ServerContext {
         return value;
     }
 
-    @Override
     public Map<String, List<String>> commandData() {
         return this.context.commandData();
     }
 
-    @Override
     public boolean isAvailable(final String command, final String field) {
         return "true".equalsIgnoreCase(this.context.decisionFor(command).get(field));
     }
 
-    @Override
     public void update(final List<String> values) {
         this.state.locators().put(this.cached("request"), InMemoryStorage.from(values));
         this.context = new ComputationContext(this.state, this.tables, this.commands);
     }
 
-    @Override
     public String cached(final String parameter) {
         return this.parameters.getOrDefault(parameter, "");
     }
 
-    @Override
     public void cache(final String parameter, final String value) {
         this.parameters.put(parameter, value);
     }
 
-    @Override
     public void putLocators(final Map<String, Map<String, Object>> raw) {
         raw.forEach(
             (name, data) -> {
@@ -160,13 +156,17 @@ public final class FullServerContext implements ServerContext {
         this.context = new ComputationContext(this.state, this.tables, this.commands);
     }
 
-    @Override
     public boolean isEmpty() {
         return this.state instanceof NullState;
     }
 
-    @Override
     public String getRoot() {
         return this.root;
+    }
+
+    public void initialize() {
+        this.states.initialize();
+        this.state = this.states.initialState();
+        this.context = new ComputationContext(this.state, this.tables, this.commands);
     }
 }

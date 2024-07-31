@@ -26,7 +26,8 @@ package ru.ewc.checklogic.server;
 import com.renomad.minum.web.Request;
 import com.renomad.minum.web.Response;
 import com.renomad.minum.web.WebFramework;
-import ru.ewc.checklogic.ServerContext;
+import java.util.Map;
+import ru.ewc.checklogic.FullServerContext;
 
 /**
  * I am a class providing access to all the pages and static files packed inside the jar.
@@ -37,14 +38,14 @@ public final class AllEndpoints implements Endpoints {
     /**
      * The context to be used for the server.
      */
-    private final ServerContext context;
+    private final FullServerContext context;
 
     /**
      * The template renderer, creating pages to be served.
      */
     private final WebPages pages;
 
-    public AllEndpoints(final ServerContext context) {
+    public AllEndpoints(final FullServerContext context) {
         this.context = context;
         this.pages = new WebPages(new ResourceTemplateProcessors(), context.getRoot());
     }
@@ -52,13 +53,29 @@ public final class AllEndpoints implements Endpoints {
     @Override
     public void register(final WebFramework web) {
         web.registerPartialPath(GET, "static", AllEndpoints::staticResource);
-        web.registerPath(GET, "", this::getRequestDispatcher);
-        web.registerPath(GET, "test", this::getRequestDispatcher);
-        web.registerPath(GET, "state", this::getRequestDispatcher);
+        web.registerPath(GET, "", this::httpGetRouter);
+        web.registerPath(GET, "test", this::httpGetRouter);
+        web.registerPath(GET, "state", this::httpGetRouter);
+        web.registerPath(POST, "state", this::httpPostRouter);
     }
 
-    @SuppressWarnings("PMD.UnusedFormalParameter")
-    private Response getRequestDispatcher(final Request request) {
+    private Response httpPostRouter(final Request request) {
+        final Response result;
+        final String address = request.requestLine().getPathDetails().getIsolatedPath();
+        if (this.context.isEmpty()) {
+            if ("state".equals(address)) {
+                this.context.initialize();
+                result = Response.htmlOk("OK", Map.of("HX-Redirect", "/"));
+            } else {
+                result = this.pages.uninitializedPage();
+            }
+        } else {
+            result = new Response(NOT_FOUND, "", PLAIN_TEXT);
+        }
+        return result;
+    }
+
+    private Response httpGetRouter(final Request request) {
         final Response result;
         if (this.context.isEmpty()) {
             result = this.pages.uninitializedPage();

@@ -23,11 +23,9 @@
  */
 package ru.ewc.checklogic.server;
 
-import com.renomad.minum.templating.TemplateProcessor;
 import com.renomad.minum.web.Request;
 import com.renomad.minum.web.Response;
 import com.renomad.minum.web.WebFramework;
-import java.util.Map;
 import ru.ewc.checklogic.ServerContext;
 
 /**
@@ -37,21 +35,18 @@ import ru.ewc.checklogic.ServerContext;
  */
 public final class AllEndpoints implements Endpoints {
     /**
-     * The template processor for the index page.
-     */
-    private final TemplateProcessor index;
-
-    /**
      * The context to be used for the server.
      */
     private final ServerContext context;
 
-    // @todo #47 Extract template processing into a class with lazy loading
+    /**
+     * The template renderer, creating pages to be served.
+     */
+    private final WebPages pages;
+
     public AllEndpoints(final ServerContext context) {
         this.context = context;
-        this.index = TemplateProcessor.buildProcessor(
-            WebResource.readFileFromResources("templates/index.html")
-        );
+        this.pages = new WebPages(new ResourceTemplateProcessors());
     }
 
     @Override
@@ -65,9 +60,9 @@ public final class AllEndpoints implements Endpoints {
     private Response getRequestDispatcher(final Request request) {
         final Response result;
         if (this.context.isEmpty()) {
-            result = Response.htmlOk("No state available");
+            result = this.pages.uninitializedPage();
         } else if (request.requestLine().getPathDetails().getIsolatedPath().isEmpty()) {
-            result = Response.htmlOk(this.index.renderTemplate(Map.of()));
+            result = this.pages.indexPage();
         } else {
             result = new Response(NOT_FOUND, "", PLAIN_TEXT);
         }

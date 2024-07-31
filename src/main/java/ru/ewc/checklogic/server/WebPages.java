@@ -24,7 +24,17 @@
 package ru.ewc.checklogic.server;
 
 import com.renomad.minum.web.Response;
+import java.io.File;
+import java.nio.file.Files;
 import java.util.Map;
+import java.util.stream.Collectors;
+import lombok.SneakyThrows;
+import org.assertj.core.api.SoftAssertions;
+import ru.ewc.checklogic.FileUtils;
+import ru.ewc.checklogic.ServerContext;
+import ru.ewc.checklogic.ServerContextFactory;
+import ru.ewc.checklogic.TestData;
+import ru.ewc.checklogic.TestResult;
 
 /**
  * I am a collection of template processors that render the pages to be served.
@@ -37,8 +47,14 @@ public final class WebPages {
      */
     private final TemplateProcessors processors;
 
-    public WebPages(final TemplateProcessors processors) {
+    /**
+     * The root path for the external business logic resources.
+     */
+    private final String root;
+
+    public WebPages(final TemplateProcessors processors, final String root) {
         this.processors = processors;
+        this.root = root;
     }
 
     public Response indexPage() {
@@ -49,7 +65,42 @@ public final class WebPages {
         return Response.htmlOk(this.templateNamed("templates/uninitialized.html", Map.of()));
     }
 
+    public Response testPage() {
+        final String results = FileUtils.readFileNames(this.root)
+            .map(this::performTest)
+            .map(TestResult::asHtmlTableRow)
+            .collect(Collectors.joining());
+        return Response.htmlOk(
+            this.templateNamed("templates/test.html", Map.of("tests", "%s".formatted(results)))
+        );
+    }
+
     private String templateNamed(final String template, final Map<String, String> values) {
         return this.processors.forTemplate(template).renderTemplate(values);
     }
+
+    @SneakyThrows
+    private TestResult performTest(final TestData test) {
+        final SoftAssertions softly = new SoftAssertions();
+        final ServerContext target = new ServerContextFactory(this.root)
+            .fromStateFile(Files.newInputStream(new File(test.file()).toPath()));
+        TestResult result;
+        try {
+            if (!test.command().isEmpty()) {
+                target.perform(test.command());
+            }
+            for (final String locator : test.expectations().keySet()) {
+                softly
+                    .assertThat(target.stateFor(locator, test.expectations().get(locator)))
+                    .describedAs(String.format("State for entity '%s'", locator))
+                    .containsExactlyInAnyOrderEntriesOf(test.expectations().get(locator));
+            }
+            softly.assertAll();
+            result = new TestResult(test.toString(), true, "");
+        } catch (final AssertionError error) {
+            result = new TestResult(test.toString(), false, error.getMessage());
+        }
+        return result;
+    }
+
 }

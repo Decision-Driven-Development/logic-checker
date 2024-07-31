@@ -40,6 +40,11 @@ import ru.ewc.state.State;
 @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
 public final class FullServerContext implements ServerContext {
     /**
+     * The root path for the external business logic resources.
+     */
+    private final String root;
+
+    /**
      * The stored state of the system, persisted between requests.
      */
     private final State state;
@@ -64,11 +69,12 @@ public final class FullServerContext implements ServerContext {
      */
     private final Map<String, String> parameters;
 
-    FullServerContext(final State initial, final URI tables, final URI commands) {
-        this.state = initial;
+    FullServerContext(final StateFactory initial, final URI tables, final URI commands) {
+        this.root = initial.getRoot();
+        this.state = initial.initialState();
         this.tables = tables;
         this.commands = commands;
-        this.context = new ComputationContext(initial, tables, commands);
+        this.context = new ComputationContext(this.state, tables, commands);
         this.parameters = new HashMap<>(2);
     }
 
@@ -157,5 +163,10 @@ public final class FullServerContext implements ServerContext {
     @Override
     public boolean isEmpty() {
         return this.state instanceof NullState;
+    }
+
+    @Override
+    public String getRoot() {
+        return this.root;
     }
 }

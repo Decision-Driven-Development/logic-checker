@@ -23,11 +23,7 @@
  */
 package ru.ewc.checklogic;
 
-public record TestResult(
-    String file,
-    boolean successful,
-    String error
-) {
+public record TestResult(String file, boolean successful, String error) {
 
     public String result() {
         final String result;

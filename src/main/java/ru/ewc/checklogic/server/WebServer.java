@@ -40,19 +40,12 @@ public final class WebServer {
     private final ServerContext context;
 
     /**
-     * The root path for the external business logic resources.
-     */
-    private final String root;
-
-    /**
      * Ctor.
      *
      * @param context The computation to be used for the web server.
-     * @param root The root path for the external business logic resources.
      */
-    public WebServer(final ServerContext context, final String root) {
+    public WebServer(final ServerContext context) {
         this.context = context;
-        this.root = root;
     }
 
     public void start() {
@@ -60,7 +53,6 @@ public final class WebServer {
         final WebFramework web = minum.getWebFramework();
         registerEndpoints(web, new StatePage(this.context));
         registerEndpoints(web, new CommandPage(this.context));
-        registerEndpoints(web, new ResultOfTestsPage(this.root));
         registerEndpoints(web, new ContextPage(this.context));
         registerEndpoints(web, new AllEndpoints(this.context));
         minum.block();

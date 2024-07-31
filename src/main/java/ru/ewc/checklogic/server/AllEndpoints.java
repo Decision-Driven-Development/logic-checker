@@ -46,16 +46,16 @@ public final class AllEndpoints implements Endpoints {
 
     public AllEndpoints(final ServerContext context) {
         this.context = context;
-        this.pages = new WebPages(new ResourceTemplateProcessors());
+        this.pages = new WebPages(new ResourceTemplateProcessors(), context.getRoot());
     }
 
     @Override
     public void register(final WebFramework web) {
         web.registerPartialPath(GET, "static", AllEndpoints::staticResource);
         web.registerPath(GET, "", this::getRequestDispatcher);
+        web.registerPath(GET, "test", this::getRequestDispatcher);
     }
 
-    // @todo #47 Check the server state before dispatching the request
     @SuppressWarnings("PMD.UnusedFormalParameter")
     private Response getRequestDispatcher(final Request request) {
         final Response result;
@@ -63,6 +63,8 @@ public final class AllEndpoints implements Endpoints {
             result = this.pages.uninitializedPage();
         } else if (request.requestLine().getPathDetails().getIsolatedPath().isEmpty()) {
             result = this.pages.indexPage();
+        } else if ("test".equals(request.requestLine().getPathDetails().getIsolatedPath())) {
+            result = this.pages.testPage();
         } else {
             result = new Response(NOT_FOUND, "", PLAIN_TEXT);
         }

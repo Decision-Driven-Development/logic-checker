@@ -56,4 +56,6 @@ public interface ServerContext {
     void putLocators(Map<String, Map<String, Object>> raw);
 
     boolean isEmpty();
+
+    String getRoot();
 }

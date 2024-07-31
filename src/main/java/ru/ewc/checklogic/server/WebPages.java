@@ -75,10 +75,25 @@ public final class WebPages {
         );
     }
 
+    public Response statePage(final ServerContext context) {
+        final StoredState stored = new StoredState(context.storedState());
+        return Response.htmlOk(
+            this.templateNamed(
+                "templates/state.html",
+                Map.of(
+                    "state", stored.asHtmlList(),
+                    "available", context.cached("available"),
+                    "request", context.cached("request")
+                )
+            )
+        );
+    }
+
     private String templateNamed(final String template, final Map<String, String> values) {
         return this.processors.forTemplate(template).renderTemplate(values);
     }
 
+    // @todo #47 Move performTest method to dedicated test runner
     @SneakyThrows
     private TestResult performTest(final TestData test) {
         final SoftAssertions softly = new SoftAssertions();
@@ -102,5 +117,4 @@ public final class WebPages {
         }
         return result;
     }
-
 }

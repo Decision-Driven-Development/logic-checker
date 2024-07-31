@@ -54,6 +54,7 @@ public final class AllEndpoints implements Endpoints {
         web.registerPartialPath(GET, "static", AllEndpoints::staticResource);
         web.registerPath(GET, "", this::getRequestDispatcher);
         web.registerPath(GET, "test", this::getRequestDispatcher);
+        web.registerPath(GET, "state", this::getRequestDispatcher);
     }
 
     @SuppressWarnings("PMD.UnusedFormalParameter")
@@ -61,12 +62,17 @@ public final class AllEndpoints implements Endpoints {
         final Response result;
         if (this.context.isEmpty()) {
             result = this.pages.uninitializedPage();
-        } else if (request.requestLine().getPathDetails().getIsolatedPath().isEmpty()) {
-            result = this.pages.indexPage();
-        } else if ("test".equals(request.requestLine().getPathDetails().getIsolatedPath())) {
-            result = this.pages.testPage();
         } else {
-            result = new Response(NOT_FOUND, "", PLAIN_TEXT);
+            final String address = request.requestLine().getPathDetails().getIsolatedPath();
+            if (address.isEmpty()) {
+                result = this.pages.indexPage();
+            } else if ("test".equals(address)) {
+                result = this.pages.testPage();
+            } else if ("state".equals(address)) {
+                result = this.pages.statePage(this.context);
+            } else {
+                result = new Response(NOT_FOUND, "", PLAIN_TEXT);
+            }
         }
         return result;
     }

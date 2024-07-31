@@ -51,7 +51,6 @@ public final class WebServer {
     public void start() {
         final FullSystem minum = FullSystem.initialize();
         final WebFramework web = minum.getWebFramework();
-        registerEndpoints(web, new StatePage(this.context));
         registerEndpoints(web, new CommandPage(this.context));
         registerEndpoints(web, new ContextPage(this.context));
         registerEndpoints(web, new AllEndpoints(this.context));

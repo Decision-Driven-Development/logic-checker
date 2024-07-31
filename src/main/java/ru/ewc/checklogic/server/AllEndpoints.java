@@ -23,19 +23,46 @@
  */
 package ru.ewc.checklogic.server;
 
+import com.renomad.minum.templating.TemplateProcessor;
 import com.renomad.minum.web.Request;
 import com.renomad.minum.web.Response;
 import com.renomad.minum.web.WebFramework;
+import java.util.Map;
 
 /**
- * I am a class providing access to static files, packed inside a jar.
+ * I am a class providing access to all the pages and static files packed inside the jar.
  *
  * @since 0.3.0
  */
-public final class StaticResources implements Endpoints {
+public final class AllEndpoints implements Endpoints {
+    /**
+     * The template processor for the index page.
+     */
+    private final TemplateProcessor index;
+
+    // @todo #47 Extract template processing into a class with lazy loading
+    public AllEndpoints() {
+        this.index = TemplateProcessor.buildProcessor(
+            WebResource.readFileFromResources("templates/index.html")
+        );
+    }
+
     @Override
     public void register(final WebFramework web) {
-        web.registerPartialPath(GET, "static", StaticResources::staticResource);
+        web.registerPartialPath(GET, "static", AllEndpoints::staticResource);
+        web.registerPath(GET, "", this::getRequestDispatcher);
+    }
+
+    // @todo #47 Check the server state before dispatching the request
+    @SuppressWarnings("PMD.UnusedFormalParameter")
+    private Response getRequestDispatcher(final Request request) {
+        final Response result;
+        if (request.requestLine().getPathDetails().getIsolatedPath().isEmpty()) {
+            result = Response.htmlOk(this.index.renderTemplate(Map.of()));
+        } else {
+            result = new Response(NOT_FOUND, "", PLAIN_TEXT);
+        }
+        return result;
     }
 
     private static Response staticResource(final Request request) {

@@ -101,24 +101,30 @@ public final class WebPages {
     @SneakyThrows
     private TestResult performTest(final TestData test) {
         final SoftAssertions softly = new SoftAssertions();
-        final FullServerContext target = new ServerContextFactory(this.root)
-            .fromStateFile(Files.newInputStream(new File(test.file()).toPath()));
         TestResult result;
+        final FullServerContext target;
         try {
-            if (!test.command().isEmpty()) {
-                target.perform(test.command());
+            target = new ServerContextFactory(this.root)
+                .fromStateFile(Files.newInputStream(new File(test.file()).toPath()));
+            try {
+                if (!test.command().isEmpty()) {
+                    target.perform(test.command());
+                }
+                for (final String locator : test.expectations().keySet()) {
+                    softly
+                        .assertThat(target.stateFor(locator, test.expectations().get(locator)))
+                        .describedAs(String.format("State for entity '%s'", locator))
+                        .containsExactlyInAnyOrderEntriesOf(test.expectations().get(locator));
+                }
+                softly.assertAll();
+                result = new TestResult(test.toString(), true, "");
+            } catch (final AssertionError error) {
+                result = new TestResult(test.toString(), false, error.getMessage());
             }
-            for (final String locator : test.expectations().keySet()) {
-                softly
-                    .assertThat(target.stateFor(locator, test.expectations().get(locator)))
-                    .describedAs(String.format("State for entity '%s'", locator))
-                    .containsExactlyInAnyOrderEntriesOf(test.expectations().get(locator));
-            }
-            softly.assertAll();
-            result = new TestResult(test.toString(), true, "");
-        } catch (final AssertionError error) {
-            result = new TestResult(test.toString(), false, error.getMessage());
+        } catch (IllegalStateException exception) {
+            result = new TestResult(test.toString(), false, exception.getMessage());
         }
+
         return result;
     }
 

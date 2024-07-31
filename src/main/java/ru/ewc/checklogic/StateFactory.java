@@ -95,6 +95,11 @@ public final class StateFactory {
         if (this.src != null) {
             final Map<String, Map<String, Object>> raw =
                 (Map<String, Map<String, Object>>) new Yaml().loadAll(this.src).iterator().next();
+            if (raw == null) {
+                throw new IllegalStateException(
+                    "There is no Arrange section in the test file, you should add one"
+                );
+            }
             raw.forEach((name, data) -> locators.put(name, new InMemoryStorage(data)));
         }
         return locators;

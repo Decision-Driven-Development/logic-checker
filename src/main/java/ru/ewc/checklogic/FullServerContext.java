@@ -25,6 +25,7 @@
 package ru.ewc.checklogic;
 
 import java.net.URI;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,7 +75,6 @@ public final class FullServerContext {
      */
     private final StateFactory states;
 
-    // @todo #34 Reduce the number of ServerContext methods
     FullServerContext(final StateFactory initial, final URI tables, final URI commands) {
         this.states = initial;
         this.root = this.states.getRoot();
@@ -167,6 +167,15 @@ public final class FullServerContext {
     public void initialize() {
         this.states.initialize();
         this.state = this.states.initialState();
+        this.context = new ComputationContext(this.state, this.tables, this.commands);
+    }
+
+    public boolean hasTestsFolder() {
+        return Paths.get(this.root, "states").toFile().exists();
+    }
+
+    public void createTestFolder() {
+        Paths.get(this.root, "states").toFile().mkdirs();
         this.context = new ComputationContext(this.state, this.tables, this.commands);
     }
 }

@@ -65,6 +65,10 @@ public final class WebPages {
         return Response.htmlOk(this.templateNamed("templates/uninitialized.html", Map.of()));
     }
 
+    public Response noTestsFolder() {
+        return Response.htmlOk(this.templateNamed("templates/noTestsFolder.html", Map.of()));
+    }
+
     public Response testPage() {
         final String results = FileUtils.readFileNames(this.root)
             .map(this::performTest)
@@ -117,4 +121,5 @@ public final class WebPages {
         }
         return result;
     }
+
 }

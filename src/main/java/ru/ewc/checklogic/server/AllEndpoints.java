@@ -57,6 +57,7 @@ public final class AllEndpoints implements Endpoints {
         web.registerPath(GET, "test", this::httpGetRouter);
         web.registerPath(GET, "state", this::httpGetRouter);
         web.registerPath(POST, "state", this::httpPostRouter);
+        web.registerPath(POST, "test", this::httpPostRouter);
     }
 
     private Response httpPostRouter(final Request request) {
@@ -69,6 +70,9 @@ public final class AllEndpoints implements Endpoints {
             } else {
                 result = this.pages.uninitializedPage();
             }
+        } else if (!this.context.hasTestsFolder() && "test".equals(address)) {
+            this.context.createTestFolder();
+            result = Response.htmlOk("OK", Map.of("HX-Redirect", "/test"));
         } else {
             result = new Response(NOT_FOUND, "", PLAIN_TEXT);
         }
@@ -84,7 +88,11 @@ public final class AllEndpoints implements Endpoints {
             if (address.isEmpty()) {
                 result = this.pages.indexPage();
             } else if ("test".equals(address)) {
-                result = this.pages.testPage();
+                if (!this.context.hasTestsFolder()) {
+                    result = this.pages.noTestsFolder();
+                } else {
+                    result = this.pages.testPage();
+                }
             } else if ("state".equals(address)) {
                 result = this.pages.statePage(this.context);
             } else {

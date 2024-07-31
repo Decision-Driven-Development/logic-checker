@@ -23,37 +23,17 @@
  */
 package ru.ewc.checklogic;
 
-import java.util.List;
 import java.util.Map;
+import ru.ewc.decisions.api.Locator;
+import ru.ewc.state.State;
 
 /**
- * I am the context for the server. I provide the server with the necessary information to perform
- * the commands, to store the state of the system and to make decisions based on the state.
+ * I am a state that does nothing, the special case to handle uninitialized server context.
  *
  * @since 0.3.2
  */
-public interface ServerContext {
-    void perform(String command);
-
-    void perform(String command, Map<String, String> args);
-
-    Map<String, String> stateFor(String table, Map<String, String> entities);
-
-    Map<String, Map<String, Object>> storedState();
-
-    String valueFor(String locator, String fragment);
-
-    Map<String, List<String>> commandData();
-
-    boolean isAvailable(String command, String field);
-
-    void update(List<String> values);
-
-    String cached(String parameter);
-
-    void cache(String parameter, String value);
-
-    void putLocators(Map<String, Map<String, Object>> raw);
-
-    boolean isEmpty();
+public class NullState extends State {
+    public NullState(final Map<String, Locator> locators) {
+        super(locators);
+    }
 }

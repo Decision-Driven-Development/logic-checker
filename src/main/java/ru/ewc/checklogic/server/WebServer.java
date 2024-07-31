@@ -62,7 +62,7 @@ public final class WebServer {
         registerEndpoints(web, new CommandPage(this.context));
         registerEndpoints(web, new ResultOfTestsPage(this.root));
         registerEndpoints(web, new ContextPage(this.context));
-        registerEndpoints(web, new AllEndpoints());
+        registerEndpoints(web, new AllEndpoints(this.context));
         minum.block();
     }
 

@@ -26,6 +26,7 @@ package ru.ewc.checklogic;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
@@ -53,25 +54,11 @@ public class ServerContextFactory {
     }
 
     /**
-     * Creates a new server context.
-     *
-     * @param initial The initial state of the system.
-     * @return A new server context.
-     */
-    // @todo #33 Decide on what type of ServerContext to create
-    public ServerContext instance(final State initial) {
-        return new FullServerContext(
-            initial,
-            Path.of(this.root, "tables").toUri(),
-            Path.of(this.root, "commands").toUri()
-        );
-    }
-
-    /**
      * Creates a new server context from the application configuration.
      *
      * @return A new server context initialized with the basic set of empty Locators.
      */
+    // @todo #33 Decide on what type of ServerContext to create
     @SneakyThrows
     public ServerContext initialState() {
         final FullServerContext result = new FullServerContext(
@@ -111,9 +98,13 @@ public class ServerContextFactory {
     }
 
     private State loadInitialState() throws IOException {
-        return ServerContextFactory.stateFromAppConfig(
-            Files.newInputStream(Path.of(this.root, "application.yaml"))
-        );
+        State state;
+        try (InputStream file = Files.newInputStream(Path.of(this.root, "application.yaml"))) {
+            state = ServerContextFactory.stateFromAppConfig(file);
+        } catch (final NoSuchFileException exception) {
+            state = new NullState(Map.of());
+        }
+        return state;
     }
 
     @SneakyThrows

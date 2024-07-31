@@ -153,4 +153,9 @@ public final class FullServerContext implements ServerContext {
             });
         this.context = new ComputationContext(this.state, this.tables, this.commands);
     }
+
+    @Override
+    public boolean isEmpty() {
+        return this.state instanceof NullState;
+    }
 }

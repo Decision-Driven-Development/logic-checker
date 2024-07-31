@@ -28,6 +28,7 @@ import com.renomad.minum.web.Request;
 import com.renomad.minum.web.Response;
 import com.renomad.minum.web.WebFramework;
 import java.util.Map;
+import ru.ewc.checklogic.ServerContext;
 
 /**
  * I am a class providing access to all the pages and static files packed inside the jar.
@@ -40,8 +41,14 @@ public final class AllEndpoints implements Endpoints {
      */
     private final TemplateProcessor index;
 
+    /**
+     * The context to be used for the server.
+     */
+    private final ServerContext context;
+
     // @todo #47 Extract template processing into a class with lazy loading
-    public AllEndpoints() {
+    public AllEndpoints(final ServerContext context) {
+        this.context = context;
         this.index = TemplateProcessor.buildProcessor(
             WebResource.readFileFromResources("templates/index.html")
         );
@@ -57,7 +64,9 @@ public final class AllEndpoints implements Endpoints {
     @SuppressWarnings("PMD.UnusedFormalParameter")
     private Response getRequestDispatcher(final Request request) {
         final Response result;
-        if (request.requestLine().getPathDetails().getIsolatedPath().isEmpty()) {
+        if (this.context.isEmpty()) {
+            result = Response.htmlOk("No state available");
+        } else if (request.requestLine().getPathDetails().getIsolatedPath().isEmpty()) {
             result = Response.htmlOk(this.index.renderTemplate(Map.of()));
         } else {
             result = new Response(NOT_FOUND, "", PLAIN_TEXT);

@@ -97,8 +97,12 @@ public final class FullServerContext {
                     this.context.setValueFor(split[0], split[1], value);
                 }
             });
-        this.context.perform(command);
-        this.context = new ComputationContext(this.state, this.tables, this.commands);
+        try {
+            this.context.perform(command);
+            this.context = new ComputationContext(this.state, this.tables, this.commands);
+        } catch (NullPointerException exception) {
+            throw new DecitaException("Command file for '%s' not found".formatted(command));
+        }
     }
 
     public Map<String, String> stateFor(final String table, final Map<String, String> entities) {

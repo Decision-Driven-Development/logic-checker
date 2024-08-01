@@ -39,13 +39,18 @@
 </head>
 <body class="container">
 <h1>Test results</h1>
-<table>
-    <tr>
-        <th>Test</th>
-        <th>Result</th>
-        <th>Message</th>
-    </tr>
-    {{ tests }}
+<table class="table caption-top">
+    <caption>{{ stats }}</caption>
+    <thead>
+        <tr>
+            <th scope="col">Test</th>
+            <th scope="col">Result</th>
+            <th scope="col">Message</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{ tests }}
+    </tbody>
 </table>
 </body>
 </html>

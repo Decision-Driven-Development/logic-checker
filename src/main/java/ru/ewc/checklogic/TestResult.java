@@ -37,10 +37,11 @@ public record TestResult(String file, boolean successful, String error) {
 
     public String asHtmlTableRow() {
         return String.format(
-            "<tr><td>%s</td><td>%s</td><td>%s</td></tr>",
+            "<tr class=\"%s\"><td>%s</td><td>%s</td><td>%s</td></tr>",
+            this.successful ? "table-success" : "table-danger",
             this.file,
             this.result(),
-            this.error
+            this.error.replace("\n", "<br>").replace("  ", "&nbsp;&nbsp;&nbsp;&nbsp;")
         );
     }
 }

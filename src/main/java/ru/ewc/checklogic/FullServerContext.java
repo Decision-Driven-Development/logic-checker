@@ -100,8 +100,11 @@ public final class FullServerContext {
         try {
             this.context.perform(command);
             this.context = new ComputationContext(this.state, this.tables, this.commands);
-        } catch (NullPointerException exception) {
-            throw new DecitaException("Command file for '%s' not found".formatted(command));
+        } catch (Throwable exception) {
+            throw new IllegalStateException(
+                "Command file for '%s' not found".formatted(command),
+                exception
+            );
         }
     }
 

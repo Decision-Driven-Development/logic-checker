@@ -26,6 +26,8 @@ package ru.ewc.checklogic.server;
 import com.renomad.minum.web.Response;
 import java.io.File;
 import java.nio.file.Files;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
@@ -70,12 +72,28 @@ public final class WebPages {
     }
 
     public Response testPage() {
-        final String results = FileUtils.readFileNames(this.root)
+        final long start = System.currentTimeMillis();
+        final List<TestResult> testResults = FileUtils.readFileNames(this.root)
             .map(this::performTest)
+            .toList();
+        final String results = testResults.stream()
+            .sorted(Comparator.comparing(TestResult::result))
             .map(TestResult::asHtmlTableRow)
             .collect(Collectors.joining());
+        final double executionTime = (System.currentTimeMillis() - start) / 1000.0;
         return Response.htmlOk(
-            this.templateNamed("templates/test.html", Map.of("tests", "%s".formatted(results)))
+            this.templateNamed(
+                "templates/test.html",
+                Map.of(
+                    "tests", "%s".formatted(results),
+                    "stats", "%d test(s) performed in %.3f second(s), %d passed, %d failed".formatted(
+                        testResults.size(),
+                        executionTime,
+                        testResults.stream().filter(TestResult::successful).count(),
+                        testResults.stream().filter(result -> !result.successful()).count()
+                    )
+                )
+            )
         );
     }
 
@@ -124,7 +142,6 @@ public final class WebPages {
         } catch (IllegalStateException exception) {
             result = new TestResult(test.toString(), false, exception.getMessage());
         }
-
         return result;
     }
 

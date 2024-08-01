@@ -118,7 +118,7 @@ public final class WebPages {
                 }
                 softly.assertAll();
                 result = new TestResult(test.toString(), true, "");
-            } catch (final AssertionError error) {
+            } catch (final Throwable error) {
                 result = new TestResult(test.toString(), false, error.getMessage());
             }
         } catch (IllegalStateException exception) {

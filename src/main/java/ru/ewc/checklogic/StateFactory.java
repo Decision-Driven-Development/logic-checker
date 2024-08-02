@@ -58,6 +58,7 @@ public final class StateFactory {
      */
     private InputStream src;
 
+    // @todo #54 Create testable instance of StateFactory
     public StateFactory(final String root) {
         this.root = root;
     }

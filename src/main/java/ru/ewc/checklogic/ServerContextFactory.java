@@ -50,9 +50,10 @@ public class ServerContextFactory {
         final FullServerContext result = new FullServerContext(
             new StateFactory(this.root),
             Path.of(this.root, "tables").toUri(),
-            Path.of(this.root, "commands").toUri()
+            Path.of(this.root, "commands").toUri(),
+            new WebServerContext()
         );
-        result.cache("available", "available");
+        result.cache("command", "available");
         result.cache("request", "request");
         return result;
     }
@@ -68,7 +69,8 @@ public class ServerContextFactory {
         return new FullServerContext(
             new StateFactory(this.root).with(file),
             Path.of(this.root, "tables").toUri(),
-            Path.of(this.root, "commands").toUri()
+            Path.of(this.root, "commands").toUri(),
+            new WebServerContext()
         );
     }
 }

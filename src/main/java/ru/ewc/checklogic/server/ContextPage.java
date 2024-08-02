@@ -53,7 +53,7 @@ public final class ContextPage implements Endpoints {
     }
 
     private Response contextPage(final Request request) {
-        this.context.cache("available", request.body().asString("availOutcome"));
+        this.context.cache("command", request.body().asString("availOutcome"));
         this.context.cache("request", request.body().asString("reqLocator"));
         this.updateContext(request.body().asString("reqValues"));
         final CommandMetadata commands = new CommandMetadata(this.context.commandData());
@@ -61,7 +61,7 @@ public final class ContextPage implements Endpoints {
     }
 
     private String availabilityField() {
-        return this.context.cached("available");
+        return this.context.cached("command");
     }
 
     private void updateContext(final String values) {

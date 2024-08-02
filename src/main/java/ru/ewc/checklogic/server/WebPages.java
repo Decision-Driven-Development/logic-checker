@@ -104,7 +104,7 @@ public final class WebPages {
                 "templates/state.html",
                 Map.of(
                     "state", stored.asHtmlList(),
-                    "available", context.cached("available"),
+                    "available", context.cached("command"),
                     "request", context.cached("request")
                 )
             )
@@ -139,7 +139,7 @@ public final class WebPages {
             } catch (final Throwable error) {
                 result = new TestResult(test.toString(), false, error.getMessage());
             }
-        } catch (IllegalStateException exception) {
+        } catch (final IllegalStateException exception) {
             result = new TestResult(test.toString(), false, exception.getMessage());
         }
         return result;

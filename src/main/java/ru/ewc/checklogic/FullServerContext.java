@@ -66,23 +66,27 @@ public final class FullServerContext {
     private ComputationContext context;
 
     /**
-     * The cached request parameters.
+     * The web server context.
      */
-    private final Map<String, String> parameters;
+    private final WebServerContext server;
 
     /**
      * The factory for the states.
      */
     private final StateFactory states;
 
-    FullServerContext(final StateFactory initial, final URI tables, final URI commands) {
+    FullServerContext(
+        final StateFactory initial,
+        final URI tables,
+        final URI commands,
+        final WebServerContext server) {
         this.states = initial;
+        this.server = server;
         this.root = this.states.getRoot();
         this.state = this.states.initialState();
         this.tables = tables;
         this.commands = commands;
         this.context = new ComputationContext(this.state, tables, commands);
-        this.parameters = new HashMap<>(2);
     }
 
     public void perform(final String command) {
@@ -144,23 +148,11 @@ public final class FullServerContext {
     }
 
     public String cached(final String parameter) {
-        return this.parameters.getOrDefault(parameter, "");
+        return this.server.getParameterValue(parameter);
     }
 
     public void cache(final String parameter, final String value) {
-        this.parameters.put(parameter, value);
-    }
-
-    public void putLocators(final Map<String, Map<String, Object>> raw) {
-        raw.forEach(
-            (name, data) -> {
-                final InMemoryStorage storage = new InMemoryStorage(new HashMap<>(data.size()));
-                data.forEach(
-                    (fragment, value) -> storage.setFragmentValue(fragment, value.toString())
-                );
-                this.state.locators().put(name, storage);
-            });
-        this.context = new ComputationContext(this.state, this.tables, this.commands);
+        this.server.setParameterValue(parameter, value);
     }
 
     public boolean isEmpty() {

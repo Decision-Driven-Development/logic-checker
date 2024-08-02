@@ -75,6 +75,7 @@ public final class FullServerContext {
      */
     private final StateFactory states;
 
+    // @todo #52 Create the testable instance of FullServerContext
     FullServerContext(
         final StateFactory initial,
         final URI tables,

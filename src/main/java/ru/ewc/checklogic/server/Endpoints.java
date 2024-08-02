@@ -33,7 +33,7 @@ import java.util.Map;
  *
  * @since 0.3.0
  */
-interface Endpoints {
+public interface Endpoints {
     /**
      * The shortcut to define an endpoint for a GET method.
      */

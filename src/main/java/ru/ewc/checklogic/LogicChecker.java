@@ -24,10 +24,17 @@
 
 package ru.ewc.checklogic;
 
-import ru.ewc.checklogic.server.WebServer;
+import com.renomad.minum.web.FullSystem;
+import com.renomad.minum.web.WebFramework;
+import ru.ewc.checklogic.server.AllEndpoints;
+import ru.ewc.checklogic.server.CommandPage;
+import ru.ewc.checklogic.server.ContextPage;
+import ru.ewc.checklogic.server.Endpoints;
 
 /**
- * End-to-end tests based on yaml descriptions.
+ * I am an entry point for the logic checker web-based application. My main responsibility is to
+ * create an instance of the web framework, register the endpoints that will be served and start
+ * listening to incoming HTTP requests.
  *
  * @since 0.1
  */
@@ -42,6 +49,16 @@ public final class LogicChecker {
             throw new IllegalArgumentException("Please provide the path to the resources");
         }
         final String root = args[0];
-        new WebServer(new ServerContextFactory(root).initialState()).start();
+        final FullServerContext context = new ServerContextFactory(root).initialState();
+        final FullSystem minum = FullSystem.initialize();
+        final WebFramework web = minum.getWebFramework();
+        registerEndpoints(web, new CommandPage(context));
+        registerEndpoints(web, new ContextPage(context));
+        registerEndpoints(web, new AllEndpoints(context));
+        minum.block();
+    }
+
+    private static void registerEndpoints(final WebFramework web, final Endpoints endpoints) {
+        endpoints.register(web);
     }
 }

@@ -73,24 +73,24 @@ public final class WebPages {
 
     public Response testPage() {
         final long start = System.currentTimeMillis();
-        final List<TestResult> testResults = FileUtils.readFileNames(this.root)
+        final List<TestResult> results = FileUtils.readFileNames(this.root)
             .map(this::performTest)
             .toList();
-        final String results = testResults.stream()
+        final String rows = results.stream()
             .sorted(Comparator.comparing(TestResult::result))
             .map(TestResult::asHtmlTableRow)
             .collect(Collectors.joining());
-        final double executionTime = (System.currentTimeMillis() - start) / 1000.0;
+        final double elapsed = (System.currentTimeMillis() - start) / 1000.0;
         return Response.htmlOk(
             this.templateNamed(
                 "templates/test.html",
                 Map.of(
-                    "tests", "%s".formatted(results),
+                    "tests", "%s".formatted(rows),
                     "stats", "%d test(s) performed in %.3f second(s), %d passed, %d failed".formatted(
-                        testResults.size(),
-                        executionTime,
-                        testResults.stream().filter(TestResult::successful).count(),
-                        testResults.stream().filter(result -> !result.successful()).count()
+                        results.size(),
+                        elapsed,
+                        results.stream().filter(TestResult::successful).count(),
+                        results.stream().filter(result -> !result.successful()).count()
                     )
                 )
             )

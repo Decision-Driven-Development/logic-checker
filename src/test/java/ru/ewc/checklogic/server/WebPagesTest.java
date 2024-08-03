@@ -27,7 +27,12 @@ import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
-class WebPagesTest {
+/**
+ * I test all the pages' rendering.
+ *
+ * @since 0.3.2
+ */
+final class WebPagesTest {
     @Test
     void shouldRenderConfigPage() {
         final WebPages pages = WebPages.testable();

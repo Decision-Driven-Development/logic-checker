@@ -43,6 +43,7 @@ import ru.ewc.checklogic.TestResult;
  *
  * @since 0.3.2
  */
+@SuppressWarnings("PMD.ProhibitPublicStaticMethods")
 public final class WebPages {
     /**
      * The template processors to be used for rendering the pages.
@@ -120,6 +121,10 @@ public final class WebPages {
         );
     }
 
+    public String configPage() {
+        return this.renderedTemplate("templates/config.html", Map.of());
+    }
+
     private String renderedTemplate(final String template, final Map<String, String> values) {
         return this.processors.renderTemplateWith(template, values);
     }
@@ -152,9 +157,5 @@ public final class WebPages {
             result = new TestResult(test.toString(), false, exception.getMessage());
         }
         return result;
-    }
-
-    public String configPage() {
-        return this.renderedTemplate("templates/config.html", Map.of());
     }
 }

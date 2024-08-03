@@ -45,7 +45,7 @@ public final class ResourceTemplateRender implements TemplateRender {
     }
 
     @Override
-    public String renderTemplateWith(String template, Map<String, String> values) {
+    public String renderTemplateWith(final String template, final Map<String, String> values) {
         this.processors.putIfAbsent(
             template,
             TemplateProcessor.buildProcessor(WebResource.readFileFromResources(template))

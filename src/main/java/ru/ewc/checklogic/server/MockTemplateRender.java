@@ -25,9 +25,14 @@ package ru.ewc.checklogic.server;
 
 import java.util.Map;
 
-public class MockTemplateRender implements TemplateRender {
+/**
+ * I am a mock implementation of the {@link TemplateRender} interface.
+ *
+ * @since 0.3.2
+ */
+public final class MockTemplateRender implements TemplateRender {
     @Override
-    public String renderTemplateWith(String template, Map<String, String> values) {
+    public String renderTemplateWith(final String template, final Map<String, String> values) {
         return "Hello, world";
     }
 }

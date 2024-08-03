@@ -31,14 +31,29 @@ import java.nio.file.Path;
  *
  * @since 0.3.2
  */
-public class ServerContextFactory {
+@SuppressWarnings("PMD.ProhibitPublicStaticMethods")
+public final class ServerContextFactory {
     /**
      * The root path for the external business logic resources.
      */
     private final String root;
 
-    public ServerContextFactory(final String root) {
+    /**
+     * The factory for creating the state of the system.
+     */
+    private final StateFactory factory;
+
+    private ServerContextFactory(final String root, final StateFactory factory) {
         this.root = root;
+        this.factory = factory;
+    }
+
+    public static ServerContextFactory testable() {
+        return new ServerContextFactory("root folder", new MockStateFactory("root folder"));
+    }
+
+    public static ServerContextFactory create(final String root) {
+        return new ServerContextFactory(root, new FileStateFactory(root));
     }
 
     /**
@@ -48,7 +63,7 @@ public class ServerContextFactory {
      */
     public FullServerContext initialState() {
         final FullServerContext result = new FullServerContext(
-            new StateFactory(this.root),
+            this.factory,
             Path.of(this.root, "tables").toUri(),
             Path.of(this.root, "commands").toUri(),
             new WebServerContext()
@@ -67,7 +82,7 @@ public class ServerContextFactory {
      */
     public FullServerContext fromStateFile(final InputStream file) {
         return new FullServerContext(
-            new StateFactory(this.root).with(file),
+            this.factory.with(file),
             Path.of(this.root, "tables").toUri(),
             Path.of(this.root, "commands").toUri(),
             new WebServerContext()

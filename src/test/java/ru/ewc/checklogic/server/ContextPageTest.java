@@ -21,40 +21,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package ru.ewc.checklogic;
+package ru.ewc.checklogic.server;
 
-import java.io.InputStream;
-import ru.ewc.state.State;
+import com.renomad.minum.web.Body;
+import com.renomad.minum.web.Headers;
+import com.renomad.minum.web.Request;
+import com.renomad.minum.web.RequestLine;
+import com.renomad.minum.web.Response;
+import java.nio.charset.StandardCharsets;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
+import org.junit.jupiter.api.Test;
+import ru.ewc.checklogic.FullServerContext;
 
 /**
- * I am a factory for creating state objects. My subclasses are responsible for creating the initial
- * state and loading the state from a file. They can do that for real or mock the result for testing
- * purposes.
+ * I test the {@link ContextPage} class.
  *
  * @since 0.3.2
  */
-public abstract class StateFactory {
-    /**
-     * The root path for the external business logic resources.
-     */
-    private final String root;
-
-    public StateFactory(final String root) {
-        this.root = root;
+final class ContextPageTest {
+    @Test
+    void shouldCreateMockServer() {
+        final ContextPage target = new ContextPage(FullServerContext.testable());
+        final Response response = target.contextPage(ContextPageTest.emptyRequest());
+        MatcherAssert.assertThat(
+            "Mock server should not have any commands available",
+            new String(response.getBody(), StandardCharsets.UTF_8),
+            Matchers.is("")
+        );
     }
 
-    /**
-     * Returns the path to the root folder of the external business logic resources.
-     *
-     * @return Path to the root folder as a string.
-     */
-    public String getRoot() {
-        return this.root;
+    private static Request emptyRequest() {
+        return new Request(Headers.EMPTY, RequestLine.empty(), Body.EMPTY, null);
     }
-
-    public abstract State initialState();
-
-    public abstract StateFactory with(InputStream file);
-
-    public abstract void initialize();
 }

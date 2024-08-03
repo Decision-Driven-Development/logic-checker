@@ -24,37 +24,36 @@
 package ru.ewc.checklogic;
 
 import java.io.InputStream;
+import java.util.Map;
 import ru.ewc.state.State;
 
 /**
- * I am a factory for creating state objects. My subclasses are responsible for creating the initial
- * state and loading the state from a file. They can do that for real or mock the result for testing
- * purposes.
+ * I am a mock state factory for testing purposes.
  *
  * @since 0.3.2
  */
-public abstract class StateFactory {
-    /**
-     * The root path for the external business logic resources.
-     */
-    private final String root;
-
-    public StateFactory(final String root) {
-        this.root = root;
+public final class MockStateFactory extends StateFactory {
+    public MockStateFactory(final String root) {
+        super(root);
     }
 
-    /**
-     * Returns the path to the root folder of the external business logic resources.
-     *
-     * @return Path to the root folder as a string.
-     */
-    public String getRoot() {
-        return this.root;
+    @Override
+    public State initialState() {
+        return new State(
+            Map.of(
+                "locator", new InMemoryStorage(Map.of("fragment", "value")),
+                "request", new InMemoryStorage(Map.of())
+            )
+        );
     }
 
-    public abstract State initialState();
+    @Override
+    public StateFactory with(final InputStream file) {
+        return this;
+    }
 
-    public abstract StateFactory with(InputStream file);
-
-    public abstract void initialize();
+    @Override
+    public void initialize() {
+        // do nothing
+    }
 }

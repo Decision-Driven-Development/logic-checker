@@ -75,7 +75,6 @@ public final class FullServerContext {
      */
     private final StateFactory states;
 
-    // @todo #52 Create the testable instance of FullServerContext
     FullServerContext(
         final StateFactory initial,
         final URI tables,
@@ -88,6 +87,10 @@ public final class FullServerContext {
         this.tables = tables;
         this.commands = commands;
         this.context = new ComputationContext(this.state, tables, commands);
+    }
+
+    public static FullServerContext testable() {
+        return ServerContextFactory.testable().initialState();
     }
 
     public void perform(final String command) {

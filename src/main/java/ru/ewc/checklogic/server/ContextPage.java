@@ -52,7 +52,7 @@ public final class ContextPage implements Endpoints {
         web.registerPath(POST, "context", this::contextPage);
     }
 
-    private Response contextPage(final Request request) {
+    Response contextPage(final Request request) {
         this.context.cache("command", request.body().asString("availOutcome"));
         this.context.cache("request", request.body().asString("reqLocator"));
         this.updateContext(request.body().asString("reqValues"));
@@ -66,6 +66,8 @@ public final class ContextPage implements Endpoints {
 
     private void updateContext(final String values) {
         final String decoded = URLDecoder.decode(values, StandardCharsets.UTF_8);
-        this.context.update(Arrays.stream(decoded.split("\n")).collect(Collectors.toList()));
+        if (!decoded.isBlank()) {
+            this.context.update(Arrays.stream(decoded.split("\n")).collect(Collectors.toList()));
+        }
     }
 }

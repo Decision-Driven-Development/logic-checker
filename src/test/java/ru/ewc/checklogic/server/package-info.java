@@ -21,40 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package ru.ewc.checklogic;
-
-import java.io.InputStream;
-import ru.ewc.state.State;
-
 /**
- * I am a factory for creating state objects. My subclasses are responsible for creating the initial
- * state and loading the state from a file. They can do that for real or mock the result for testing
- * purposes.
- *
- * @since 0.3.2
+ * Package for server-side classes' tests.
  */
-public abstract class StateFactory {
-    /**
-     * The root path for the external business logic resources.
-     */
-    private final String root;
-
-    public StateFactory(final String root) {
-        this.root = root;
-    }
-
-    /**
-     * Returns the path to the root folder of the external business logic resources.
-     *
-     * @return Path to the root folder as a string.
-     */
-    public String getRoot() {
-        return this.root;
-    }
-
-    public abstract State initialState();
-
-    public abstract StateFactory with(InputStream file);
-
-    public abstract void initialize();
-}
+package ru.ewc.checklogic.server;

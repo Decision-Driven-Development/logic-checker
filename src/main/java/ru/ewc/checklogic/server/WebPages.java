@@ -122,7 +122,7 @@ public final class WebPages {
         TestResult result;
         final FullServerContext target;
         try {
-            target = new ServerContextFactory(this.root)
+            target = ServerContextFactory.create(this.root)
                 .fromStateFile(Files.newInputStream(new File(test.file()).toPath()));
             try {
                 if (!test.command().isEmpty()) {

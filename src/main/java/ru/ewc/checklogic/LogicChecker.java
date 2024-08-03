@@ -49,7 +49,7 @@ public final class LogicChecker {
             throw new IllegalArgumentException("Please provide the path to the resources");
         }
         final String root = args[0];
-        final FullServerContext context = new ServerContextFactory(root).initialState();
+        final FullServerContext context = ServerContextFactory.create(root).initialState();
         final FullSystem minum = FullSystem.initialize();
         final WebFramework web = minum.getWebFramework();
         registerEndpoints(web, new CommandPage(context));

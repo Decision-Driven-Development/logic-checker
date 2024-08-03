@@ -47,28 +47,37 @@ public final class WebPages {
     /**
      * The template processors to be used for rendering the pages.
      */
-    private final TemplateProcessors processors;
+    private final TemplateRender processors;
 
     /**
      * The root path for the external business logic resources.
      */
     private final String root;
 
-    public WebPages(final TemplateProcessors processors, final String root) {
+    private WebPages(final TemplateRender processors, final String root) {
         this.processors = processors;
         this.root = root;
     }
 
+    public static WebPages create(final TemplateRender processors, final String root) {
+        return new WebPages(processors, root);
+    }
+
+    public static WebPages testable() {
+        return new WebPages(new MockTemplateRender(), "root folder");
+    }
+
+    // @todo #44 Create the basic page layout and render all pages as inclusions to it
     public Response indexPage() {
-        return Response.htmlOk(this.templateNamed("templates/index.html", Map.of()));
+        return Response.htmlOk(this.renderedTemplate("templates/index.html", Map.of()));
     }
 
     public Response uninitializedPage() {
-        return Response.htmlOk(this.templateNamed("templates/uninitialized.html", Map.of()));
+        return Response.htmlOk(this.renderedTemplate("templates/uninitialized.html", Map.of()));
     }
 
     public Response noTestsFolder() {
-        return Response.htmlOk(this.templateNamed("templates/noTestsFolder.html", Map.of()));
+        return Response.htmlOk(this.renderedTemplate("templates/noTestsFolder.html", Map.of()));
     }
 
     public Response testPage() {
@@ -82,7 +91,7 @@ public final class WebPages {
             .collect(Collectors.joining());
         final double elapsed = (System.currentTimeMillis() - start) / 1000.0;
         return Response.htmlOk(
-            this.templateNamed(
+            this.renderedTemplate(
                 "templates/test.html",
                 Map.of(
                     "tests", "%s".formatted(rows),
@@ -100,7 +109,7 @@ public final class WebPages {
     public Response statePage(final FullServerContext context) {
         final StoredState stored = new StoredState(context.storedState());
         return Response.htmlOk(
-            this.templateNamed(
+            this.renderedTemplate(
                 "templates/state.html",
                 Map.of(
                     "state", stored.asHtmlList(),
@@ -111,8 +120,8 @@ public final class WebPages {
         );
     }
 
-    private String templateNamed(final String template, final Map<String, String> values) {
-        return this.processors.forTemplate(template).renderTemplate(values);
+    private String renderedTemplate(final String template, final Map<String, String> values) {
+        return this.processors.renderTemplateWith(template, values);
     }
 
     // @todo #47 Move performTest method to dedicated test runner
@@ -145,4 +154,7 @@ public final class WebPages {
         return result;
     }
 
+    public String configPage() {
+        return this.renderedTemplate("templates/config.html", Map.of());
+    }
 }

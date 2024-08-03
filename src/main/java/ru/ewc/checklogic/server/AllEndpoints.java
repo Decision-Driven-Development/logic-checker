@@ -47,7 +47,7 @@ public final class AllEndpoints implements Endpoints {
 
     public AllEndpoints(final FullServerContext context) {
         this.context = context;
-        this.pages = new WebPages(new ResourceTemplateProcessors(), context.getRoot());
+        this.pages = WebPages.create(new ResourceTemplateRender(), context.getRoot());
     }
 
     @Override

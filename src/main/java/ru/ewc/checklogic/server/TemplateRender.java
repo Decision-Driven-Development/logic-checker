@@ -23,33 +23,14 @@
  */
 package ru.ewc.checklogic.server;
 
-import com.renomad.minum.templating.TemplateProcessor;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
- * I am a collection of template processors that render the pages to be served based on template
- * files packed into 'resources' folder inside jar-file.
+ * I am a collection of template processors that render the pages to be served.
  *
  * @since 0.3.2
  */
-public final class ResourceTemplateProcessors implements TemplateProcessors {
-    /**
-     * The map of template processors for the templates. Used to lazy load the processors, because
-     * they are expensive to create.
-     */
-    private final Map<String, TemplateProcessor> processors;
+public interface TemplateRender {
 
-    public ResourceTemplateProcessors() {
-        this.processors = new HashMap<>();
-    }
-
-    @Override
-    public TemplateProcessor forTemplate(final String template) {
-        this.processors.putIfAbsent(
-            template,
-            TemplateProcessor.buildProcessor(WebResource.readFileFromResources(template))
-        );
-        return this.processors.get(template);
-    }
+    String renderTemplateWith(String template, Map<String, String> values);
 }

@@ -43,7 +43,7 @@ final class WebResource {
         // Utility class
     }
 
-    static String readFileFromResources(final String file) {
+    static String contentOf(final String file) {
         final InputStream input = WebResource.threadClassLoader().getResourceAsStream(file);
         if (input == null) {
             throw new IllegalArgumentException("File not found! %s".formatted(file));

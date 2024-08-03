@@ -105,7 +105,7 @@ public final class AllEndpoints implements Endpoints {
     private static Response staticResource(final Request request) {
         final Response result;
         if (request.requestLine().getPathDetails().getIsolatedPath().endsWith("main.css")) {
-            final String body = WebResource.readFileFromResources("static/main.css");
+            final String body = WebResource.contentOf("static/main.css");
             result = new Response(OK, body, CSS);
         } else {
             result = new Response(NOT_FOUND, "", PLAIN_TEXT);

@@ -45,11 +45,23 @@ public final class ResourceTemplateRender implements TemplateRender {
     }
 
     @Override
-    public String renderTemplateWith(final String template, final Map<String, String> values) {
+    public String renderInLayout(final String template, final Map<String, String> values) {
         this.processors.putIfAbsent(
-            template,
-            TemplateProcessor.buildProcessor(WebResource.readFileFromResources(template))
+            "layout", ResourceTemplateRender.templateProcessorFor("templates/layout.html")
+        );
+        return this.processors.get("layout").renderTemplate(
+            Map.of("content", this.renderTemplateWith(template, values))
+        );
+    }
+
+    private String renderTemplateWith(final String template, final Map<String, String> values) {
+        this.processors.putIfAbsent(
+            template, ResourceTemplateRender.templateProcessorFor(template)
         );
         return this.processors.get(template).renderTemplate(values);
+    }
+
+    private static TemplateProcessor templateProcessorFor(final String template) {
+        return TemplateProcessor.buildProcessor(WebResource.contentOf(template));
     }
 }

@@ -68,17 +68,16 @@ public final class WebPages {
         return new WebPages(new MockTemplateRender(), "root folder");
     }
 
-    // @todo #44 Create the basic page layout and render all pages as inclusions to it
     public Response indexPage() {
-        return Response.htmlOk(this.renderedTemplate("templates/index.html", Map.of()));
+        return Response.htmlOk(this.renderInLayout("templates/index.html", Map.of()));
     }
 
     public Response uninitializedPage() {
-        return Response.htmlOk(this.renderedTemplate("templates/uninitialized.html", Map.of()));
+        return Response.htmlOk(this.renderInLayout("templates/uninitialized.html", Map.of()));
     }
 
     public Response noTestsFolder() {
-        return Response.htmlOk(this.renderedTemplate("templates/noTestsFolder.html", Map.of()));
+        return Response.htmlOk(this.renderInLayout("templates/noTestsFolder.html", Map.of()));
     }
 
     public Response testPage() {
@@ -92,7 +91,7 @@ public final class WebPages {
             .collect(Collectors.joining());
         final double elapsed = (System.currentTimeMillis() - start) / 1000.0;
         return Response.htmlOk(
-            this.renderedTemplate(
+            this.renderInLayout(
                 "templates/test.html",
                 Map.of(
                     "tests", "%s".formatted(rows),
@@ -110,7 +109,7 @@ public final class WebPages {
     public Response statePage(final FullServerContext context) {
         final StoredState stored = new StoredState(context.storedState());
         return Response.htmlOk(
-            this.renderedTemplate(
+            this.renderInLayout(
                 "templates/state.html",
                 Map.of(
                     "state", stored.asHtmlList(),
@@ -122,11 +121,11 @@ public final class WebPages {
     }
 
     public String configPage() {
-        return this.renderedTemplate("templates/config.html", Map.of());
+        return this.renderInLayout("templates/config.html", Map.of());
     }
 
-    private String renderedTemplate(final String template, final Map<String, String> values) {
-        return this.processors.renderTemplateWith(template, values);
+    private String renderInLayout(final String template, final Map<String, String> values) {
+        return this.processors.renderInLayout(template, values);
     }
 
     // @todo #47 Move performTest method to dedicated test runner

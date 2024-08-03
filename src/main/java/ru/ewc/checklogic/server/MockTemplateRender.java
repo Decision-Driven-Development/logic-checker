@@ -31,8 +31,9 @@ import java.util.Map;
  * @since 0.3.2
  */
 public final class MockTemplateRender implements TemplateRender {
+
     @Override
-    public String renderTemplateWith(final String template, final Map<String, String> values) {
-        return "Hello, world";
+    public String renderInLayout(final String template, final Map<String, String> values) {
+        return "Layout rendering";
     }
 }

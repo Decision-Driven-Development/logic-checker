@@ -31,6 +31,5 @@ import java.util.Map;
  * @since 0.3.2
  */
 public interface TemplateRender {
-
-    String renderTemplateWith(String template, Map<String, String> values);
+    String renderInLayout(String template, Map<String, String> values);
 }

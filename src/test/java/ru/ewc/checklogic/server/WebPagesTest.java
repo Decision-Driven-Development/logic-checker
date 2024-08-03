@@ -39,7 +39,7 @@ final class WebPagesTest {
         MatcherAssert.assertThat(
             "Should render the exact config page",
             pages.configPage(),
-            Matchers.is("Hello, world")
+            Matchers.is("Layout rendering")
         );
     }
 }

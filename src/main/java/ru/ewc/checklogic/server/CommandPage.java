@@ -64,10 +64,10 @@ public final class CommandPage implements Endpoints {
     public CommandPage(final FullServerContext computation) {
         this.computation = computation;
         this.description = TemplateProcessor.buildProcessor(
-            WebResource.readFileFromResources("templates/command-info.html")
+            WebResource.contentOf("templates/command-info.html")
         );
         this.error = TemplateProcessor.buildProcessor(
-            WebResource.readFileFromResources("templates/command-error.html")
+            WebResource.contentOf("templates/command-error.html")
         );
     }
 

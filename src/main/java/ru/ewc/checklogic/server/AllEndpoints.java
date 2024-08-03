@@ -107,6 +107,9 @@ public final class AllEndpoints implements Endpoints {
         if (request.requestLine().getPathDetails().getIsolatedPath().endsWith("main.css")) {
             final String body = WebResource.contentOf("static/main.css");
             result = new Response(OK, body, CSS);
+        } else if (request.requestLine().getPathDetails().getIsolatedPath().endsWith("logo.png")) {
+            final byte[] body = WebResource.bytesOf("static/logo.png");
+            result = new Response(OK, body, PNG);
         } else {
             result = new Response(NOT_FOUND, "", PLAIN_TEXT);
         }

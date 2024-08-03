@@ -55,6 +55,14 @@ public interface Endpoints {
     Map<String, String> PLAIN_TEXT = Map.of("Content-Type", "text/plain");
 
     /**
+     * Content type for PNG files.
+     */
+    Map<String, String> PNG = Map.of(
+        "Content-Type", "image/png",
+        "Cache-Control", "public, max-age=3600, must-revalidate"
+    );
+
+    /**
      * The status codes for the 200 OK response.
      */
     StatusLine.StatusCode OK = StatusLine.StatusCode.CODE_200_OK;

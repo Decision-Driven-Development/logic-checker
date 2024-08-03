@@ -56,6 +56,18 @@ final class WebResource {
         }
     }
 
+    static byte[] bytesOf(final String file) {
+        try (InputStream input = WebResource.threadClassLoader().getResourceAsStream(file)) {
+            if (input == null) {
+                throw new IllegalArgumentException("File not found! %s".formatted(file));
+            } else {
+                return input.readAllBytes();
+            }
+        } catch (final IOException exception) {
+            throw new IllegalArgumentException("Failed to read file from resources", exception);
+        }
+    }
+
     private static BufferedReader bufferedReaderOf(final InputStream stream) {
         return new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
     }

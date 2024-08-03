@@ -111,11 +111,7 @@ public final class WebPages {
         return Response.htmlOk(
             this.renderInLayout(
                 "templates/state.html",
-                Map.of(
-                    "state", stored.asHtmlList(),
-                    "available", context.cached("command"),
-                    "request", context.cached("request")
-                )
+                Map.of("state", stored.asHtmlList())
             )
         );
     }

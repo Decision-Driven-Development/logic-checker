@@ -31,6 +31,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import ru.ewc.checklogic.FullServerContext;
+import ru.ewc.checklogic.ServerConfiguration;
 
 /**
  * I am the configuration and logic for the context web page.
@@ -43,8 +44,14 @@ public final class ContextPage implements Endpoints {
      */
     private final FullServerContext context;
 
-    public ContextPage(final FullServerContext context) {
+    /**
+     * The server configuration.
+     */
+    private final ServerConfiguration config;
+
+    public ContextPage(final FullServerContext context, final ServerConfiguration config) {
         this.context = context;
+        this.config = config;
     }
 
     @Override
@@ -53,15 +60,13 @@ public final class ContextPage implements Endpoints {
     }
 
     Response contextPage(final Request request) {
-        this.context.cache("command", request.body().asString("availOutcome"));
-        this.context.cache("request", request.body().asString("reqLocator"));
         this.updateContext(request.body().asString("reqValues"));
         final CommandMetadata commands = new CommandMetadata(this.context.commandData());
         return Response.htmlOk(commands.namesAsHtmlList(this.context, this.availabilityField()));
     }
 
     private String availabilityField() {
-        return this.context.cached("command");
+        return this.config.commandAvailabilityField();
     }
 
     private void updateContext(final String values) {

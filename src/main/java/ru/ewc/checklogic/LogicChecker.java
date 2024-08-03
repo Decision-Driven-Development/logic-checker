@@ -30,6 +30,7 @@ import ru.ewc.checklogic.server.AllEndpoints;
 import ru.ewc.checklogic.server.CommandPage;
 import ru.ewc.checklogic.server.ContextPage;
 import ru.ewc.checklogic.server.Endpoints;
+import ru.ewc.checklogic.server.config.ConfigPage;
 
 /**
  * I am an entry point for the logic checker web-based application. My main responsibility is to
@@ -49,11 +50,13 @@ public final class LogicChecker {
             throw new IllegalArgumentException("Please provide the path to the resources");
         }
         final String root = args[0];
-        final FullServerContext context = ServerContextFactory.create(root).initialState();
+        final ServerContextFactory factory = ServerContextFactory.create(root);
+        final FullServerContext context = factory.initialState();
         final FullSystem minum = FullSystem.initialize();
         final WebFramework web = minum.getWebFramework();
+        registerEndpoints(web, new ConfigPage(factory.configuration()));
         registerEndpoints(web, new CommandPage(context));
-        registerEndpoints(web, new ContextPage(context));
+        registerEndpoints(web, new ContextPage(context, factory.configuration()));
         registerEndpoints(web, new AllEndpoints(context));
         minum.block();
     }

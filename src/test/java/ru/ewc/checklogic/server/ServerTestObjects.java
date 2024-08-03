@@ -21,44 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package ru.ewc.checklogic;
+package ru.ewc.checklogic.server;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.renomad.minum.web.Body;
+import com.renomad.minum.web.Headers;
+import com.renomad.minum.web.Request;
+import com.renomad.minum.web.RequestLine;
 
 /**
- * I am a context for the web server.
+ * I provide the basic test objects for the server unit tests.
  *
  * @since 0.3.2
  */
-public final class WebServerContext {
-    /**
-     * The parameters of the context.
-     */
-    private final Map<String, String> parameters = new HashMap<>(
-        Map.of(
-            "request", "request",
-            "command", "available"
-        )
-    );
-
-    /**
-     * Returns the value of the specified parameter.
-     *
-     * @param parameter The name of the parameter.
-     * @return The value of the parameter.
-     */
-    public String getParameterValue(final String parameter) {
-        return this.parameters.getOrDefault(parameter, "");
+@SuppressWarnings("PMD.ProhibitPublicStaticMethods")
+public final class ServerTestObjects {
+    private ServerTestObjects() {
+        // Utility class
     }
 
-    /**
-     * Sets the value of the specified parameter.
-     *
-     * @param parameter The name of the parameter.
-     * @param value The value of the parameter.
-     */
-    public void setParameterValue(final String parameter, final String value) {
-        this.parameters.put(parameter, value);
+    public static Request emptyRequest() {
+        return new Request(Headers.EMPTY, RequestLine.empty(), Body.EMPTY, null);
     }
 }

@@ -35,7 +35,8 @@ import java.util.stream.Collectors;
  *
  * @since 0.3.0
  */
-final class WebResource {
+@SuppressWarnings("PMD.ProhibitPublicStaticMethods")
+public final class WebResource {
     /**
      * Ctor that prevents instantiation of this utility class.
      */
@@ -43,7 +44,7 @@ final class WebResource {
         // Utility class
     }
 
-    static String contentOf(final String file) {
+    public static String contentOf(final String file) {
         final InputStream input = WebResource.threadClassLoader().getResourceAsStream(file);
         if (input == null) {
             throw new IllegalArgumentException("File not found! %s".formatted(file));

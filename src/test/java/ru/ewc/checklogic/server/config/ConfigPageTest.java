@@ -21,33 +21,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package ru.ewc.checklogic.server;
+package ru.ewc.checklogic.server.config;
 
-import com.renomad.minum.web.Response;
-import java.nio.charset.StandardCharsets;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
-import ru.ewc.checklogic.FullServerContext;
 import ru.ewc.checklogic.ServerConfiguration;
+import ru.ewc.checklogic.server.ServerTestObjects;
 
 /**
- * I test the {@link ContextPage} class.
+ * I am a test for the {@link ConfigPage}.
  *
  * @since 0.3.2
  */
-final class ContextPageTest {
+final class ConfigPageTest {
     @Test
-    void shouldCreateMockServer() {
-        final ContextPage target = new ContextPage(
-            FullServerContext.testable(),
-            new ServerConfiguration()
-        );
-        final Response response = target.contextPage(ServerTestObjects.emptyRequest());
+    void shouldNotUpdateParametersNotPresentInTheRequest() {
+        final ConfigPage target = new ConfigPage(new ServerConfiguration());
+        target.updateParametersFrom(ServerTestObjects.emptyRequest());
         MatcherAssert.assertThat(
-            "Mock server should not have any commands available",
-            new String(response.getBody(), StandardCharsets.UTF_8),
-            Matchers.is("")
+            "Parameters should not be updated if the Request is empty",
+            target.parameters(),
+            Matchers.allOf(
+                Matchers.hasEntry("commandAvailabilityOutcome", "available"),
+                Matchers.hasEntry("requestLocatorName", "request")
+            )
         );
     }
 }

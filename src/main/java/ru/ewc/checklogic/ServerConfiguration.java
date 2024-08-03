@@ -21,33 +21,52 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package ru.ewc.checklogic.server;
+package ru.ewc.checklogic;
 
-import com.renomad.minum.web.Response;
-import java.nio.charset.StandardCharsets;
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
-import org.junit.jupiter.api.Test;
-import ru.ewc.checklogic.FullServerContext;
-import ru.ewc.checklogic.ServerConfiguration;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * I test the {@link ContextPage} class.
+ * I am a context for the web server.
  *
  * @since 0.3.2
  */
-final class ContextPageTest {
-    @Test
-    void shouldCreateMockServer() {
-        final ContextPage target = new ContextPage(
-            FullServerContext.testable(),
-            new ServerConfiguration()
-        );
-        final Response response = target.contextPage(ServerTestObjects.emptyRequest());
-        MatcherAssert.assertThat(
-            "Mock server should not have any commands available",
-            new String(response.getBody(), StandardCharsets.UTF_8),
-            Matchers.is("")
-        );
+public final class ServerConfiguration {
+    /**
+     * The parameters of the context.
+     */
+    private final Map<String, String> parameters = new HashMap<>(
+        Map.of(
+            "request", "request",
+            "command", "available"
+        )
+    );
+
+    /**
+     * Returns the value of the specified parameter.
+     *
+     * @param parameter The name of the parameter.
+     * @return The value of the parameter.
+     */
+    public String getParameterValue(final String parameter) {
+        return this.parameters.getOrDefault(parameter, "");
+    }
+
+    /**
+     * Sets the value of the specified parameter.
+     *
+     * @param parameter The name of the parameter.
+     * @param value The value of the parameter.
+     */
+    public void setParameterValue(final String parameter, final String value) {
+        this.parameters.put(parameter, value);
+    }
+
+    public String commandAvailabilityField() {
+        return this.getParameterValue("command");
+    }
+
+    public String requestLocatorName() {
+        return this.getParameterValue("request");
     }
 }

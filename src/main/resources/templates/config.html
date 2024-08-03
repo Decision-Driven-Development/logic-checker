@@ -21,22 +21,19 @@
   ~ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   ~ SOFTWARE.
   -->
-<div class="row">
-    <div class="col">
-        <h1>State entities</h1>
-        {{ state }}
-    </div>
-    <div class="col">
-        <h1>Context</h1>
-        <form class="mb-3" hx-post="/context" hx-target="#commands" hx-swap="innerHTML" hx-trigger="submit, load">
-            <div class="mb-3">
-                <label class="col-form-label" for="reqValues">Request values:</label>
-                <textarea class="form-control" id="reqValues" name="reqValues" rows="3"
-                          placeholder="Enter request parameters, one per line, in 'key: value' format"></textarea>
-            </div>
-            <button class="btn btn-primary" type="submit">Update commands</button>
-        </form>
-        <h1>Commands</h1>
-        <div id="commands" class="btn-group-vertical"></div>
-    </div>
+<div class="col">
+    <h1>Configuration</h1>
+    <form class="mb-3" hx-post="/config" hx-trigger="submit" hx-target="#content">
+        <div class="mb-3">
+            <label class="col-form-label" for="availOutcome">Availability outcome field:</label>
+            <input class="form-control" type="text" id="availOutcome" name="availOutcome"
+                   value="{{ commandAvailabilityOutcome }}">
+        </div>
+        <div class="mb-3">
+            <label class="col-form-label" for="reqLocator">Request Locator name:</label>
+            <input class="form-control" type="text" id="reqLocator" name="reqLocator"
+                   value="{{ requestLocatorName }}">
+        </div>
+        <button class="btn btn-primary" type="submit">Update configuration</button>
+    </form>
 </div>

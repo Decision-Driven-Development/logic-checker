@@ -68,7 +68,7 @@ public final class FullServerContext {
     /**
      * The web server context.
      */
-    private final WebServerContext server;
+    private final ServerConfiguration server;
 
     /**
      * The factory for the states.
@@ -79,7 +79,7 @@ public final class FullServerContext {
         final StateFactory initial,
         final URI tables,
         final URI commands,
-        final WebServerContext server) {
+        final ServerConfiguration server) {
         this.states = initial;
         this.server = server;
         this.root = this.states.getRoot();
@@ -147,7 +147,7 @@ public final class FullServerContext {
     }
 
     public void update(final List<String> values) {
-        this.state.locators().put(this.cached("request"), InMemoryStorage.from(values));
+        this.state.locators().put(this.server.requestLocatorName(), InMemoryStorage.from(values));
         this.context = new ComputationContext(this.state, this.tables, this.commands);
     }
 

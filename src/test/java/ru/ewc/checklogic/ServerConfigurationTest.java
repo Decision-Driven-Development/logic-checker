@@ -28,14 +28,14 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
 /**
- * I am a test class for the {@link WebServerContext} class.
+ * I am a test class for the {@link ServerConfiguration} class.
  *
  * @since 0.3.2
  */
-final class WebServerContextTest {
+final class ServerConfigurationTest {
     @Test
     void emptyServerContextHasDefaultRequestLocatorName() {
-        final WebServerContext context = new WebServerContext();
+        final ServerConfiguration context = new ServerConfiguration();
         MatcherAssert.assertThat(
             "New server context should have 'request' as default incoming request locator's name",
             context.getParameterValue("request"),
@@ -45,7 +45,7 @@ final class WebServerContextTest {
 
     @Test
     void emptyServerContextHasDefaultCommandAvailabilityOutcome() {
-        final WebServerContext context = new WebServerContext();
+        final ServerConfiguration context = new ServerConfiguration();
         MatcherAssert.assertThat(
             "New server context should have 'available' as default command availability outcome",
             context.getParameterValue("command"),
@@ -55,7 +55,7 @@ final class WebServerContextTest {
 
     @Test
     void shouldUpdateRequestLocatorName() {
-        final WebServerContext context = new WebServerContext();
+        final ServerConfiguration context = new ServerConfiguration();
         context.setParameterValue("request", "incoming");
         MatcherAssert.assertThat(
             "Context server should update its incoming request locator's name",
@@ -66,7 +66,7 @@ final class WebServerContextTest {
 
     @Test
     void shouldUpdateCommandAvailabilityOutcome() {
-        final WebServerContext context = new WebServerContext();
+        final ServerConfiguration context = new ServerConfiguration();
         context.setParameterValue("command", "enabled");
         MatcherAssert.assertThat(
             "Context server should update its command availability outcome",

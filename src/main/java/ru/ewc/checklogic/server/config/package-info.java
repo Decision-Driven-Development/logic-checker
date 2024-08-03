@@ -21,33 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package ru.ewc.checklogic.server;
-
-import com.renomad.minum.web.Response;
-import java.nio.charset.StandardCharsets;
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
-import org.junit.jupiter.api.Test;
-import ru.ewc.checklogic.FullServerContext;
-import ru.ewc.checklogic.ServerConfiguration;
-
 /**
- * I test the {@link ContextPage} class.
- *
- * @since 0.3.2
+ * Package for all the classes responsible for configuring the web server itself.
  */
-final class ContextPageTest {
-    @Test
-    void shouldCreateMockServer() {
-        final ContextPage target = new ContextPage(
-            FullServerContext.testable(),
-            new ServerConfiguration()
-        );
-        final Response response = target.contextPage(ServerTestObjects.emptyRequest());
-        MatcherAssert.assertThat(
-            "Mock server should not have any commands available",
-            new String(response.getBody(), StandardCharsets.UTF_8),
-            Matchers.is("")
-        );
-    }
-}
+package ru.ewc.checklogic.server.config;

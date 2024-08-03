@@ -43,17 +43,34 @@ public final class ServerContextFactory {
      */
     private final StateFactory factory;
 
-    private ServerContextFactory(final String root, final StateFactory factory) {
+    /**
+     * The server's configuration.
+     */
+    private final ServerConfiguration config;
+
+    private ServerContextFactory(
+        final String root,
+        final StateFactory factory,
+        final ServerConfiguration config) {
         this.root = root;
         this.factory = factory;
+        this.config = config;
     }
 
     public static ServerContextFactory testable() {
-        return new ServerContextFactory("root folder", new MockStateFactory("root folder"));
+        return new ServerContextFactory(
+            "root folder",
+            new MockStateFactory("root folder"),
+            new ServerConfiguration()
+        );
     }
 
     public static ServerContextFactory create(final String root) {
-        return new ServerContextFactory(root, new FileStateFactory(root));
+        return new ServerContextFactory(
+            root,
+            new FileStateFactory(root),
+            new ServerConfiguration()
+        );
     }
 
     /**
@@ -66,7 +83,7 @@ public final class ServerContextFactory {
             this.factory,
             Path.of(this.root, "tables").toUri(),
             Path.of(this.root, "commands").toUri(),
-            new WebServerContext()
+            this.config
         );
         result.cache("command", "available");
         result.cache("request", "request");
@@ -85,7 +102,11 @@ public final class ServerContextFactory {
             this.factory.with(file),
             Path.of(this.root, "tables").toUri(),
             Path.of(this.root, "commands").toUri(),
-            new WebServerContext()
+            this.config
         );
+    }
+
+    public ServerConfiguration configuration() {
+        return this.config;
     }
 }

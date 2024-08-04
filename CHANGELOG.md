@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.2](https://github.com/Decision-Driven-Development/logic-checker/compare/v0.3.1...v0.3.2) (2024-08-04)
+
+
+### Features
+
+* **server:** initialize an empty tests folder ([807d016](https://github.com/Decision-Driven-Development/logic-checker/commit/807d016394ae3e3b54b833bc0c13822be14d98f0)), closes [#34](https://github.com/Decision-Driven-Development/logic-checker/issues/34)
+* **server:** initializing with a barebones project ([3551e55](https://github.com/Decision-Driven-Development/logic-checker/commit/3551e55022b420a9e545ae2875e16bae45885e0e)), closes [#33](https://github.com/Decision-Driven-Development/logic-checker/issues/33)
+* **test:** visual enhancements for test results page ([a4d75a7](https://github.com/Decision-Driven-Development/logic-checker/commit/a4d75a77d2db54b624a74d7dea686ff126defe09)), closes [#39](https://github.com/Decision-Driven-Development/logic-checker/issues/39)
+* **webUI:** added a logo to the navbar ([49386d2](https://github.com/Decision-Driven-Development/logic-checker/commit/49386d2897c86f8e82741be8590e7b7d95ad4c8c)), closes [#45](https://github.com/Decision-Driven-Development/logic-checker/issues/45)
+* **webUI:** added specific page titles ([ea672fe](https://github.com/Decision-Driven-Development/logic-checker/commit/ea672fe16dca8c241bacbaf5eb23d8cebb32e8db)), closes [#38](https://github.com/Decision-Driven-Development/logic-checker/issues/38)
+* **webUI:** created index page as a server entrypoint ([81cbe76](https://github.com/Decision-Driven-Development/logic-checker/commit/81cbe76b90579f5f889d0571d85f7eb8abfe910e)), closes [#33](https://github.com/Decision-Driven-Development/logic-checker/issues/33)
+* **webUI:** implemented a simple navbar for the tool ([bdcf2e9](https://github.com/Decision-Driven-Development/logic-checker/commit/bdcf2e9d0550b7c5a4e7f0a6f15a5c16a9ff71b2)), closes [#45](https://github.com/Decision-Driven-Development/logic-checker/issues/45)
+* **webUI:** implemented the server configuration page ([12113b8](https://github.com/Decision-Driven-Development/logic-checker/commit/12113b82a385f00db69527ee0ebbce09b4049ea9)), closes [#44](https://github.com/Decision-Driven-Development/logic-checker/issues/44)
+* **webUI:** rendering all pages as layout inclusions ([5e45d68](https://github.com/Decision-Driven-Development/logic-checker/commit/5e45d68cdf0c017927d8969845546aa15ff2b77e)), closes [#56](https://github.com/Decision-Driven-Development/logic-checker/issues/56)
+* **webUI:** rewrite stored request after checking commands availability ([8891046](https://github.com/Decision-Driven-Development/logic-checker/commit/8891046e4110a9a062f6f0aea6062e21e442e237)), closes [#40](https://github.com/Decision-Driven-Development/logic-checker/issues/40)
+
+
+### Bug Fixes
+
+* **test:** running a test referencing non-existing commands just fails the test ([d2bff97](https://github.com/Decision-Driven-Development/logic-checker/commit/d2bff972a9a20aed072a91ff7e84cfa77db5a175)), closes [#36](https://github.com/Decision-Driven-Development/logic-checker/issues/36)
+* **test:** running a test referencing non-existing tables just fails the test ([e5907fa](https://github.com/Decision-Driven-Development/logic-checker/commit/e5907fa937ffd06ee03feb133c6d5c7e75e5fe43)), closes [#35](https://github.com/Decision-Driven-Development/logic-checker/issues/35)
+* **test:** running a test without Arrange section outputs informative fail reason ([5615348](https://github.com/Decision-Driven-Development/logic-checker/commit/56153486c9f05419fda28191f6a08ef58ad5e905)), closes [#53](https://github.com/Decision-Driven-Development/logic-checker/issues/53)
+* **webUI:** commands are asking for request params only ([faa9d1b](https://github.com/Decision-Driven-Development/logic-checker/commit/faa9d1b52555145eb3dff636e7bf737c61fb473b)), closes [#42](https://github.com/Decision-Driven-Development/logic-checker/issues/42)
+
 ### [0.3.1](https://github.com/Decision-Driven-Development/logic-checker/compare/v0.3.0...v0.3.1) (2024-07-08)
 
 

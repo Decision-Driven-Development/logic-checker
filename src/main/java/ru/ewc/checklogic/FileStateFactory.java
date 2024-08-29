@@ -34,7 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.SneakyThrows;
 import org.yaml.snakeyaml.Yaml;
 import ru.ewc.decisions.api.Locator;
@@ -64,7 +63,7 @@ public final class FileStateFactory extends StateFactory {
             state = FileStateFactory.stateFromAppConfig(file);
             state.locators().putAll(this.locatorsFromFile());
         } catch (final NoSuchFileException exception) {
-            state = new NullState(Map.of());
+            state = State.EMPTY;
         }
         return state;
     }
@@ -97,7 +96,7 @@ public final class FileStateFactory extends StateFactory {
                     "There is no Arrange section in the test file, you should add one"
                 );
             }
-            raw.forEach((name, data) -> locators.put(name, new InMemoryStorage(data)));
+            raw.forEach((name, data) -> locators.put(name, new InMemoryStorage(name, data)));
         }
         return locators;
     }
@@ -106,14 +105,9 @@ public final class FileStateFactory extends StateFactory {
     @SuppressWarnings("unchecked")
     private static State stateFromAppConfig(final InputStream file) {
         final Map<String, Object> config = new Yaml().load(file);
-        final Stream<String> names = ((List<String>) config.get("locators")).stream();
-        return new State(
-            names.collect(
-                Collectors.toMap(
-                    name -> name,
-                    name -> new InMemoryStorage(new HashMap<>())
-                )
-            )
+        return new State(((List<String>) config.get("locators")).stream()
+            .map(name -> new InMemoryStorage(name, new HashMap<>()))
+            .collect(Collectors.toList())
         );
     }
 }

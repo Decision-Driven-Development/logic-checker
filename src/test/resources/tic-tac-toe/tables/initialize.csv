@@ -1,3 +1,13 @@
-constant::true;true
----
-available;true;false
+CND;constant::true;true
+OUT;available;true;false
+ASG;cells::A1;empty
+ASG;cells::A2;empty
+ASG;cells::A3;empty
+ASG;cells::B1;empty
+ASG;cells::B2;empty
+ASG;cells::B3;empty
+ASG;cells::C1;empty
+ASG;cells::C2;empty
+ASG;cells::C3;empty
+ASG;table::currentPlayer;X
+ASG;table::nextPlayer;O

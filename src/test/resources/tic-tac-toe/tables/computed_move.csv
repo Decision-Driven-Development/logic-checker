@@ -1,5 +1,7 @@
-player::is_current;true
-selected_cell::is_empty;true
-game_state::is_over;false
----
-available;true;false
+CND;player::is_current;true
+CND;selected_cell::is_empty;true
+CND;game_state::is_over;false
+OUT;available;true;false
+ASG;cells::${request::move};${request::player}
+ASG;table::currentPlayer;${table::nextPlayer}
+ASG;table::nextPlayer;${request::player}

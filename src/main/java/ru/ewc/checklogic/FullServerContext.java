@@ -30,7 +30,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import ru.ewc.decisions.api.ComputationContext;
+import ru.ewc.decisions.api.DecisionTables;
 import ru.ewc.decisions.api.DecitaException;
+import ru.ewc.decisions.input.CombinedCsvFileReader;
 import ru.ewc.state.State;
 
 /**
@@ -56,11 +58,6 @@ public final class FullServerContext {
     private final URI tables;
 
     /**
-     * The URI of the commands folder, used to recreate the computation context for each request.
-     */
-    private final URI commands;
-
-    /**
      * The context of the computation.
      */
     private ComputationContext context;
@@ -78,23 +75,17 @@ public final class FullServerContext {
     FullServerContext(
         final StateFactory initial,
         final URI tables,
-        final URI commands,
         final ServerConfiguration server) {
         this.states = initial;
         this.server = server;
         this.root = this.states.getRoot();
         this.state = this.states.initialState();
         this.tables = tables;
-        this.commands = commands;
-        this.context = new ComputationContext(this.state, tables, commands);
+        this.context = new ComputationContext(this.state, this.getAllTables());
     }
 
     public static FullServerContext testable() {
         return ServerContextFactory.testable().initialState();
-    }
-
-    public void perform(final String command) {
-        this.perform(command, Map.of());
     }
 
     public void perform(final String command, final Map<String, String> args) {
@@ -107,8 +98,8 @@ public final class FullServerContext {
             });
         try {
             this.context.perform(command);
-            this.context = new ComputationContext(this.state, this.tables, this.commands);
-        } catch (final Throwable exception) {
+            this.context = new ComputationContext(this.state, this.getAllTables());
+        } catch (final DecitaException exception) {
             throw new IllegalStateException(
                 "Command file for '%s' not found".formatted(command),
                 exception
@@ -147,8 +138,11 @@ public final class FullServerContext {
     }
 
     public void update(final List<String> values) {
-        this.state.locators().put(this.server.requestLocatorName(), InMemoryStorage.from(values));
-        this.context = new ComputationContext(this.state, this.tables, this.commands);
+        this.state.locators().put(
+            this.server.requestLocatorName(),
+            InMemoryStorage.from(this.server.requestLocatorName(), values)
+        );
+        this.context = new ComputationContext(this.state, this.getAllTables());
     }
 
     public String cached(final String parameter) {
@@ -160,7 +154,7 @@ public final class FullServerContext {
     }
 
     public boolean isEmpty() {
-        return this.state instanceof NullState;
+        return this.state.locators().isEmpty();
     }
 
     public String getRoot() {
@@ -170,7 +164,7 @@ public final class FullServerContext {
     public void initialize() {
         this.states.initialize();
         this.state = this.states.initialState();
-        this.context = new ComputationContext(this.state, this.tables, this.commands);
+        this.context = new ComputationContext(this.state, this.getAllTables());
     }
 
     public boolean hasTestsFolder() {
@@ -179,6 +173,10 @@ public final class FullServerContext {
 
     public void createTestFolder() {
         Paths.get(this.root, "states").toFile().mkdirs();
-        this.context = new ComputationContext(this.state, this.tables, this.commands);
+        this.context = new ComputationContext(this.state, this.getAllTables());
+    }
+
+    private DecisionTables getAllTables() {
+        return DecisionTables.using(new CombinedCsvFileReader(this.tables, ".csv", ";"));
     }
 }

@@ -1,3 +1,2 @@
-request::player;table::currentPlayer
----
-is_current;true;false
+CND;request::player;table::currentPlayer
+OUT;is_current;true;false

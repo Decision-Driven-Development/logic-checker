@@ -38,10 +38,20 @@ public record TestResult(String file, boolean successful, String error) {
     public String asHtmlTableRow() {
         return String.format(
             "<tr class=\"%s\"><td>%s</td><td>%s</td><td>%s</td></tr>",
-            this.successful ? "table-success" : "table-danger",
+            this.classBasedOnSuccess(),
             this.file,
             this.result(),
             this.error.replace("\n", "<br>").replace("  ", "&nbsp;&nbsp;&nbsp;&nbsp;")
         );
+    }
+
+    private String classBasedOnSuccess() {
+        final String result;
+        if (this.successful) {
+            result = "table-success";
+        } else {
+            result = "table-danger";
+        }
+        return result;
     }
 }

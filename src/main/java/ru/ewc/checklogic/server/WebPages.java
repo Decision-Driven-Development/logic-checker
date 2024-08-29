@@ -23,6 +23,7 @@
  */
 package ru.ewc.checklogic.server;
 
+import com.renomad.minum.testing.TestFailureException;
 import com.renomad.minum.web.Response;
 import java.io.File;
 import java.nio.file.Files;
@@ -135,7 +136,7 @@ public final class WebPages {
                 .fromStateFile(Files.newInputStream(new File(test.file()).toPath()));
             try {
                 if (!test.command().isEmpty()) {
-                    target.perform(test.command());
+                    target.perform(test.command(), Map.of());
                 }
                 for (final String locator : test.expectations().keySet()) {
                     softly
@@ -145,7 +146,7 @@ public final class WebPages {
                 }
                 softly.assertAll();
                 result = new TestResult(test.toString(), true, "");
-            } catch (final Throwable error) {
+            } catch (final TestFailureException error) {
                 result = new TestResult(test.toString(), false, error.getMessage());
             }
         } catch (final IllegalStateException exception) {

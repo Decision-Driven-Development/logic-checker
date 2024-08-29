@@ -82,7 +82,6 @@ public final class ServerContextFactory {
         final FullServerContext result = new FullServerContext(
             this.factory,
             Path.of(this.root, "tables").toUri(),
-            Path.of(this.root, "commands").toUri(),
             this.config
         );
         result.cache("command", "available");
@@ -101,7 +100,6 @@ public final class ServerContextFactory {
         return new FullServerContext(
             this.factory.with(file),
             Path.of(this.root, "tables").toUri(),
-            Path.of(this.root, "commands").toUri(),
             this.config
         );
     }

@@ -38,6 +38,11 @@ import ru.ewc.decisions.api.Locator;
 @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
 public final class InMemoryStorage implements Locator {
     /**
+     * The name of this instance.
+     */
+    private final String name;
+
+    /**
      * Simple key-value storage.
      */
     private final Map<String, Object> storage;
@@ -45,14 +50,19 @@ public final class InMemoryStorage implements Locator {
     /**
      * Ctor.
      *
+     * @param name This instance name, used to find the storage among other Locators.
      * @param storage The pre-filled key-value storage to start with.
      */
-    public InMemoryStorage(final Map<String, Object> storage) {
+    public InMemoryStorage(final String name, final Map<String, Object> storage) {
+        this.name = name;
         this.storage = storage;
     }
 
-    public static InMemoryStorage from(final List<String> values) {
-        final InMemoryStorage storage = new InMemoryStorage(HashMap.newHashMap(values.size()));
+    public static InMemoryStorage from(final String name, final List<String> values) {
+        final InMemoryStorage storage = new InMemoryStorage(
+            name,
+            HashMap.newHashMap(values.size())
+        );
         values.forEach(
             value -> {
                 final String[] split = value.split(":");
@@ -74,5 +84,10 @@ public final class InMemoryStorage implements Locator {
     @Override
     public Map<String, Object> state() {
         return this.storage;
+    }
+
+    @Override
+    public String locatorName() {
+        return this.name;
     }
 }

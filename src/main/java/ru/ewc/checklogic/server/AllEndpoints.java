@@ -84,20 +84,26 @@ public final class AllEndpoints implements Endpoints {
         if (this.context.isEmpty()) {
             result = this.pages.uninitializedPage();
         } else {
-            final String address = request.requestLine().getPathDetails().getIsolatedPath();
-            if (address.isEmpty()) {
-                result = this.pages.indexPage();
-            } else if ("test".equals(address)) {
-                if (!this.context.hasTestsFolder()) {
-                    result = this.pages.noTestsFolder();
-                } else {
-                    result = this.pages.testPage();
-                }
-            } else if ("state".equals(address)) {
-                result = this.pages.statePage(this.context);
+            result = this.getAddressFor(request);
+        }
+        return result;
+    }
+
+    private Response getAddressFor(final Request request) {
+        final Response result;
+        final String address = request.requestLine().getPathDetails().getIsolatedPath();
+        if (address.isEmpty()) {
+            result = this.pages.indexPage();
+        } else if ("test".equals(address)) {
+            if (this.context.hasTestsFolder()) {
+                result = this.pages.testPage();
             } else {
-                result = new Response(NOT_FOUND, "", PLAIN_TEXT);
+                result = this.pages.noTestsFolder();
             }
+        } else if ("state".equals(address)) {
+            result = this.pages.statePage(this.context);
+        } else {
+            result = new Response(NOT_FOUND, "", PLAIN_TEXT);
         }
         return result;
     }

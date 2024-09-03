@@ -79,14 +79,11 @@ public final class ServerContextFactory {
      * @return A new server context initialized with the basic set of empty Locators.
      */
     public FullServerContext initialState() {
-        final FullServerContext result = new FullServerContext(
+        return new FullServerContext(
             this.factory,
             Path.of(this.root, "tables").toUri(),
             this.config
         );
-        result.cache("command", "available");
-        result.cache("request", "request");
-        return result;
     }
 
     /**

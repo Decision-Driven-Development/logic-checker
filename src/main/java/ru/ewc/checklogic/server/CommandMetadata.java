@@ -82,7 +82,7 @@ public class CommandMetadata {
     public String commandArgsAsHtmlForm(final String command, final FullServerContext context) {
         return this.metadata.get(command).stream()
             .distinct()
-            .filter(arg -> context.cached("request").equals(arg.split("::")[0]))
+            .filter(arg -> context.requestLocatorName().equals(arg.split("::")[0]))
             .map(
                 arg -> new StringBuilder()
                     .append("<div class='mb-3'>")

@@ -51,7 +51,7 @@ public final class LogicChecker {
         }
         final String root = args[0];
         final ServerContextFactory factory = ServerContextFactory.create(root);
-        final FullServerContext context = factory.initialState();
+        final ServerInstance context = factory.initialState();
         final FullSystem minum = FullSystem.initialize();
         final WebFramework web = minum.getWebFramework();
         registerEndpoints(web, new ConfigPage(factory.configuration()));

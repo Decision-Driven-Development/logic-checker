@@ -28,8 +28,8 @@ import java.nio.charset.StandardCharsets;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
-import ru.ewc.checklogic.FullServerContext;
 import ru.ewc.checklogic.ServerConfiguration;
+import ru.ewc.checklogic.ServerInstance;
 
 /**
  * I test the {@link ContextPage} class.
@@ -40,7 +40,7 @@ final class ContextPageTest {
     @Test
     void shouldCreateMockServer() {
         final ContextPage target = new ContextPage(
-            FullServerContext.testable(),
+            ServerInstance.testable(),
             new ServerConfiguration()
         );
         final Response response = target.contextPage(ServerTestObjects.emptyRequest());

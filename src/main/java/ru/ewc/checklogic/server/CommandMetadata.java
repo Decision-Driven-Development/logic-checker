@@ -26,7 +26,7 @@ package ru.ewc.checklogic.server;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import ru.ewc.checklogic.FullServerContext;
+import ru.ewc.checklogic.ServerInstance;
 
 /**
  * I am a class encapsulating commands metadata. My main responsibility is to present that metadata
@@ -62,7 +62,7 @@ public class CommandMetadata {
      * @param outcome The decision table's outcome field that shows command's availability.
      * @return The command names as an HTML list to be used in a page template.
      */
-    public String namesAsHtmlList(final FullServerContext computation, final String outcome) {
+    public String namesAsHtmlList(final ServerInstance computation, final String outcome) {
         return this.names.stream().map(
             command -> """
                 <button class="btn %2$s"
@@ -79,7 +79,7 @@ public class CommandMetadata {
      * @param context The server context to get the existing arguments values from.
      * @return The command arguments as an HTML form to be used in a page template.
      */
-    public String commandArgsAsHtmlForm(final String command, final FullServerContext context) {
+    public String commandArgsAsHtmlForm(final String command, final ServerInstance context) {
         return this.metadata.get(command).stream()
             .distinct()
             .filter(arg -> context.requestLocatorName().equals(arg.split("::")[0]))
@@ -96,7 +96,7 @@ public class CommandMetadata {
     }
 
     private static String buttonCssClass(
-        final FullServerContext computation,
+        final ServerInstance computation,
         final String command,
         final String availability
     ) {
@@ -109,7 +109,7 @@ public class CommandMetadata {
         return result;
     }
 
-    private static String extractValue(final FullServerContext context, final String arg) {
+    private static String extractValue(final ServerInstance context, final String arg) {
         return context.valueFor(arg.split("::")[0], arg.split("::")[1]);
     }
 }

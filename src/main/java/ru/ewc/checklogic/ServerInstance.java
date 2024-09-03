@@ -41,7 +41,7 @@ import ru.ewc.state.State;
  * @since 0.1.0
  */
 @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
-public final class FullServerContext {
+public final class ServerInstance {
     /**
      * The root path for the external business logic resources.
      */
@@ -72,7 +72,7 @@ public final class FullServerContext {
      */
     private final StateFactory states;
 
-    FullServerContext(
+    ServerInstance(
         final StateFactory initial,
         final URI tables,
         final ServerConfiguration server) {
@@ -84,7 +84,7 @@ public final class FullServerContext {
         this.context = new ComputationContext(this.state, this.getAllTables());
     }
 
-    public static FullServerContext testable() {
+    public static ServerInstance testable() {
         return ServerContextFactory.testable().initialState();
     }
 

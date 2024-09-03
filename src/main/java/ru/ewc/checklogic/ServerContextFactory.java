@@ -78,8 +78,8 @@ public final class ServerContextFactory {
      *
      * @return A new server context initialized with the basic set of empty Locators.
      */
-    public FullServerContext initialState() {
-        return new FullServerContext(
+    public ServerInstance initialState() {
+        return new ServerInstance(
             this.factory,
             Path.of(this.root, "tables").toUri(),
             this.config
@@ -93,8 +93,8 @@ public final class ServerContextFactory {
      * @param file The stream of the test file's contents.
      * @return A new server context initialized with state described in test file.
      */
-    public FullServerContext fromStateFile(final InputStream file) {
-        return new FullServerContext(
+    public ServerInstance fromStateFile(final InputStream file) {
+        return new ServerInstance(
             this.factory.with(file),
             Path.of(this.root, "tables").toUri(),
             this.config

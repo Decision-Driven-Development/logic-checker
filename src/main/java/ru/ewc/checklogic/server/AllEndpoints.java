@@ -27,7 +27,7 @@ import com.renomad.minum.web.Request;
 import com.renomad.minum.web.Response;
 import com.renomad.minum.web.WebFramework;
 import java.util.Map;
-import ru.ewc.checklogic.FullServerContext;
+import ru.ewc.checklogic.ServerInstance;
 
 /**
  * I am a class providing access to all the pages and static files packed inside the jar.
@@ -38,14 +38,14 @@ public final class AllEndpoints implements Endpoints {
     /**
      * The context to be used for the server.
      */
-    private final FullServerContext context;
+    private final ServerInstance context;
 
     /**
      * The template renderer, creating pages to be served.
      */
     private final WebPages pages;
 
-    public AllEndpoints(final FullServerContext context) {
+    public AllEndpoints(final ServerInstance context) {
         this.context = context;
         this.pages = WebPages.create(new ResourceTemplateRender(), context.getRoot());
     }

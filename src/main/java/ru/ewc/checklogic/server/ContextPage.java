@@ -30,8 +30,8 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.stream.Collectors;
-import ru.ewc.checklogic.FullServerContext;
 import ru.ewc.checklogic.ServerConfiguration;
+import ru.ewc.checklogic.ServerInstance;
 
 /**
  * I am the configuration and logic for the context web page.
@@ -42,14 +42,14 @@ public final class ContextPage implements Endpoints {
     /**
      * The server context.
      */
-    private final FullServerContext context;
+    private final ServerInstance context;
 
     /**
      * The server configuration.
      */
     private final ServerConfiguration config;
 
-    public ContextPage(final FullServerContext context, final ServerConfiguration config) {
+    public ContextPage(final ServerInstance context, final ServerConfiguration config) {
         this.context = context;
         this.config = config;
     }

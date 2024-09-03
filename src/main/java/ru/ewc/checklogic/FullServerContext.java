@@ -145,12 +145,8 @@ public final class FullServerContext {
         this.context = new ComputationContext(this.state, this.getAllTables());
     }
 
-    public String cached(final String parameter) {
-        return this.server.getParameterValue(parameter);
-    }
-
-    public void cache(final String parameter, final String value) {
-        this.server.setParameterValue(parameter, value);
+    public String requestLocatorName() {
+        return this.server.requestLocatorName();
     }
 
     public boolean isEmpty() {

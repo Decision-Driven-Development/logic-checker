@@ -23,8 +23,9 @@
  */
 package ru.ewc.checklogic;
 
-import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.Path;
+import ru.ewc.decisions.api.ComputationContext;
 
 /**
  * I am a factory for creating server contexts.
@@ -79,29 +80,18 @@ public final class ServerContextFactory {
      * @return A new server context initialized with the basic set of empty Locators.
      */
     public ServerInstance initialState() {
-        return new ServerInstance(
-            this.factory,
-            Path.of(this.root, "tables").toUri(),
-            this.config
-        );
+        return new ServerInstance(this.factory, this.tablesFolder(), this.config);
     }
 
-    /**
-     * Creates a new server context from a state file. Used in state-based tests, where each test
-     * gets its own initial state, described in test "Arrange" section.
-     *
-     * @param file The stream of the test file's contents.
-     * @return A new server context initialized with state described in test file.
-     */
-    public ServerInstance fromStateFile(final InputStream file) {
-        return new ServerInstance(
-            this.factory.with(file),
-            Path.of(this.root, "tables").toUri(),
-            this.config
-        );
+    public ComputationContext context() {
+        return new ComputationContext(this.factory.initialState(), this.tablesFolder());
     }
 
     public ServerConfiguration configuration() {
         return this.config;
+    }
+
+    private URI tablesFolder() {
+        return Path.of(this.root, "tables").toUri();
     }
 }

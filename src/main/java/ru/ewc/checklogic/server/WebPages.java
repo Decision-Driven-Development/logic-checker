@@ -23,21 +23,19 @@
  */
 package ru.ewc.checklogic.server;
 
-import com.renomad.minum.testing.TestFailureException;
 import com.renomad.minum.web.Response;
-import java.io.File;
-import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import lombok.SneakyThrows;
-import org.assertj.core.api.SoftAssertions;
-import ru.ewc.checklogic.FileUtils;
 import ru.ewc.checklogic.ServerContextFactory;
 import ru.ewc.checklogic.ServerInstance;
-import ru.ewc.checklogic.TestData;
 import ru.ewc.checklogic.TestResult;
+import ru.ewc.decisions.api.CheckSuite;
+import ru.ewc.decisions.api.ComputationContext;
+import ru.ewc.decisions.api.OutputTracker;
+import ru.ewc.decisions.input.CombinedCsvFileReader;
 
 /**
  * I am a collection of template processors that render the pages to be served.
@@ -82,15 +80,27 @@ public final class WebPages {
     }
 
     public Response testPage() {
+        final CheckSuite suite = CheckSuite.using(
+            new CombinedCsvFileReader(Path.of(this.root, "tests").toUri(), ".csv", ";")
+        );
         final long start = System.currentTimeMillis();
-        final List<TestResult> results = FileUtils.readFileNames(this.root)
-            .map(this::performTest)
-            .toList();
+        final ComputationContext context = ServerContextFactory.create(this.root).context();
+        final OutputTracker<String> tracker = context.startTracking();
+        final List<TestResult> results =
+            suite.perform(context).entrySet().stream()
+                .map(
+                    entry -> new TestResult(
+                        entry.getKey(),
+                        entry.getValue().isEmpty(),
+                        resultAsUnorderedList(entry)
+                    )
+                ).toList();
         final String rows = results.stream()
             .sorted(Comparator.comparing(TestResult::result))
             .map(TestResult::asHtmlTableRow)
             .collect(Collectors.joining());
         final double elapsed = (System.currentTimeMillis() - start) / 1000.0;
+        tracker.events().forEach(System.out::println);
         return Response.htmlOk(
             this.renderInLayout(
                 "templates/test.html",
@@ -125,33 +135,7 @@ public final class WebPages {
         return this.processors.renderInLayout(template, values);
     }
 
-    // @todo #47 Move performTest method to dedicated test runner
-    @SneakyThrows
-    private TestResult performTest(final TestData test) {
-        final SoftAssertions softly = new SoftAssertions();
-        TestResult result;
-        final ServerInstance target;
-        try {
-            target = ServerContextFactory.create(this.root)
-                .fromStateFile(Files.newInputStream(new File(test.file()).toPath()));
-            try {
-                if (!test.command().isEmpty()) {
-                    target.perform(test.command(), Map.of());
-                }
-                for (final String locator : test.expectations().keySet()) {
-                    softly
-                        .assertThat(target.stateFor(locator, test.expectations().get(locator)))
-                        .describedAs(String.format("State for entity '%s'", locator))
-                        .containsExactlyInAnyOrderEntriesOf(test.expectations().get(locator));
-                }
-                softly.assertAll();
-                result = new TestResult(test.toString(), true, "");
-            } catch (final TestFailureException error) {
-                result = new TestResult(test.toString(), false, error.getMessage());
-            }
-        } catch (final IllegalStateException exception) {
-            result = new TestResult(test.toString(), false, exception.getMessage());
-        }
-        return result;
+    private static String resultAsUnorderedList(final Map.Entry<String, List<String>> entry) {
+        return "<ul><li>%s</li></ul>".formatted(String.join("</li></li>", entry.getValue()));
     }
 }

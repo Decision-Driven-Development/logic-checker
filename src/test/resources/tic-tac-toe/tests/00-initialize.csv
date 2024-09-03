@@ -1,0 +1,11 @@
+OUT;execute;initialize
+CND;table::currentPlayer;X
+CND;cells::A1;X
+CND;cells::A2;empty
+CND;cells::A3;empty
+CND;cells::B1;empty
+CND;cells::B2;empty
+CND;cells::B3;empty
+CND;cells::C1;empty
+CND;cells::C2;empty
+CND;cells::C3;empty

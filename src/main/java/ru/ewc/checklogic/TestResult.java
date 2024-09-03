@@ -41,8 +41,18 @@ public record TestResult(String file, boolean successful, String error) {
             this.classBasedOnSuccess(),
             this.file,
             this.result(),
-            this.error.replace("\n", "<br>").replace("  ", "&nbsp;&nbsp;&nbsp;&nbsp;")
+            this.errorMessages()
         );
+    }
+
+    private String errorMessages() {
+        final String result;
+        if (this.successful) {
+            result = "";
+        } else {
+            result = this.error.replace("\n\n", "<br><br>").replace("\n\t", " ");
+        }
+        return result;
     }
 
     private String classBasedOnSuccess() {

@@ -164,11 +164,11 @@ public final class ServerInstance {
     }
 
     public boolean hasTestsFolder() {
-        return Paths.get(this.root, "states").toFile().exists();
+        return Paths.get(this.root, "tests").toFile().exists();
     }
 
     public void createTestFolder() {
-        Paths.get(this.root, "states").toFile().mkdirs();
+        Paths.get(this.root, "tests").toFile().mkdirs();
         this.context = new ComputationContext(this.state, this.getAllTables());
     }
 

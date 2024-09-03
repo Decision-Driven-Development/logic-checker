@@ -1,0 +1,14 @@
+ASG;request::player;O;O;O;X;X;X;O;X
+ASG;table::currentPlayer;O;O;O;X;X;X;O;X
+ASG;cells::A1;O;empty;empty;X;empty;empty;O;empty
+ASG;cells::A2;O;empty;empty;empty;X;empty;empty;empty
+ASG;cells::A3;O;empty;empty;empty;empty;X;empty;X
+ASG;cells::B1;empty;O;empty;X;empty;empty;empty;empty
+ASG;cells::B2;empty;O;empty;empty;X;empty;O;X
+ASG;cells::B3;empty;O;empty;empty;empty;X;empty;empty
+ASG;cells::C1;empty;empty;O;X;empty;empty;empty;X
+ASG;cells::C2;empty;empty;O;empty;X;empty;empty;empty
+ASG;cells::C3;empty;empty;O;empty;empty;X;O;empty
+CND;computed_move::available;false;false;false;false;false;false;false;false
+CND;game_state::is_over;true;true;true;true;true;true;true;true
+CND;game_state::winner;O;O;O;X;X;X;O;X

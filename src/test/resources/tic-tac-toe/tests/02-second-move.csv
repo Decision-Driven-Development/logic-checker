@@ -1,0 +1,17 @@
+ASG;request::player;O;O
+ASG;request::move;B2;A1
+ASG;table::currentPlayer;O;O
+ASG;table::nextPlayer;X;X
+ASG;cells::A1;X;X
+ASG;cells::A2;empty;empty
+ASG;cells::A3;empty;empty
+ASG;cells::B1;empty;empty
+ASG;cells::B2;empty;empty
+ASG;cells::B3;empty;empty
+ASG;cells::C1;empty;empty
+ASG;cells::C2;empty;empty
+ASG;cells::C3;empty;empty
+OUT;execute;computed_move;computed_move
+CND;computed_move::available;false;false
+CND;cells::A1;X;X
+CND;cells::B2;O;empty

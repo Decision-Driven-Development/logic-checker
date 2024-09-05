@@ -1,6 +1,7 @@
 OUT;execute;initialize
 CND;table::currentPlayer;X
-CND;cells::A1;X
+CND;table::nextPlayer;O
+CND;cells::A1;empty
 CND;cells::A2;empty
 CND;cells::A3;empty
 CND;cells::B1;empty

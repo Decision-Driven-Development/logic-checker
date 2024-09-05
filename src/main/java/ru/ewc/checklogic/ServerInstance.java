@@ -26,7 +26,6 @@ package ru.ewc.checklogic;
 
 import java.net.URI;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import ru.ewc.decisions.api.ComputationContext;
@@ -105,14 +104,6 @@ public final class ServerInstance {
                 exception
             );
         }
-    }
-
-    public Map<String, String> stateFor(final String table, final Map<String, String> entities) {
-        final Map<String, String> actual = HashMap.newHashMap(entities.size());
-        for (final String fragment : entities.keySet()) {
-            actual.put(fragment, this.context.valueFor(table, fragment));
-        }
-        return actual;
     }
 
     public Map<String, Map<String, Object>> storedState() {

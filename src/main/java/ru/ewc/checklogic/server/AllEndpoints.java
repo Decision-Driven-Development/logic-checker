@@ -93,12 +93,12 @@ public final class AllEndpoints implements Endpoints {
         final Response result;
         final String address = request.requestLine().getPathDetails().getIsolatedPath();
         if (address.isEmpty()) {
-            result = this.pages.indexPage();
+            result = this.renderHtmlFor("templates/index.html");
         } else if ("test".equals(address)) {
             if (this.context.hasTestsFolder()) {
                 result = this.pages.testPage();
             } else {
-                result = this.pages.noTestsFolder();
+                result = this.renderHtmlFor("templates/noTestsFolder.html");
             }
         } else if ("state".equals(address)) {
             result = this.pages.statePage(this.context);
@@ -106,6 +106,10 @@ public final class AllEndpoints implements Endpoints {
             result = new Response(NOT_FOUND, "", PLAIN_TEXT);
         }
         return result;
+    }
+
+    private Response renderHtmlFor(final String template) {
+        return Response.htmlOk(this.pages.renderInLayout(template, Map.of()));
     }
 
     private static Response staticResource(final Request request) {

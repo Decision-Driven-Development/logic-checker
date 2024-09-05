@@ -23,6 +23,7 @@
  */
 package ru.ewc.checklogic.server;
 
+import java.util.Map;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
@@ -38,7 +39,7 @@ final class WebPagesTest {
         final WebPages pages = WebPages.testable();
         MatcherAssert.assertThat(
             "Should render the exact config page",
-            pages.configPage(),
+            pages.renderInLayout("templates/config.html", Map.of()),
             Matchers.is("Layout rendering")
         );
     }

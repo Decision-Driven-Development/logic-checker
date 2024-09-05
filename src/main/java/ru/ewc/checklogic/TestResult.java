@@ -70,12 +70,11 @@ public record TestResult(
     }
 
     @Override
-    public int compareTo(TestResult o) {
-        final int success = Boolean.compare(this.successful, o.successful);
-        if (success == 0) {
-            return this.file.compareTo(o.file);
-        } else {
-            return success;
+    public int compareTo(final TestResult other) {
+        int result = Boolean.compare(this.successful, other.successful);
+        if (result == 0) {
+            result = this.file.compareTo(other.file);
         }
+        return result;
     }
 }

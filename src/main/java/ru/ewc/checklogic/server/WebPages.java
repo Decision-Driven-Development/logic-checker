@@ -68,16 +68,8 @@ public final class WebPages {
         return new WebPages(new MockTemplateRender(), "root folder");
     }
 
-    public Response indexPage() {
-        return Response.htmlOk(this.renderInLayout("templates/index.html", Map.of()));
-    }
-
     public Response uninitializedPage() {
         return Response.htmlOk(this.renderInLayout("templates/uninitialized.html", Map.of()));
-    }
-
-    public Response noTestsFolder() {
-        return Response.htmlOk(this.renderInLayout("templates/noTestsFolder.html", Map.of()));
     }
 
     public Response testPage() {
@@ -128,11 +120,7 @@ public final class WebPages {
         );
     }
 
-    public String configPage() {
-        return this.renderInLayout("templates/config.html", Map.of());
-    }
-
-    private String renderInLayout(final String template, final Map<String, String> values) {
+    public String renderInLayout(final String template, final Map<String, String> values) {
         return this.processors.renderInLayout(template, values);
     }
 
@@ -140,9 +128,14 @@ public final class WebPages {
         return "<ul>%s</ul>".formatted(String.join("", checkFailureAsHtml(entry.getValue())));
     }
 
-    private static String checkFailureAsHtml(final List<CheckFailure> failure) {
-        return failure.stream()
-            .map(f -> "<li>Expected: <kbd>%s</kbd>, but got: <kbd>%s</kbd></li>".formatted(f.expectation(), f.actual()))
+    private static String checkFailureAsHtml(final List<CheckFailure> failures) {
+        return failures.stream()
+            .map(WebPages::formattedDescriptionFor)
             .collect(Collectors.joining());
+    }
+
+    private static String formattedDescriptionFor(final CheckFailure failure) {
+        return "<li>Expected: <kbd>%s</kbd>, but got: <kbd>%s</kbd></li>"
+            .formatted(failure.expectation(), failure.actual());
     }
 }

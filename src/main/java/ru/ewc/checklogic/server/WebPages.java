@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 import ru.ewc.checklogic.ServerContextFactory;
 import ru.ewc.checklogic.ServerInstance;
 import ru.ewc.checklogic.TestResult;
+import ru.ewc.decisions.api.CheckFailure;
 import ru.ewc.decisions.api.CheckSuite;
 import ru.ewc.decisions.api.ComputationContext;
 import ru.ewc.decisions.api.OutputTracker;
@@ -96,7 +97,7 @@ public final class WebPages {
                     )
                 ).toList();
         final String rows = results.stream()
-            .sorted(Comparator.comparing(TestResult::result))
+            .sorted(Comparator.naturalOrder())
             .map(TestResult::asHtmlTableRow)
             .collect(Collectors.joining());
         final double elapsed = (System.currentTimeMillis() - start) / 1000.0;
@@ -135,7 +136,13 @@ public final class WebPages {
         return this.processors.renderInLayout(template, values);
     }
 
-    private static String resultAsUnorderedList(final Map.Entry<String, List<String>> entry) {
-        return "<ul><li>%s</li></ul>".formatted(String.join("</li></li>", entry.getValue()));
+    private static String resultAsUnorderedList(final Map.Entry<String, List<CheckFailure>> entry) {
+        return "<ul>%s</ul>".formatted(String.join("", checkFailureAsHtml(entry.getValue())));
+    }
+
+    private static String checkFailureAsHtml(final List<CheckFailure> failure) {
+        return failure.stream()
+            .map(f -> "<li>Expected: <kbd>%s</kbd>, but got: <kbd>%s</kbd></li>".formatted(f.expectation(), f.actual()))
+            .collect(Collectors.joining());
     }
 }

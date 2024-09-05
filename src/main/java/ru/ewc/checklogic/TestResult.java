@@ -23,7 +23,11 @@
  */
 package ru.ewc.checklogic;
 
-public record TestResult(String file, boolean successful, String error) {
+public record TestResult(
+    String file,
+    boolean successful,
+    String error
+) implements Comparable<TestResult> {
 
     public String result() {
         final String result;
@@ -63,5 +67,15 @@ public record TestResult(String file, boolean successful, String error) {
             result = "table-danger";
         }
         return result;
+    }
+
+    @Override
+    public int compareTo(TestResult o) {
+        final int success = Boolean.compare(this.successful, o.successful);
+        if (success == 0) {
+            return this.file.compareTo(o.file);
+        } else {
+            return success;
+        }
     }
 }

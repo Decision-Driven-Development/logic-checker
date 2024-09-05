@@ -1,3 +1,4 @@
+HDR;first move;non current player;current player;
 ASG;request::player;O;X
 ASG;request::move;A1;A1
 ASG;table::currentPlayer;X;X

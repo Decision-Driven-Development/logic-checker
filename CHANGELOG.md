@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.4.0](https://github.com/Decision-Driven-Development/logic-checker/compare/v0.3.2...v0.4.0) (2024-09-08)
+
+
+### Features
+
+* **webUI:** using tests header and new style for failures report ([ba8eedf](https://github.com/Decision-Driven-Development/logic-checker/commit/ba8eedfdec150bfaa851e378f6fae41795128102)), closes [#58](https://github.com/Decision-Driven-Development/logic-checker/issues/58)
+
 ### [0.3.2](https://github.com/Decision-Driven-Development/logic-checker/compare/v0.3.1...v0.3.2) (2024-08-04)
 
 

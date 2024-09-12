@@ -21,12 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package ru.ewc.checklogic;
+package ru.ewc.checklogic.testing;
+
+import java.util.List;
 
 public record TestResult(
     String file,
     boolean successful,
-    String error
+    String error,
+    List<String> log
 ) implements Comparable<TestResult> {
 
     public String result() {

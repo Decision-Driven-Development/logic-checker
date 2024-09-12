@@ -26,8 +26,6 @@ package ru.ewc.checklogic.testing;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import ru.ewc.decisions.api.ComputationContext;
 import ru.ewc.decisions.input.ContentsReader;
 
@@ -49,15 +47,16 @@ public final class CheckSuite {
     }
 
     public static CheckSuite using(final ContentsReader reader) {
-       return new CheckSuite(reader.readAll().stream()
+        return new CheckSuite(reader.readAll().stream()
             .map(sl -> new CheckInstance(new CheckRuleFragments(sl.specifiedRulesFragments())))
             .toList());
     }
 
-    public Map<String, List<CheckFailure>> perform(final ComputationContext context) {
+    public List<TestResult> perform(final ComputationContext context) {
         return this.tests.stream()
             .map(test -> test.testResult(context))
-            .flatMap(map -> map.entrySet().stream())
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            .flatMap(List::stream)
+            .toList();
     }
+
 }

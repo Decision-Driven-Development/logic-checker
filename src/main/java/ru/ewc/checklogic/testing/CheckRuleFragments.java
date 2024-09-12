@@ -25,7 +25,6 @@ package ru.ewc.checklogic.testing;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import ru.ewc.decisions.api.ComputationContext;
 import ru.ewc.decisions.api.OutputTracker;
@@ -41,16 +40,15 @@ public class CheckRuleFragments {
         this.rules = rules;
     }
 
-    public Map<String, List<CheckFailure>> perform(ComputationContext context) {
+    public List<TestResult> perform(ComputationContext context) {
         return this.rules.stream()
-            .collect(Collectors.toMap(
-                RuleFragments::header,
-                rule -> CheckRuleFragments.performAndLog(context, rule)
-            ));
+            .map(rule -> CheckRuleFragments.performAndLog(context, rule))
+            .toList();
     }
 
-    private static List<CheckFailure> performAndLog(final ComputationContext ctx, final RuleFragments rule) {
+    private static TestResult performAndLog(final ComputationContext ctx, final RuleFragments rule) {
         logCheckpoint(ctx, "%s - started".formatted(rule.header()));
+        final OutputTracker<String> tracker = ctx.startTracking();
         List<CheckFailure> failures = new ArrayList<>(1);
         for (RuleFragment fragment : rule.getFragments()) {
             if (fragment.nonEmptyOfType("CND")) {
@@ -63,15 +61,20 @@ public class CheckRuleFragments {
             }
         }
         logCheckpoint(ctx, "%s - %s".formatted(rule.header(), CheckRuleFragments.desc(failures)));
-        return failures;
+        return new TestResult(
+            rule.header(),
+            failures.isEmpty(),
+            resultAsUnorderedList(failures),
+            tracker.events()
+        );
     }
 
     private static void perform(RuleFragment fragment, ComputationContext ctx) {
         switch (fragment.type()) {
             case "ASG" -> new Assignment(fragment.left(), fragment.right()).performIn(ctx);
             case "OUT" -> {
-                if ("execute".equals(fragment.right())) {
-                    ctx.perform(fragment.left());
+                if ("execute".equals(fragment.left())) {
+                    ctx.perform(fragment.right());
                 }
             }
             case "HDR" -> {
@@ -94,5 +97,20 @@ public class CheckRuleFragments {
 
     private static void logCheckpoint(final ComputationContext context, final String formatted) {
         context.logComputation(OutputTracker.EventType.CH, formatted);
+    }
+
+    private static String resultAsUnorderedList(final List<CheckFailure> failures) {
+        return "<ul>%s</ul>".formatted(String.join("", checkFailureAsHtml(failures)));
+    }
+
+    private static String checkFailureAsHtml(final List<CheckFailure> failures) {
+        return failures.stream()
+            .map(CheckRuleFragments::formattedDescriptionFor)
+            .collect(Collectors.joining());
+    }
+
+    private static String formattedDescriptionFor(final CheckFailure failure) {
+        return "<li>Expected: <kbd>%s</kbd>, but got: <kbd>%s</kbd></li>"
+            .formatted(failure.expectation(), failure.actual());
     }
 }

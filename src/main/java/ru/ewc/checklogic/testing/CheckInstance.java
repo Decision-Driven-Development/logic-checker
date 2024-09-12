@@ -25,7 +25,6 @@
 package ru.ewc.checklogic.testing;
 
 import java.util.List;
-import java.util.Map;
 import ru.ewc.decisions.api.ComputationContext;
 import ru.ewc.decisions.api.DecitaException;
 import ru.ewc.decisions.core.Rule;
@@ -45,7 +44,7 @@ public final class CheckInstance {
         this.rules = rules;
     }
 
-    public Map<String, List<CheckFailure>> testResult(final ComputationContext context)
+    public List<TestResult> testResult(final ComputationContext context)
         throws DecitaException {
         return this.rules.perform(context);
     }

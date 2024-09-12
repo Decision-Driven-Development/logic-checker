@@ -31,11 +31,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import ru.ewc.checklogic.ServerContextFactory;
 import ru.ewc.checklogic.ServerInstance;
-import ru.ewc.checklogic.TestResult;
-import ru.ewc.checklogic.testing.CheckFailure;
 import ru.ewc.checklogic.testing.CheckSuite;
+import ru.ewc.checklogic.testing.TestResult;
 import ru.ewc.decisions.api.ComputationContext;
-import ru.ewc.decisions.api.OutputTracker;
 import ru.ewc.decisions.input.CombinedCsvFileReader;
 
 /**
@@ -78,22 +76,12 @@ public final class WebPages {
         );
         final long start = System.currentTimeMillis();
         final ComputationContext context = ServerContextFactory.create(this.root).context();
-        final OutputTracker<String> tracker = context.startTracking();
-        final List<TestResult> results =
-            suite.perform(context).entrySet().stream()
-                .map(
-                    entry -> new TestResult(
-                        entry.getKey(),
-                        entry.getValue().isEmpty(),
-                        resultAsUnorderedList(entry)
-                    )
-                ).toList();
+        final List<TestResult> results = suite.perform(context);
         final String rows = results.stream()
             .sorted(Comparator.naturalOrder())
             .map(TestResult::asHtmlTableRow)
             .collect(Collectors.joining());
         final double elapsed = (System.currentTimeMillis() - start) / 1000.0;
-        tracker.events().forEach(System.out::println);
         return Response.htmlOk(
             this.renderInLayout(
                 "templates/test.html",
@@ -122,20 +110,5 @@ public final class WebPages {
 
     public String renderInLayout(final String template, final Map<String, String> values) {
         return this.processors.renderInLayout(template, values);
-    }
-
-    private static String resultAsUnorderedList(final Map.Entry<String, List<CheckFailure>> entry) {
-        return "<ul>%s</ul>".formatted(String.join("", checkFailureAsHtml(entry.getValue())));
-    }
-
-    private static String checkFailureAsHtml(final List<CheckFailure> failures) {
-        return failures.stream()
-            .map(WebPages::formattedDescriptionFor)
-            .collect(Collectors.joining());
-    }
-
-    private static String formattedDescriptionFor(final CheckFailure failure) {
-        return "<li>Expected: <kbd>%s</kbd>, but got: <kbd>%s</kbd></li>"
-            .formatted(failure.expectation(), failure.actual());
     }
 }

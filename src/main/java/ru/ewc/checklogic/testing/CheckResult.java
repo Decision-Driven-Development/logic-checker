@@ -21,28 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package ru.ewc.checklogic;
+package ru.ewc.checklogic.testing;
 
-import java.util.Map;
+import ru.ewc.decisions.api.RuleFragments;
 
-/**
- * I am the helper class containing the data for parameterized state tests.
- *
- * @param file The path to the file containing state and expectations.
- * @param command The name of the command to execute before the decision.
- * @param expectations The collection of expected decision table results.
- * @since 0.2.3
- */
-public record TestData(
-    String file,
-    String command,
-    Map<String, Map<String, String>> expectations) {
+public class CheckResult {
+   private final RuleFragments rule;
 
-    @Override
-    public String toString() {
-        final String test = this.file
-            .substring(Math.max(0, this.file.lastIndexOf('\\')))
-            .substring(Math.max(0, this.file.lastIndexOf('/')));
-        return String.format("file='%s'", test);
+    public CheckResult(RuleFragments rule) {
+        this.rule = rule;
     }
+
+
 }

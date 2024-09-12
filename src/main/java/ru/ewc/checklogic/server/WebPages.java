@@ -54,16 +54,19 @@ public final class WebPages {
      */
     private final String root;
 
+    /**
+     * Server configuration that holds the request locator name.
+     */
     private final ServerConfiguration config;
 
-    private WebPages(final TemplateRender processors, final String root, ServerConfiguration config) {
+    public WebPages(
+        final TemplateRender processors,
+        final String root,
+        final ServerConfiguration config
+    ) {
         this.processors = processors;
         this.root = root;
         this.config = config;
-    }
-
-    public static WebPages create(final TemplateRender processors, final String root, ServerConfiguration configuration) {
-        return new WebPages(processors, root, configuration);
     }
 
     public static WebPages testable() {

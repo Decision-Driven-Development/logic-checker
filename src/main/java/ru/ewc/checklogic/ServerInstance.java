@@ -130,13 +130,13 @@ public final class ServerInstance {
     }
 
     public void update(final List<String> values) {
-        final InMemoryLocator request = InMemoryLocator.empty(requestLocatorName());
+        final InMemoryLocator request = InMemoryLocator.empty(this.requestLocatorName());
         values.forEach(
             value -> {
                 final String[] split = value.split(":");
                 request.setFragmentValue(split[0].trim(), split[1].trim());
             });
-        this.state.locators().put(this.server.requestLocatorName(), request);
+        this.state.locators().put(this.requestLocatorName(), request);
         this.context = new ComputationContext(this.state, this.getAllTables());
     }
 

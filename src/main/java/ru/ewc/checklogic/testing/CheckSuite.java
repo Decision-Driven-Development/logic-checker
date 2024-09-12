@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 Eugene Terekhov
+ * Copyright (c) 2024 Decision-Driven Development
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,10 +30,10 @@ import ru.ewc.decisions.api.ComputationContext;
 import ru.ewc.decisions.input.ContentsReader;
 
 /**
- * I represent a collection of test-cases to performChecks. My main responsibility is to run all the tests
- * and collect the results.
+ * I represent a collection of test-cases to performChecks. My main responsibility is to run all
+ * the tests and collect the results.
  *
- * @since 0.8.0
+ * @since 0.4.1
  */
 @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
 public final class CheckSuite {
@@ -49,7 +49,8 @@ public final class CheckSuite {
     public static CheckSuite using(final ContentsReader reader) {
         return new CheckSuite(reader.readAll().stream()
             .map(sl -> new CheckFile(sl.specifiedRulesFragments()))
-            .toList());
+            .toList()
+        );
     }
 
     public List<TestResult> perform(final ComputationContext context, final String locator) {

@@ -21,16 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
+/**
+ * Package for all the testing-related classes.
+ */
 package ru.ewc.checklogic.testing;
-
-import ru.ewc.decisions.api.RuleFragments;
-
-public class CheckResult {
-   private final RuleFragments rule;
-
-    public CheckResult(RuleFragments rule) {
-        this.rule = rule;
-    }
-
-
-}

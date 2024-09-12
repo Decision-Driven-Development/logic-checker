@@ -33,24 +33,37 @@ import ru.ewc.decisions.api.RuleFragments;
 import ru.ewc.decisions.commands.Assignment;
 import ru.ewc.decisions.conditions.Condition;
 
-public class CheckFile {
-    private final List<RuleFragments> rules;
+/**
+ * I am a single file containing one or more tests. I am responsible for performing all the tests
+ * and logging the results.
+ *
+ * @since 0.4.1
+ */
+public final class CheckFile {
+    /**
+     * The collection of single tests inside the file.
+     */
+    private final List<RuleFragments> tests;
 
-    public CheckFile(List<RuleFragments> rules) {
-        this.rules = rules;
+    public CheckFile(final List<RuleFragments> tests) {
+        this.tests = tests;
     }
 
-    public List<TestResult> performChecks(ComputationContext context, String locator) {
-        return this.rules.stream()
+    public List<TestResult> performChecks(final ComputationContext context, final String locator) {
+        return this.tests.stream()
             .map(rule -> CheckFile.performAndLog(context, rule, locator))
             .toList();
     }
 
-    private static TestResult performAndLog(final ComputationContext ctx, final RuleFragments rule, String locator) {
+    private static TestResult performAndLog(
+        final ComputationContext ctx,
+        final RuleFragments rule,
+        final String locator
+    ) {
         logCheckpoint(ctx, "%s - started".formatted(rule.header()));
         final OutputTracker<String> tracker = ctx.startTracking();
-        List<CheckFailure> failures = new ArrayList<>(1);
-        for (RuleFragment fragment : rule.getFragments()) {
+        final List<CheckFailure> failures = new ArrayList<>(1);
+        for (final RuleFragment fragment : rule.getFragments()) {
             if (fragment.nonEmptyOfType("CND")) {
                 final Condition check = Condition.from(fragment);
                 if (!check.evaluate(ctx)) {
@@ -69,7 +82,11 @@ public class CheckFile {
         );
     }
 
-    private static void perform(RuleFragment fragment, ComputationContext ctx, String locator) {
+    private static void perform(
+        final RuleFragment fragment,
+        final ComputationContext ctx,
+        final String locator
+    ) {
         switch (fragment.type()) {
             case "ASG" -> new Assignment(fragment.left(), fragment.right()).performIn(ctx);
             case "OUT" -> {
@@ -79,7 +96,6 @@ public class CheckFile {
                 }
             }
             default -> {
-                // do nothing, because we don't know what to do with such a fragment type
             }
         }
     }

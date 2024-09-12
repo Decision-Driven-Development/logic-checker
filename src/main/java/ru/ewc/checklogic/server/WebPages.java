@@ -29,6 +29,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import ru.ewc.checklogic.ServerConfiguration;
 import ru.ewc.checklogic.ServerContextFactory;
 import ru.ewc.checklogic.ServerInstance;
 import ru.ewc.checklogic.testing.CheckSuite;
@@ -53,17 +54,20 @@ public final class WebPages {
      */
     private final String root;
 
-    private WebPages(final TemplateRender processors, final String root) {
+    private final ServerConfiguration config;
+
+    private WebPages(final TemplateRender processors, final String root, ServerConfiguration config) {
         this.processors = processors;
         this.root = root;
+        this.config = config;
     }
 
-    public static WebPages create(final TemplateRender processors, final String root) {
-        return new WebPages(processors, root);
+    public static WebPages create(final TemplateRender processors, final String root, ServerConfiguration configuration) {
+        return new WebPages(processors, root, configuration);
     }
 
     public static WebPages testable() {
-        return new WebPages(new MockTemplateRender(), "root folder");
+        return new WebPages(new MockTemplateRender(), "root folder", new ServerConfiguration());
     }
 
     public Response uninitializedPage() {
@@ -76,7 +80,7 @@ public final class WebPages {
         );
         final long start = System.currentTimeMillis();
         final ComputationContext context = ServerContextFactory.create(this.root).context();
-        final List<TestResult> results = suite.perform(context);
+        final List<TestResult> results = suite.perform(context, this.config.requestLocatorName());
         final String rows = results.stream()
             .sorted(Comparator.naturalOrder())
             .map(TestResult::asHtmlTableRow)

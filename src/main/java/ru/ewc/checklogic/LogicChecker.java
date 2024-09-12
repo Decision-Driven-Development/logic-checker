@@ -57,7 +57,7 @@ public final class LogicChecker {
         registerEndpoints(web, new ConfigPage(factory.configuration()));
         registerEndpoints(web, new CommandPage(context));
         registerEndpoints(web, new ContextPage(context, factory.configuration()));
-        registerEndpoints(web, new AllEndpoints(context));
+        registerEndpoints(web, new AllEndpoints(context, factory.configuration()));
         minum.block();
     }
 

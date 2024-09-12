@@ -33,20 +33,20 @@ import ru.ewc.decisions.api.RuleFragments;
 import ru.ewc.decisions.commands.Assignment;
 import ru.ewc.decisions.conditions.Condition;
 
-public class CheckRuleFragments {
+public class CheckFile {
     private final List<RuleFragments> rules;
 
-    public CheckRuleFragments(List<RuleFragments> rules) {
+    public CheckFile(List<RuleFragments> rules) {
         this.rules = rules;
     }
 
-    public List<TestResult> perform(ComputationContext context) {
+    public List<TestResult> performChecks(ComputationContext context, String locator) {
         return this.rules.stream()
-            .map(rule -> CheckRuleFragments.performAndLog(context, rule))
+            .map(rule -> CheckFile.performAndLog(context, rule, locator))
             .toList();
     }
 
-    private static TestResult performAndLog(final ComputationContext ctx, final RuleFragments rule) {
+    private static TestResult performAndLog(final ComputationContext ctx, final RuleFragments rule, String locator) {
         logCheckpoint(ctx, "%s - started".formatted(rule.header()));
         final OutputTracker<String> tracker = ctx.startTracking();
         List<CheckFailure> failures = new ArrayList<>(1);
@@ -57,10 +57,10 @@ public class CheckRuleFragments {
                     failures.add(new CheckFailure(check.asString(), check.result()));
                 }
             } else {
-                CheckRuleFragments.perform(fragment, ctx);
+                CheckFile.perform(fragment, ctx, locator);
             }
         }
-        logCheckpoint(ctx, "%s - %s".formatted(rule.header(), CheckRuleFragments.desc(failures)));
+        logCheckpoint(ctx, "%s - %s".formatted(rule.header(), CheckFile.desc(failures)));
         return new TestResult(
             rule.header(),
             failures.isEmpty(),
@@ -69,19 +69,18 @@ public class CheckRuleFragments {
         );
     }
 
-    private static void perform(RuleFragment fragment, ComputationContext ctx) {
+    private static void perform(RuleFragment fragment, ComputationContext ctx, String locator) {
         switch (fragment.type()) {
             case "ASG" -> new Assignment(fragment.left(), fragment.right()).performIn(ctx);
             case "OUT" -> {
                 if ("execute".equals(fragment.left())) {
                     ctx.perform(fragment.right());
+                    ctx.resetComputationState(locator);
                 }
             }
-            case "HDR" -> {
-                // do nothing
+            default -> {
+                // do nothing, because we don't know what to do with such a fragment type
             }
-            default ->
-                throw new IllegalArgumentException("Unknown fragment type: %s".formatted(fragment.type()));
         }
     }
 
@@ -105,7 +104,7 @@ public class CheckRuleFragments {
 
     private static String checkFailureAsHtml(final List<CheckFailure> failures) {
         return failures.stream()
-            .map(CheckRuleFragments::formattedDescriptionFor)
+            .map(CheckFile::formattedDescriptionFor)
             .collect(Collectors.joining());
     }
 

@@ -26,6 +26,7 @@ package ru.ewc.checklogic;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import ru.ewc.decisions.api.InMemoryLocator;
 import ru.ewc.state.State;
 
 /**
@@ -42,8 +43,8 @@ public final class MockStateFactory extends StateFactory {
     public State initialState() {
         return new State(
             List.of(
-                new InMemoryStorage("locator", Map.of("fragment", "value")),
-                new InMemoryStorage("request", Map.of())
+                new InMemoryLocator("locator", Map.of("fragment", "value")),
+                new InMemoryLocator("request", Map.of())
             )
         );
     }

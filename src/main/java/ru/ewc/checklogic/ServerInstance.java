@@ -31,6 +31,7 @@ import java.util.Map;
 import ru.ewc.decisions.api.ComputationContext;
 import ru.ewc.decisions.api.DecisionTables;
 import ru.ewc.decisions.api.DecitaException;
+import ru.ewc.decisions.api.InMemoryLocator;
 import ru.ewc.decisions.input.CombinedCsvFileReader;
 import ru.ewc.state.State;
 
@@ -129,10 +130,13 @@ public final class ServerInstance {
     }
 
     public void update(final List<String> values) {
-        this.state.locators().put(
-            this.server.requestLocatorName(),
-            InMemoryStorage.from(this.server.requestLocatorName(), values)
-        );
+        final InMemoryLocator request = InMemoryLocator.empty(requestLocatorName());
+        values.forEach(
+            value -> {
+                final String[] split = value.split(":");
+                request.setFragmentValue(split[0].trim(), split[1].trim());
+            });
+        this.state.locators().put(this.server.requestLocatorName(), request);
         this.context = new ComputationContext(this.state, this.getAllTables());
     }
 

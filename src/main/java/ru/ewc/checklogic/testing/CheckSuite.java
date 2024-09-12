@@ -30,7 +30,7 @@ import ru.ewc.decisions.api.ComputationContext;
 import ru.ewc.decisions.input.ContentsReader;
 
 /**
- * I represent a collection of test-cases to perform. My main responsibility is to run all the tests
+ * I represent a collection of test-cases to performChecks. My main responsibility is to run all the tests
  * and collect the results.
  *
  * @since 0.8.0
@@ -40,21 +40,21 @@ public final class CheckSuite {
     /**
      * Collection of test files, each containing multiple tests and outcomes.
      */
-    private final Collection<CheckInstance> tests;
+    private final Collection<CheckFile> tests;
 
-    private CheckSuite(final Collection<CheckInstance> tests) {
+    private CheckSuite(final Collection<CheckFile> tests) {
         this.tests = tests;
     }
 
     public static CheckSuite using(final ContentsReader reader) {
         return new CheckSuite(reader.readAll().stream()
-            .map(sl -> new CheckInstance(new CheckRuleFragments(sl.specifiedRulesFragments())))
+            .map(sl -> new CheckFile(sl.specifiedRulesFragments()))
             .toList());
     }
 
-    public List<TestResult> perform(final ComputationContext context) {
+    public List<TestResult> perform(final ComputationContext context, final String locator) {
         return this.tests.stream()
-            .map(test -> test.testResult(context))
+            .map(test -> test.performChecks(context, locator))
             .flatMap(List::stream)
             .toList();
     }

@@ -27,6 +27,7 @@ import com.renomad.minum.web.Request;
 import com.renomad.minum.web.Response;
 import com.renomad.minum.web.WebFramework;
 import java.util.Map;
+import ru.ewc.checklogic.ServerConfiguration;
 import ru.ewc.checklogic.ServerInstance;
 
 /**
@@ -45,9 +46,9 @@ public final class AllEndpoints implements Endpoints {
      */
     private final WebPages pages;
 
-    public AllEndpoints(final ServerInstance context) {
+    public AllEndpoints(final ServerInstance context, ServerConfiguration configuration) {
         this.context = context;
-        this.pages = WebPages.create(new ResourceTemplateRender(), context.getRoot());
+        this.pages = WebPages.create(new ResourceTemplateRender(), context.getRoot(), configuration);
     }
 
     @Override

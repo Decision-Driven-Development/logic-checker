@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import org.yaml.snakeyaml.Yaml;
+import ru.ewc.decisions.api.InMemoryLocator;
 import ru.ewc.decisions.api.Locator;
 import ru.ewc.state.State;
 
@@ -96,7 +97,7 @@ public final class FileStateFactory extends StateFactory {
                     "There is no Arrange section in the test file, you should add one"
                 );
             }
-            raw.forEach((name, data) -> locators.put(name, new InMemoryStorage(name, data)));
+            raw.forEach((name, data) -> locators.put(name, new InMemoryLocator(name, data)));
         }
         return locators;
     }
@@ -106,7 +107,7 @@ public final class FileStateFactory extends StateFactory {
     private static State stateFromAppConfig(final InputStream file) {
         final Map<String, Object> config = new Yaml().load(file);
         return new State(((List<String>) config.get("locators")).stream()
-            .map(name -> new InMemoryStorage(name, new HashMap<>()))
+            .map(name -> new InMemoryLocator(name, new HashMap<>()))
             .collect(Collectors.toList())
         );
     }

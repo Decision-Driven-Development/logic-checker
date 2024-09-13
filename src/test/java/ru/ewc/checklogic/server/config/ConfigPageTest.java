@@ -37,7 +37,7 @@ import ru.ewc.checklogic.server.ServerTestObjects;
 final class ConfigPageTest {
     @Test
     void shouldNotUpdateParametersNotPresentInTheRequest() {
-        final ConfigPage target = new ConfigPage(new ServerConfiguration());
+        final ConfigPage target = new ConfigPage(new ServerConfiguration("any"));
         target.updateParametersFrom(ServerTestObjects.emptyRequest());
         MatcherAssert.assertThat(
             "Parameters should not be updated if the Request is empty",

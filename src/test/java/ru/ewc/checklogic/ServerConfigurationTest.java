@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
 final class ServerConfigurationTest {
     @Test
     void emptyServerContextHasDefaultRequestLocatorName() {
-        final ServerConfiguration context = new ServerConfiguration();
+        final ServerConfiguration context = new ServerConfiguration("any");
         MatcherAssert.assertThat(
             "New server context should have 'request' as default incoming request locator's name",
             context.getParameterValue("request"),
@@ -45,7 +45,7 @@ final class ServerConfigurationTest {
 
     @Test
     void emptyServerContextHasDefaultCommandAvailabilityOutcome() {
-        final ServerConfiguration context = new ServerConfiguration();
+        final ServerConfiguration context = new ServerConfiguration("any");
         MatcherAssert.assertThat(
             "New server context should have 'available' as default command availability outcome",
             context.getParameterValue("command"),
@@ -55,7 +55,7 @@ final class ServerConfigurationTest {
 
     @Test
     void shouldUpdateRequestLocatorName() {
-        final ServerConfiguration context = new ServerConfiguration();
+        final ServerConfiguration context = new ServerConfiguration("any");
         context.setParameterValue("request", "incoming");
         MatcherAssert.assertThat(
             "Context server should update its incoming request locator's name",
@@ -66,7 +66,7 @@ final class ServerConfigurationTest {
 
     @Test
     void shouldUpdateCommandAvailabilityOutcome() {
-        final ServerConfiguration context = new ServerConfiguration();
+        final ServerConfiguration context = new ServerConfiguration("any");
         context.setParameterValue("command", "enabled");
         MatcherAssert.assertThat(
             "Context server should update its command availability outcome",

@@ -78,7 +78,7 @@ public final class ServerInstance {
         final ServerConfiguration server) {
         this.states = initial;
         this.server = server;
-        this.root = this.states.getRoot();
+        this.root = this.server.getRoot();
         this.state = this.states.initialState();
         this.tables = tables;
         this.context = new ComputationContext(this.state, this.getAllTables());
@@ -153,7 +153,6 @@ public final class ServerInstance {
     }
 
     public void initialize() {
-        this.states.initialize();
         this.state = this.states.initialState();
         this.context = new ComputationContext(this.state, this.getAllTables());
     }

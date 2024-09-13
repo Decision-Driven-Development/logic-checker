@@ -59,18 +59,20 @@ public final class ServerContextFactory {
     }
 
     public static ServerContextFactory testable() {
+        final String path = "root folder";
         return new ServerContextFactory(
-            "root folder",
-            new MockStateFactory("root folder"),
-            new ServerConfiguration()
+            path,
+            new MockStateFactory(),
+            new ServerConfiguration(path)
         );
     }
 
     public static ServerContextFactory create(final String root) {
+        final ServerConfiguration config = new ServerConfiguration(root);
         return new ServerContextFactory(
             root,
-            new FileStateFactory(root),
-            new ServerConfiguration()
+            new FileStateFactory(config),
+            config
         );
     }
 

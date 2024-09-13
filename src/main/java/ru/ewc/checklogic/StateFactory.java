@@ -23,7 +23,6 @@
  */
 package ru.ewc.checklogic;
 
-import java.io.InputStream;
 import ru.ewc.state.State;
 
 /**
@@ -33,28 +32,6 @@ import ru.ewc.state.State;
  *
  * @since 0.3.2
  */
-public abstract class StateFactory {
-    /**
-     * The root path for the external business logic resources.
-     */
-    private final String root;
-
-    public StateFactory(final String root) {
-        this.root = root;
-    }
-
-    /**
-     * Returns the path to the root folder of the external business logic resources.
-     *
-     * @return Path to the root folder as a string.
-     */
-    public String getRoot() {
-        return this.root;
-    }
-
-    public abstract State initialState();
-
-    public abstract StateFactory with(InputStream file);
-
-    public abstract void initialize();
+interface StateFactory {
+    State initialState();
 }

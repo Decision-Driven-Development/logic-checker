@@ -1,4 +1,3 @@
 locators:
-  - request
   - table
   - cells

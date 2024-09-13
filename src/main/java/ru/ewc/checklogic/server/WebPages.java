@@ -68,7 +68,11 @@ public final class WebPages {
     }
 
     public static WebPages testable() {
-        return new WebPages(new MockTemplateRender(), "root folder", new ServerConfiguration());
+        return new WebPages(
+            new MockTemplateRender(),
+            "root folder",
+            new ServerConfiguration("root folder")
+        );
     }
 
     public Response uninitializedPage() {

@@ -23,6 +23,7 @@
  */
 package ru.ewc.checklogic;
 
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,14 +34,24 @@ import java.util.Map;
  */
 public final class ServerConfiguration {
     /**
+     * The path to a root folder of the external business logic resources.
+     */
+    private final String root;
+
+    /**
      * The parameters of the context.
      */
-    private final Map<String, String> parameters = new HashMap<>(
-        Map.of(
-            "request", "request",
-            "command", "available"
-        )
-    );
+    private final Map<String, String> parameters;
+
+    public ServerConfiguration(final String root) {
+        this.root = root;
+        this.parameters = new HashMap<>(
+            Map.of(
+                "request", "request",
+                "command", "available"
+            )
+        );
+    }
 
     /**
      * Returns the value of the specified parameter.
@@ -68,5 +79,13 @@ public final class ServerConfiguration {
 
     public String requestLocatorName() {
         return this.getParameterValue("request");
+    }
+
+    public Path applicationConfig() {
+        return Path.of(this.root, "application.yaml");
+    }
+
+    public String getRoot() {
+        return this.root;
     }
 }

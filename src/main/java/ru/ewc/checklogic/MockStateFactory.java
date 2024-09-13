@@ -23,7 +23,6 @@
  */
 package ru.ewc.checklogic;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import ru.ewc.decisions.api.InMemoryLocator;
@@ -34,11 +33,7 @@ import ru.ewc.state.State;
  *
  * @since 0.3.2
  */
-public final class MockStateFactory extends StateFactory {
-    public MockStateFactory(final String root) {
-        super(root);
-    }
-
+public final class MockStateFactory implements StateFactory {
     @Override
     public State initialState() {
         return new State(
@@ -49,13 +44,4 @@ public final class MockStateFactory extends StateFactory {
         );
     }
 
-    @Override
-    public StateFactory with(final InputStream file) {
-        return this;
-    }
-
-    @Override
-    public void initialize() {
-        // do nothing
-    }
 }

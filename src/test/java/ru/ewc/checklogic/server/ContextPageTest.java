@@ -41,7 +41,7 @@ final class ContextPageTest {
     void shouldCreateMockServer() {
         final ContextPage target = new ContextPage(
             ServerInstance.testable(),
-            new ServerConfiguration()
+            new ServerConfiguration("any")
         );
         final Response response = target.contextPage(ServerTestObjects.emptyRequest());
         MatcherAssert.assertThat(

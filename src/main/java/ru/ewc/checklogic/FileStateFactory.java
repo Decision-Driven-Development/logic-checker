@@ -24,16 +24,15 @@
 package ru.ewc.checklogic;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import org.yaml.snakeyaml.Yaml;
 import ru.ewc.decisions.api.InMemoryLocator;
@@ -45,70 +44,58 @@ import ru.ewc.state.State;
  *
  * @since 0.3.2
  */
-public final class FileStateFactory extends StateFactory {
+public final class FileStateFactory implements StateFactory {
+    /**
+     * An instance of server configuration.
+     */
+    private final ServerConfiguration config;
 
     /**
-     * Optional source of locators to be added to the initial (clean) state.
+     * The collection of all the state and functions locators.
      */
-    private InputStream src;
+    private final List<Locator> locators;
 
-    public FileStateFactory(final String root) {
-        super(root);
+    public FileStateFactory(final ServerConfiguration config) {
+        this.config = config;
+        this.locators = new ArrayList<>(1);
     }
 
     @Override
-    @SneakyThrows
     public State initialState() {
-        State state;
-        try (InputStream file = Files.newInputStream(Path.of(this.getRoot(), "application.yaml"))) {
-            state = FileStateFactory.stateFromAppConfig(file);
-            state.locators().putAll(this.locatorsFromFile());
-        } catch (final NoSuchFileException exception) {
-            state = State.EMPTY;
-        }
-        return state;
+        this.locators.clear();
+        this.loadLocatorsFromApplicationConfig();
+        this.loadInMemoryRequestLocator();
+        return new State(this.locators);
     }
 
-    @Override
-    public StateFactory with(final InputStream file) {
-        this.src = file;
-        return this;
+    private void loadInMemoryRequestLocator() {
+        this.locators.add(
+            new InMemoryLocator(this.config.requestLocatorName(), new HashMap<>())
+        );
     }
 
-    @Override
     @SneakyThrows
-    public void initialize() {
-        final File config = Path.of(this.getRoot(), "application.yaml").toFile();
-        if (!config.exists() && config.createNewFile()) {
-            try (OutputStream out = Files.newOutputStream(config.toPath())) {
+    private InputStream applicationConfigFile() {
+        final File fileconf = this.config.applicationConfig().toFile();
+        if (!fileconf.exists() && fileconf.createNewFile()) {
+            try (OutputStream out = Files.newOutputStream(fileconf.toPath())) {
                 out.write("locators:\n  - request\n".getBytes(StandardCharsets.UTF_8));
             }
         }
+        return Files.newInputStream(this.config.applicationConfig());
     }
 
     @SuppressWarnings("unchecked")
-    private Map<String, Locator> locatorsFromFile() {
-        final Map<String, Locator> locators = new HashMap<>();
-        if (this.src != null) {
-            final Map<String, Map<String, Object>> raw =
-                (Map<String, Map<String, Object>>) new Yaml().loadAll(this.src).iterator().next();
-            if (raw == null) {
-                throw new IllegalStateException(
-                    "There is no Arrange section in the test file, you should add one"
-                );
-            }
-            raw.forEach((name, data) -> locators.put(name, new InMemoryLocator(name, data)));
+    private void loadLocatorsFromApplicationConfig() {
+        try (InputStream file = this.applicationConfigFile()) {
+            final Map<String, Object> yaml = new Yaml().load(file);
+            this.locators.addAll(
+                ((List<String>) yaml.get("locators")).stream()
+                    .map(name -> new InMemoryLocator(name, new HashMap<>()))
+                    .toList()
+            );
+        } catch (final IOException exception) {
+            this.locators.addAll(List.of());
         }
-        return locators;
-    }
-
-    @SneakyThrows
-    @SuppressWarnings("unchecked")
-    private static State stateFromAppConfig(final InputStream file) {
-        final Map<String, Object> config = new Yaml().load(file);
-        return new State(((List<String>) config.get("locators")).stream()
-            .map(name -> new InMemoryLocator(name, new HashMap<>()))
-            .collect(Collectors.toList())
-        );
     }
 }

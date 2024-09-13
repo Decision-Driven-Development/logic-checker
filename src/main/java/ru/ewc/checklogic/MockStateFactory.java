@@ -44,4 +44,9 @@ public final class MockStateFactory implements StateFactory {
         );
     }
 
+    @Override
+    public boolean functionSpecified(final String arg) {
+        return false;
+    }
+
 }

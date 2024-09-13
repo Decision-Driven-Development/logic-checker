@@ -28,6 +28,7 @@ import java.net.URI;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
 import ru.ewc.decisions.api.ComputationContext;
 import ru.ewc.decisions.api.DecisionTables;
 import ru.ewc.decisions.api.DecitaException;
@@ -45,6 +46,7 @@ public final class ServerInstance {
     /**
      * The root path for the external business logic resources.
      */
+    @Getter
     private final String root;
 
     /**
@@ -130,26 +132,18 @@ public final class ServerInstance {
     }
 
     public void update(final List<String> values) {
-        final InMemoryLocator request = InMemoryLocator.empty(this.requestLocatorName());
+        final InMemoryLocator request = InMemoryLocator.empty(this.server.requestLocatorName());
         values.forEach(
             value -> {
                 final String[] split = value.split(":");
                 request.setFragmentValue(split[0].trim(), split[1].trim());
             });
-        this.state.locators().put(this.requestLocatorName(), request);
+        this.state.locators().put(this.server.requestLocatorName(), request);
         this.context = new ComputationContext(this.state, this.getAllTables());
-    }
-
-    public String requestLocatorName() {
-        return this.server.requestLocatorName();
     }
 
     public boolean isEmpty() {
         return this.state.locators().isEmpty();
-    }
-
-    public String getRoot() {
-        return this.root;
     }
 
     public void initialize() {
@@ -164,6 +158,13 @@ public final class ServerInstance {
     public void createTestFolder() {
         Paths.get(this.root, "tests").toFile().mkdirs();
         this.context = new ComputationContext(this.state, this.getAllTables());
+    }
+
+    public boolean isNotSpecified(final String arg) {
+        final String[] args = arg.split("::");
+        final boolean function = this.server.functionsLocatorName().equals(args[0]);
+        final boolean request = this.server.requestLocatorName().equals(args[0]);
+        return function && !this.states.functionSpecified(args[1]) || request;
     }
 
     private DecisionTables getAllTables() {

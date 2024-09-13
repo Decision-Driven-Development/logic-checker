@@ -47,6 +47,11 @@ public final class FunctionsLocator implements Locator {
     private final String name;
 
     /**
+     * The path to the Groovy scripts.
+     */
+    private final Path path;
+
+    /**
      * The in-memory locator used to store overridden values.
      */
     private final InMemoryLocator locator;
@@ -59,6 +64,7 @@ public final class FunctionsLocator implements Locator {
     @SneakyThrows
     public FunctionsLocator(final String name, final Path path) {
         this.name = name;
+        this.path = path;
         this.locator = new InMemoryLocator("locator", new HashMap<>());
         this.engine = new GroovyScriptEngine(new URL[]{path.toUri().toURL()});
     }
@@ -72,10 +78,12 @@ public final class FunctionsLocator implements Locator {
         final String result;
         if (this.locator.state().containsKey(fragment)) {
             result = this.locator.fragmentBy(fragment, context);
-        } else {
+        } else if (this.hasScript(fragment)) {
             final Binding binding = new Binding();
             binding.setVariable("context", context);
             result = this.engine.run("%s.groovy".formatted(fragment), binding).toString();
+        } else {
+            result = "undefined";
         }
         return result;
     }
@@ -88,5 +96,17 @@ public final class FunctionsLocator implements Locator {
     @Override
     public String locatorName() {
         return this.name;
+    }
+
+    public boolean functionSpecified(final String arg) {
+        return this.hasValue(arg) || this.hasScript(arg);
+    }
+
+    private boolean hasScript(final String arg) {
+        return this.path.resolve("%s.groovy".formatted(arg)).toFile().exists();
+    }
+
+    private boolean hasValue(final String arg) {
+        return !"undefined".equals(this.locator.state().getOrDefault(arg, "undefined"));
     }
 }

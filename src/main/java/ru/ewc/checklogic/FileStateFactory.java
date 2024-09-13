@@ -71,6 +71,12 @@ public final class FileStateFactory implements StateFactory {
         return new State(this.locators);
     }
 
+    @Override
+    public boolean functionSpecified(final String arg) {
+        return ((FunctionsLocator) new State(this.locators)
+            .locatorFor(this.config.functionsLocatorName())).functionSpecified(arg);
+    }
+
     private void loadFunctionsLocator() {
         this.locators.add(
             new FunctionsLocator(

@@ -34,4 +34,6 @@ import ru.ewc.state.State;
  */
 interface StateFactory {
     State initialState();
+
+    boolean functionSpecified(String arg);
 }

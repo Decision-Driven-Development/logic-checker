@@ -134,6 +134,11 @@
       <artifactId>byte-buddy</artifactId>
       <version>1.14.13</version>
     </dependency>
+    <dependency>
+      <groupId>org.codehaus.groovy</groupId>
+      <artifactId>groovy</artifactId>
+      <version>3.0.17</version>
+    </dependency>
   </dependencies>
 
   <build>

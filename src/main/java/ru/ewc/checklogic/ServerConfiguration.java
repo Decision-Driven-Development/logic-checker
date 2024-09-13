@@ -48,7 +48,8 @@ public final class ServerConfiguration {
         this.parameters = new HashMap<>(
             Map.of(
                 "request", "request",
-                "command", "available"
+                "command", "available",
+                "function", "function"
             )
         );
     }
@@ -87,5 +88,9 @@ public final class ServerConfiguration {
 
     public String getRoot() {
         return this.root;
+    }
+
+    public String functionsLocatorName() {
+        return this.parameters.get("function");
     }
 }

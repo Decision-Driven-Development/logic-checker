@@ -29,12 +29,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.SneakyThrows;
 import org.yaml.snakeyaml.Yaml;
+import ru.ewc.checklogic.testing.FunctionsLocator;
 import ru.ewc.decisions.api.InMemoryLocator;
 import ru.ewc.decisions.api.Locator;
 import ru.ewc.state.State;
@@ -65,7 +67,17 @@ public final class FileStateFactory implements StateFactory {
         this.locators.clear();
         this.loadLocatorsFromApplicationConfig();
         this.loadInMemoryRequestLocator();
+        this.loadFunctionsLocator();
         return new State(this.locators);
+    }
+
+    private void loadFunctionsLocator() {
+        this.locators.add(
+            new FunctionsLocator(
+                this.config.functionsLocatorName(),
+                Paths.get(this.config.getRoot(), "functions")
+            )
+        );
     }
 
     private void loadInMemoryRequestLocator() {

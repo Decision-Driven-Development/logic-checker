@@ -30,11 +30,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import ru.ewc.checklogic.ServerConfiguration;
-import ru.ewc.checklogic.ServerContextFactory;
 import ru.ewc.checklogic.ServerInstance;
 import ru.ewc.checklogic.testing.CheckSuite;
 import ru.ewc.checklogic.testing.TestResult;
-import ru.ewc.decisions.api.ComputationContext;
 import ru.ewc.decisions.input.CombinedCsvFileReader;
 
 /**
@@ -82,8 +80,7 @@ public final class WebPages {
             new CombinedCsvFileReader(Path.of(this.root, "tests").toUri(), ".csv", ";")
         );
         final long start = System.currentTimeMillis();
-        final ComputationContext context = ServerContextFactory.create(this.root).context();
-        final List<TestResult> results = suite.perform(context, this.config.requestLocatorName());
+        final List<TestResult> results = suite.perform(this.root, this.config.requestLocatorName());
         final String rows = results.stream()
             .sorted(Comparator.naturalOrder())
             .map(TestResult::asHtmlTableRow)

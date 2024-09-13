@@ -26,6 +26,7 @@ package ru.ewc.checklogic.testing;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import ru.ewc.checklogic.ServerContextFactory;
 import ru.ewc.decisions.api.ComputationContext;
 import ru.ewc.decisions.api.OutputTracker;
 import ru.ewc.decisions.api.RuleFragment;
@@ -49,17 +50,18 @@ public final class CheckFile {
         this.tests = tests;
     }
 
-    public List<TestResult> performChecks(final ComputationContext context, final String locator) {
+    public List<TestResult> performChecks(final String root, final String locator) {
         return this.tests.stream()
-            .map(rule -> CheckFile.performAndLog(context, rule, locator))
+            .map(rule -> CheckFile.performAndLog(root, rule, locator))
             .toList();
     }
 
     private static TestResult performAndLog(
-        final ComputationContext ctx,
+        final String root,
         final RuleFragments rule,
         final String locator
     ) {
+        final ComputationContext ctx = ServerContextFactory.create(root).context();
         logCheckpoint(ctx, "%s - started".formatted(rule.header()));
         final OutputTracker<String> tracker = ctx.startTracking();
         final List<CheckFailure> failures = new ArrayList<>(1);

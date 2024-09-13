@@ -26,7 +26,6 @@ package ru.ewc.checklogic.testing;
 
 import java.util.Collection;
 import java.util.List;
-import ru.ewc.decisions.api.ComputationContext;
 import ru.ewc.decisions.input.ContentsReader;
 
 /**
@@ -53,9 +52,9 @@ public final class CheckSuite {
         );
     }
 
-    public List<TestResult> perform(final ComputationContext context, final String locator) {
+    public List<TestResult> perform(final String root, final String locator) {
         return this.tests.stream()
-            .map(test -> test.performChecks(context, locator))
+            .map(test -> test.performChecks(root, locator))
             .flatMap(List::stream)
             .toList();
     }

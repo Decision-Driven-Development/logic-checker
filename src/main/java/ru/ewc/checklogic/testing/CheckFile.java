@@ -127,7 +127,13 @@ public final class CheckFile {
     }
 
     private static String formattedDescriptionFor(final CheckFailure failure) {
-        return "<li>Expected: <kbd>%s</kbd>, but got: <kbd>%s</kbd></li>"
-            .formatted(failure.expectation(), failure.actual());
+        return "<li>Expected: <kbd>%s</kbd>, but got: <kbd>%s</kbd></li>".formatted(
+            CheckFile.clearConstants(failure.expectation()),
+            CheckFile.clearConstants(failure.actual().split("=")[0])
+        );
+    }
+
+    private static String clearConstants(final String expectation) {
+        return expectation.replaceAll("constant::", "");
     }
 }

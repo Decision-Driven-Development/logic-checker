@@ -77,7 +77,7 @@ public final class CheckFile {
         }
         logCheckpoint(ctx, "%s - %s".formatted(rule.header(), CheckFile.desc(failures)));
         return new TestResult(
-            rule.header(),
+            rule.header().replace("::", " - "),
             failures.isEmpty(),
             resultAsUnorderedList(failures),
             tracker.events()

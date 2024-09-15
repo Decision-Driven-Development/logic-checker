@@ -49,6 +49,7 @@ public final class StoredState {
 
     public String asHtmlList() {
         return "<ul>%s</ul>".formatted(this.state.entrySet().stream()
+            .sorted(Map.Entry.comparingByKey())
             .map(
                 entry -> "<li><h4>%s</h4>%s</li>".formatted(
                     entry.getKey(),
@@ -61,6 +62,7 @@ public final class StoredState {
 
     private static String toInnerList(final Map<String, Object> value) {
         return "<ul>%s</ul>".formatted(value.entrySet().stream()
+            .sorted(Map.Entry.comparingByKey())
             .map(entry -> "<li>%s: %s</li>".formatted(entry.getKey(), entry.getValue()))
             .collect(Collectors.joining())
         );

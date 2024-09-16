@@ -1,4 +1,4 @@
-OUT;execute;initialize
+EXE;command;initialize
 CND;table::currentPlayer;X
 CND;table::nextPlayer;O
 CND;cells::A1;empty

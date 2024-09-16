@@ -81,10 +81,12 @@ public final class WebPages {
 
     public Response testPage() {
         final CheckSuite suite = CheckSuite.using(
-            new CombinedCsvFileReader(Path.of(this.root, "tests").toUri(), ".csv", ";")
+            new CombinedCsvFileReader(Path.of(this.root, "tests").toUri(), ".csv", ";"),
+            this.root,
+            this.config.requestLocatorName()
         );
         final long start = System.currentTimeMillis();
-        final List<TestResult> results = suite.perform(this.root, this.config.requestLocatorName());
+        final List<TestResult> results = suite.perform();
         final String rows = results.stream()
             .sorted(Comparator.naturalOrder())
             .map(TestResult::asHtmlTableRow)

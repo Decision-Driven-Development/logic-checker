@@ -26,6 +26,7 @@ package ru.ewc.checklogic.testing;
 
 import java.util.Collection;
 import java.util.List;
+import ru.ewc.decisions.api.ComputationContext;
 import ru.ewc.decisions.input.ContentsReader;
 
 /**
@@ -41,22 +42,39 @@ public final class CheckSuite {
      */
     private final Collection<CheckFile> tests;
 
-    private CheckSuite(final Collection<CheckFile> tests) {
+    /**
+     * The root directory of the business logic source files.
+     */
+    private final String root;
+
+    private CheckSuite(final Collection<CheckFile> tests, final String root) {
         this.tests = tests;
+        this.root = root;
     }
 
-    public static CheckSuite using(final ContentsReader reader) {
-        return new CheckSuite(reader.readAll().stream()
-            .map(sl -> new CheckFile(sl.specifiedRulesFragments()))
-            .toList()
+    public static CheckSuite using(
+        final ContentsReader reader,
+        final String root,
+        final String request
+    ) {
+        return new CheckSuite(
+            reader.readAll().stream()
+                .map(sl -> new CheckFile(sl.fileName(), sl.specifiedRulesFragments(), request))
+                .toList(),
+            root
         );
     }
 
-    public List<TestResult> perform(final String root, final String locator) {
+    public List<TestResult> perform() {
         return this.tests.stream()
-            .map(test -> test.performChecks(root, locator))
+            .map(test -> test.performChecks(this.root, this))
             .flatMap(List::stream)
             .toList();
     }
 
+    public void findAndPerform(final String file, final ComputationContext ctx) {
+        this.tests.stream().filter(test -> file.equals(test.getFile()))
+            .findFirst()
+            .ifPresent(test -> test.performInSameContext(ctx));
+    }
 }

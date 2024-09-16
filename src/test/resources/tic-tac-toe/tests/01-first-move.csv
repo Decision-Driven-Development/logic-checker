@@ -12,7 +12,7 @@ ASG;cells::B3;empty;empty
 ASG;cells::C1;empty;empty
 ASG;cells::C2;empty;empty
 ASG;cells::C3;empty;empty
-OUT;execute;computed_move;computed_move
+EXE;command;computed_move;computed_move
 CND;cells::A1;empty;X
 CND;computed_move::available;false;false
 CND;game_state::is_over;false;false

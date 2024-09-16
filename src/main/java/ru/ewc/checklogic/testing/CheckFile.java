@@ -26,6 +26,7 @@ package ru.ewc.checklogic.testing;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.Getter;
 import ru.ewc.checklogic.ServerContextFactory;
 import ru.ewc.decisions.api.ComputationContext;
 import ru.ewc.decisions.api.OutputTracker;
@@ -42,26 +43,44 @@ import ru.ewc.decisions.conditions.Condition;
  */
 public final class CheckFile {
     /**
+     * The file containing the tests.
+     */
+    @Getter
+    private final String file;
+
+    /**
      * The collection of single tests inside the file.
      */
     private final List<RuleFragments> tests;
 
-    public CheckFile(final List<RuleFragments> tests) {
+    /**
+     * The name of the request locator.
+     */
+    private final String request;
+
+    /**
+     * The link to the suite that contains this file.
+     */
+    private CheckSuite suite;
+
+    public CheckFile(final String file, final List<RuleFragments> tests, final String request) {
+        this.file = file;
         this.tests = tests;
+        this.request = request;
     }
 
-    public List<TestResult> performChecks(final String root, final String locator) {
+    public List<TestResult> performChecks(final String root, final CheckSuite files) {
+        this.suite = files;
         return this.tests.stream()
-            .map(rule -> CheckFile.performAndLog(root, rule, locator))
+            .map(rule -> this.getTestResult(rule, ServerContextFactory.create(root).context()))
             .toList();
     }
 
-    private static TestResult performAndLog(
-        final String root,
-        final RuleFragments rule,
-        final String locator
-    ) {
-        final ComputationContext ctx = ServerContextFactory.create(root).context();
+    public void performInSameContext(final ComputationContext ctx) {
+        this.getTestResult(this.tests.getFirst(), ctx);
+    }
+
+    private TestResult getTestResult(final RuleFragments rule, final ComputationContext ctx) {
         logCheckpoint(ctx, "%s - started".formatted(rule.header()));
         final OutputTracker<String> tracker = ctx.startTracking();
         final List<CheckFailure> failures = new ArrayList<>(1);
@@ -72,7 +91,7 @@ public final class CheckFile {
                     failures.add(new CheckFailure(check.asString(), check.result()));
                 }
             } else {
-                CheckFile.perform(fragment, ctx, locator);
+                this.perform(fragment, ctx);
             }
         }
         logCheckpoint(ctx, "%s - %s".formatted(rule.header(), CheckFile.desc(failures)));
@@ -84,17 +103,16 @@ public final class CheckFile {
         );
     }
 
-    private static void perform(
-        final RuleFragment fragment,
-        final ComputationContext ctx,
-        final String locator
-    ) {
+    private void perform(final RuleFragment fragment, final ComputationContext ctx) {
         switch (fragment.type()) {
             case "ASG" -> new Assignment(fragment.left(), fragment.right()).performIn(ctx);
-            case "OUT" -> {
-                if ("execute".equals(fragment.left())) {
+            case "EXE" -> {
+                if ("command".equals(fragment.left())) {
                     ctx.perform(fragment.right());
-                    ctx.resetComputationState(locator);
+                    ctx.resetComputationState(this.request);
+                }
+                if ("include".equals(fragment.left())) {
+                    this.suite.findAndPerform(fragment.right(), ctx);
                 }
             }
             default -> {

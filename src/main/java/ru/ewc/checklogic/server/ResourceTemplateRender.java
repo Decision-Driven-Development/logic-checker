@@ -54,7 +54,7 @@ public final class ResourceTemplateRender implements TemplateRender {
         );
     }
 
-    private String renderTemplateWith(final String template, final Map<String, String> values) {
+    public String renderTemplateWith(final String template, final Map<String, String> values) {
         this.processors.putIfAbsent(
             template, ResourceTemplateRender.templateProcessorFor(template)
         );

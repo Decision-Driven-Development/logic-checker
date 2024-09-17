@@ -131,6 +131,10 @@ public final class ServerInstance {
         return "true".equalsIgnoreCase(this.context.decisionFor(command).get(field));
     }
 
+    public ComputationContext computation() {
+        return this.context;
+    }
+
     public void update(final List<String> values) {
         final InMemoryLocator request = InMemoryLocator.empty(this.server.requestLocatorName());
         values.forEach(

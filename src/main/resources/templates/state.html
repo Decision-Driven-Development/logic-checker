@@ -33,7 +33,7 @@
                     <div class="input-group">
                         <select class="form-select" id="include" name="include"
                                 placeholder="Select a state to include"
-                                aria-label="Example select with button addon">
+                                aria-label="Dropbox with a list of includable tests or states">
                             {{ includes }}
                         </select>
                         <button class="btn btn-primary" type="submit">Create state</button>
@@ -46,6 +46,17 @@
         </div>
     </div>
     <div class="col">
+        <h1>Tables</h1>
+        <form class="mb-3" hx-post="/state" hx-target="#table-details">
+            <div class="input-group">
+                <select class="form-select" id="table" name="table"
+                        aria-label="Dropbox with a list of all the tables that could be evaluated">
+                    {{ tables }}
+                </select>
+                <button class="btn btn-primary" type="submit">Evaluate table</button>
+            </div>
+            <div id="table-details"></div>
+        </form>
         <h1>Context</h1>
         <form class="mb-3" hx-post="/context" hx-target="#commands" hx-swap="innerHTML"
               hx-trigger="submit, load">

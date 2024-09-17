@@ -29,11 +29,14 @@ import com.renomad.minum.web.Response;
 import com.renomad.minum.web.WebFramework;
 import java.net.URI;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import ru.ewc.checklogic.ServerConfiguration;
 import ru.ewc.checklogic.ServerInstance;
 import ru.ewc.checklogic.testing.CheckSuite;
+import ru.ewc.decisions.api.ComputationContext;
+import ru.ewc.decisions.api.OutputTracker;
 import ru.ewc.decisions.input.CombinedCsvFileReader;
 
 /**
@@ -70,7 +73,7 @@ public final class StatePage implements Endpoints {
     @Override
     public void register(final WebFramework web) {
         web.registerPath(GET, "state", this::statePage);
-        web.registerPath(POST, "state", this::createState);
+        web.registerPath(POST, "state", this::postRouter);
         web.registerPath(DELETE, "state", this::resetState);
     }
 
@@ -82,17 +85,60 @@ public final class StatePage implements Endpoints {
                 "templates/state.html",
                 Map.of(
                     "state", stored.asHtmlList(),
-                    "includes", this.listOfIncludes()
+                    "includes", this.listOfIncludes(),
+                    "tables", this.listOfTables()
                 )
             )
         );
     }
 
-    private Response createState(final Request request) {
+    private Response postRouter(final Request request) {
         assert request.requestLine().getMethod().equals(RequestLine.Method.POST);
         final String include = request.body().asString("include");
-        this.context.createState(include, this.testSuite());
-        return Response.htmlOk("OK", Map.of("HX-Redirect", "/state"));
+        final String table = request.body().asString("table");
+        final ComputationContext computation = this.context.computation();
+        final Response result;
+        if (StatePage.isSpecified(include)) {
+            this.testSuite().findAndPerform(include, computation);
+            result = Response.htmlOk("OK", Map.of("HX-Redirect", "/state"));
+        } else if (StatePage.isSpecified(table)) {
+            final OutputTracker<String> tracker = computation.startTracking();
+            final Map<String, String> outcomes = computation.decisionFor(table);
+            result = Response.htmlOk(
+                this.processors.renderTemplateWith(
+                    "templates/outcomes.html",
+                    Map.of(
+                        "outcomes", StatePage.asTable(outcomes),
+                        "events", StatePage.asCollapsible(tracker.events())
+                    )
+                )
+            );
+        } else {
+            result = Response.htmlOk("OK", Map.of("HX-Redirect", "/state"));
+        }
+        return result;
+    }
+
+    private static boolean isSpecified(final String include) {
+        return !include.isBlank();
+    }
+
+    private static String asCollapsible(final List<String> events) {
+        return events.stream()
+            .map("<li>%s</li>"::formatted)
+            .collect(Collectors.joining());
+    }
+
+    private static String asTable(final Map<String, String> outcomes) {
+        return outcomes.entrySet().stream()
+            .sorted(Map.Entry.comparingByKey())
+            .map(
+                entry -> "<tr><td>%s</td><td>%s</td></tr>".formatted(
+                    entry.getKey(),
+                    entry.getValue()
+                )
+            )
+            .collect(Collectors.joining());
     }
 
     private Response resetState(final Request request) {
@@ -115,6 +161,13 @@ public final class StatePage implements Endpoints {
 
     private String listOfIncludes() {
         return this.testSuite().checkNames().stream()
+            .sorted()
+            .map(name -> "<option value=\"%s\">%s</option>".formatted(name, name))
+            .collect(Collectors.joining());
+    }
+
+    private String listOfTables() {
+        return this.context.computation().tableNames().stream()
             .sorted()
             .map(name -> "<option value=\"%s\">%s</option>".formatted(name, name))
             .collect(Collectors.joining());

@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import ru.ewc.checklogic.ServerConfiguration;
-import ru.ewc.checklogic.ServerInstance;
 import ru.ewc.checklogic.testing.CheckSuite;
 import ru.ewc.checklogic.testing.TestResult;
 import ru.ewc.decisions.input.CombinedCsvFileReader;
@@ -104,16 +103,6 @@ public final class WebPages {
                         results.stream().filter(result -> !result.successful()).count()
                     )
                 )
-            )
-        );
-    }
-
-    public Response statePage(final ServerInstance context) {
-        final StoredState stored = new StoredState(context.storedState());
-        return Response.htmlOk(
-            this.renderInLayout(
-                "templates/state.html",
-                Map.of("state", stored.asHtmlList())
             )
         );
     }

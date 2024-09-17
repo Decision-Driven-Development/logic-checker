@@ -75,6 +75,10 @@ public final class CheckSuite {
     public void findAndPerform(final String file, final ComputationContext ctx) {
         this.tests.stream().filter(test -> file.equals(test.getFile()))
             .findFirst()
-            .ifPresent(test -> test.performInSameContext(ctx));
+            .ifPresent(test -> test.performInSameContext(ctx, this));
+    }
+
+    public List<String> checkNames() {
+        return this.tests.stream().map(CheckFile::getFile).toList();
     }
 }

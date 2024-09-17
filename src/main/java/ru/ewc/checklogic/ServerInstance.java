@@ -25,10 +25,10 @@
 package ru.ewc.checklogic;
 
 import java.net.URI;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
+import ru.ewc.checklogic.testing.CheckSuite;
 import ru.ewc.decisions.api.ComputationContext;
 import ru.ewc.decisions.api.DecisionTables;
 import ru.ewc.decisions.api.DecitaException;
@@ -151,20 +151,15 @@ public final class ServerInstance {
         this.context = new ComputationContext(this.state, this.getAllTables());
     }
 
-    public boolean hasTestsFolder() {
-        return Paths.get(this.root, "tests").toFile().exists();
-    }
-
-    public void createTestFolder() {
-        Paths.get(this.root, "tests").toFile().mkdirs();
-        this.context = new ComputationContext(this.state, this.getAllTables());
-    }
-
     public boolean isNotSpecified(final String arg) {
         final String[] args = arg.split("::");
         final boolean function = this.server.functionsLocatorName().equals(args[0]);
         final boolean request = this.server.requestLocatorName().equals(args[0]);
         return function && !this.states.functionSpecified(args[1]) || request;
+    }
+
+    public void createState(final String include, final CheckSuite suite) {
+        suite.findAndPerform(include, this.context);
     }
 
     private DecisionTables getAllTables() {

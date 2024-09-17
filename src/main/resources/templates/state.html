@@ -25,8 +25,20 @@
     <div class="col">
         <h1>State entities</h1>
         <div class="row">
-            <div class="col col-4">
+            <div class="col col-2">
                 <button class="btn btn-primary" hx-delete="/state" hx-trigger="click">Reset</button>
+            </div>
+            <div class="col col-10">
+                <form class="mb-3" hx-post="/state">
+                    <div class="input-group">
+                        <select class="form-select" id="include" name="include"
+                                placeholder="Select a state to include"
+                                aria-label="Example select with button addon">
+                            {{ includes }}
+                        </select>
+                        <button class="btn btn-primary" type="submit">Create state</button>
+                    </div>
+                </form>
             </div>
         </div>
         <div class="row">

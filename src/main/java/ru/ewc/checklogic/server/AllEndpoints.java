@@ -46,9 +46,13 @@ public final class AllEndpoints implements Endpoints {
      */
     private final WebPages pages;
 
-    public AllEndpoints(final ServerInstance context, final ServerConfiguration config) {
+    public AllEndpoints(
+        final ServerInstance context,
+        final ServerConfiguration config,
+        final ResourceTemplateRender render
+    ) {
         this.context = context;
-        this.pages = new WebPages(new ResourceTemplateRender(), context.getRoot(), config);
+        this.pages = new WebPages(render, context.getRoot(), config);
     }
 
     @Override
@@ -56,28 +60,6 @@ public final class AllEndpoints implements Endpoints {
         web.registerPartialPath(GET, "static", AllEndpoints::staticResource);
         web.registerPath(GET, "", this::httpGetRouter);
         web.registerPath(GET, "test", this::httpGetRouter);
-        web.registerPath(GET, "state", this::httpGetRouter);
-        web.registerPath(POST, "state", this::httpPostRouter);
-        web.registerPath(POST, "test", this::httpPostRouter);
-    }
-
-    private Response httpPostRouter(final Request request) {
-        final Response result;
-        final String address = request.requestLine().getPathDetails().getIsolatedPath();
-        if (this.context.isEmpty()) {
-            if ("state".equals(address)) {
-                this.context.initialize();
-                result = Response.htmlOk("OK", Map.of("HX-Redirect", "/"));
-            } else {
-                result = this.pages.uninitializedPage();
-            }
-        } else if (!this.context.hasTestsFolder() && "test".equals(address)) {
-            this.context.createTestFolder();
-            result = Response.htmlOk("OK", Map.of("HX-Redirect", "/test"));
-        } else {
-            result = new Response(NOT_FOUND, "", PLAIN_TEXT);
-        }
-        return result;
     }
 
     private Response httpGetRouter(final Request request) {
@@ -96,13 +78,7 @@ public final class AllEndpoints implements Endpoints {
         if (address.isEmpty()) {
             result = this.renderHtmlFor("templates/index.html");
         } else if ("test".equals(address)) {
-            if (this.context.hasTestsFolder()) {
-                result = this.pages.testPage();
-            } else {
-                result = this.renderHtmlFor("templates/noTestsFolder.html");
-            }
-        } else if ("state".equals(address)) {
-            result = this.pages.statePage(this.context);
+            result = this.pages.testPage();
         } else {
             result = new Response(NOT_FOUND, "", PLAIN_TEXT);
         }

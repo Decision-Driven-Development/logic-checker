@@ -30,6 +30,7 @@ import ru.ewc.checklogic.server.AllEndpoints;
 import ru.ewc.checklogic.server.CommandPage;
 import ru.ewc.checklogic.server.ContextPage;
 import ru.ewc.checklogic.server.Endpoints;
+import ru.ewc.checklogic.server.ResourceTemplateRender;
 import ru.ewc.checklogic.server.StatePage;
 import ru.ewc.checklogic.server.config.ConfigPage;
 
@@ -55,11 +56,12 @@ public final class LogicChecker {
         final ServerInstance context = factory.initialState();
         final FullSystem minum = FullSystem.initialize();
         final WebFramework web = minum.getWebFramework();
+        final ResourceTemplateRender render = new ResourceTemplateRender();
         registerEndpoints(web, new ConfigPage(factory.configuration()));
         registerEndpoints(web, new CommandPage(context));
         registerEndpoints(web, new ContextPage(context, factory.configuration()));
-        registerEndpoints(web, new AllEndpoints(context, factory.configuration()));
-        registerEndpoints(web, new StatePage(context));
+        registerEndpoints(web, new AllEndpoints(context, factory.configuration(), render));
+        registerEndpoints(web, new StatePage(context, factory.configuration(), render));
         minum.block();
     }
 

@@ -76,7 +76,8 @@ public final class CheckFile {
             .toList();
     }
 
-    public void performInSameContext(final ComputationContext ctx) {
+    public void performInSameContext(final ComputationContext ctx, final CheckSuite files) {
+        this.suite = files;
         this.getTestResult(this.tests.getFirst(), ctx);
     }
 

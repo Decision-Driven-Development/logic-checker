@@ -63,11 +63,13 @@ public class CommandMetadata {
      * @return The command names as an HTML list to be used in a page template.
      */
     public String namesAsHtmlList(final ServerInstance computation, final String outcome) {
-        return this.names.stream().map(
+        return this.names.stream().sorted().map(
             command -> """
-                <button class="btn %2$s"
+                <div class="col-4 px-2">
+                <button class="btn %2$s col-12"
                 hx-get="/command" hx-target="body" hx-swap="beforeend"
                 hx-vals='{"command":"%1$s"}'>%1$s</button>
+                </div>
                 """.formatted(command, buttonCssClass(computation, command, outcome))
         ).collect(Collectors.joining());
     }

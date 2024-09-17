@@ -24,11 +24,19 @@
 <div class="row">
     <div class="col">
         <h1>State entities</h1>
-        {{ state }}
+        <div class="row">
+            <div class="col col-4">
+                <button class="btn btn-primary" hx-delete="/state" hx-trigger="click">Reset</button>
+            </div>
+        </div>
+        <div class="row">
+            {{ state }}
+        </div>
     </div>
     <div class="col">
         <h1>Context</h1>
-        <form class="mb-3" hx-post="/context" hx-target="#commands" hx-swap="innerHTML" hx-trigger="submit, load">
+        <form class="mb-3" hx-post="/context" hx-target="#commands" hx-swap="innerHTML"
+              hx-trigger="submit, load">
             <div class="mb-3">
                 <label class="col-form-label" for="reqValues">Request values:</label>
                 <textarea class="form-control" id="reqValues" name="reqValues" rows="3"

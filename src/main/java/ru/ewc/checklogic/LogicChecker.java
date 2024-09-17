@@ -30,6 +30,7 @@ import ru.ewc.checklogic.server.AllEndpoints;
 import ru.ewc.checklogic.server.CommandPage;
 import ru.ewc.checklogic.server.ContextPage;
 import ru.ewc.checklogic.server.Endpoints;
+import ru.ewc.checklogic.server.StatePage;
 import ru.ewc.checklogic.server.config.ConfigPage;
 
 /**
@@ -58,6 +59,7 @@ public final class LogicChecker {
         registerEndpoints(web, new CommandPage(context));
         registerEndpoints(web, new ContextPage(context, factory.configuration()));
         registerEndpoints(web, new AllEndpoints(context, factory.configuration()));
+        registerEndpoints(web, new StatePage(context));
         minum.block();
     }
 

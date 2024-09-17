@@ -45,6 +45,11 @@ public interface Endpoints {
     RequestLine.Method POST = RequestLine.Method.POST;
 
     /**
+     * The shortcut to define an endpoint for a DELETE method.
+     */
+    RequestLine.Method DELETE = RequestLine.Method.DELETE;
+
+    /**
      * Content type for CSS files.
      */
     Map<String, String> CSS = Map.of("Content-Type", "text/css");

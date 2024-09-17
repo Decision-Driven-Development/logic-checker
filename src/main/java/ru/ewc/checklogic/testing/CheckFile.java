@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import lombok.Getter;
 import ru.ewc.checklogic.ServerContextFactory;
 import ru.ewc.decisions.api.ComputationContext;
+import ru.ewc.decisions.api.DecitaException;
 import ru.ewc.decisions.api.OutputTracker;
 import ru.ewc.decisions.api.RuleFragment;
 import ru.ewc.decisions.api.RuleFragments;
@@ -88,11 +89,24 @@ public final class CheckFile {
         for (final RuleFragment fragment : rule.getFragments()) {
             if (fragment.nonEmptyOfType("CND")) {
                 final Condition check = Condition.from(fragment);
-                if (!check.evaluate(ctx)) {
-                    failures.add(new CheckFailure(check.asString(), check.result()));
+                try {
+                    if (!check.evaluate(ctx)) {
+                        failures.add(new CheckFailure(check.asString(), check.result()));
+                    }
+                } catch (final DecitaException exception) {
+                    failures.add(
+                        new CheckFailure(
+                            check.asString(),
+                            "Exception: %s".formatted(exception.getMessage())
+                        )
+                    );
                 }
             } else {
-                this.perform(fragment, ctx);
+                try {
+                    this.perform(fragment, ctx);
+                } catch (DecitaException exception) {
+                    failures.add(new CheckFailure("", exception.getMessage()));
+                }
             }
         }
         logCheckpoint(ctx, "%s - %s".formatted(rule.header(), CheckFile.desc(failures)));

@@ -46,6 +46,16 @@
         </div>
     </div>
     <div class="col">
+        <h1>Context</h1>
+        <form class="mb-3" hx-post="/context" hx-target="#commands" hx-swap="innerHTML"
+              hx-trigger="submit, load">
+            <div class="mb-3">
+                <label class="col-form-label" for="reqValues">Request values:</label>
+                <textarea class="form-control" id="reqValues" name="reqValues" rows="3"
+                          placeholder="Enter request parameters, one per line, in 'key: value' format"></textarea>
+            </div>
+            <button class="btn btn-primary" type="submit">Update context</button>
+        </form>
         <h1>Tables</h1>
         <form class="mb-3" hx-post="/state" hx-target="#table-details">
             <div class="input-group">
@@ -56,16 +66,6 @@
                 <button class="btn btn-primary" type="submit">Evaluate table</button>
             </div>
             <div id="table-details"></div>
-        </form>
-        <h1>Context</h1>
-        <form class="mb-3" hx-post="/context" hx-target="#commands" hx-swap="innerHTML"
-              hx-trigger="submit, load">
-            <div class="mb-3">
-                <label class="col-form-label" for="reqValues">Request values:</label>
-                <textarea class="form-control" id="reqValues" name="reqValues" rows="3"
-                          placeholder="Enter request parameters, one per line, in 'key: value' format"></textarea>
-            </div>
-            <button class="btn btn-primary" type="submit">Update commands</button>
         </form>
         <h1>Commands</h1>
         <div id="commands" class="row g-2"></div>

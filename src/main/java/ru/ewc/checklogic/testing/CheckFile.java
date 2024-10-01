@@ -35,6 +35,7 @@ import ru.ewc.decisions.api.RuleFragment;
 import ru.ewc.decisions.api.RuleFragments;
 import ru.ewc.decisions.commands.Assignment;
 import ru.ewc.decisions.conditions.Condition;
+import ru.ewc.decisions.core.Coordinate;
 
 /**
  * I am a single file containing one or more tests. I am responsible for performing all the tests
@@ -73,6 +74,7 @@ public final class CheckFile {
     public List<TestResult> performChecks(final String root, final CheckSuite files) {
         this.suite = files;
         return this.tests.stream()
+            .filter(rule -> rule.getFragments().stream().anyMatch(f -> f.nonEmptyOfType("CND")))
             .map(rule -> this.getTestResult(rule, ServerContextFactory.create(root).context()))
             .toList();
     }
@@ -93,7 +95,7 @@ public final class CheckFile {
                     if (!check.evaluate(ctx)) {
                         failures.add(new CheckFailure(check.asString(), check.result()));
                     }
-                } catch (final DecitaException exception) {
+                } catch (final DecitaException | IllegalArgumentException exception) {
                     failures.add(
                         new CheckFailure(
                             check.asString(),
@@ -104,7 +106,7 @@ public final class CheckFile {
             } else {
                 try {
                     this.perform(fragment, ctx);
-                } catch (DecitaException exception) {
+                } catch (final DecitaException | IllegalArgumentException exception) {
                     failures.add(new CheckFailure("", exception.getMessage()));
                 }
             }
@@ -123,7 +125,9 @@ public final class CheckFile {
             case "ASG" -> new Assignment(fragment.left(), fragment.right()).performIn(ctx);
             case "EXE" -> {
                 if ("command".equals(fragment.left())) {
-                    ctx.perform(fragment.right());
+                    final Coordinate coordinate = Coordinate.from(fragment.right());
+                    coordinate.resolveIn(ctx);
+                    ctx.perform(coordinate.valueIn(ctx));
                     ctx.resetComputationState(this.request);
                 }
                 if ("include".equals(fragment.left())) {

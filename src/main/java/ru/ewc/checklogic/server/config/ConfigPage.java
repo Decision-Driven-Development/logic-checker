@@ -52,6 +52,11 @@ public final class ConfigPage implements Endpoints {
     private static final String REQUEST = "request";
 
     /**
+     * The name of the configuration parameter that holds the delimiter for the table.
+     */
+    private static final String DELIMITER = "delimiter";
+
+    /**
      * The configuration of the web server.
      */
     private final ServerConfiguration config;
@@ -82,6 +87,9 @@ public final class ConfigPage implements Endpoints {
         if (keys.contains("reqLocator") && request.body().asBytes("reqLocator").length > 0) {
             this.config.setParameterValue(ConfigPage.REQUEST, fieldFrom(request, "reqLocator"));
         }
+        if (keys.contains("delimiter") && request.body().asBytes("delimiter").length > 0) {
+            this.config.setParameterValue(ConfigPage.DELIMITER, fieldFrom(request, "delimiter"));
+        }
     }
 
     Response render(final Request request) {
@@ -91,7 +99,8 @@ public final class ConfigPage implements Endpoints {
     Map<String, String> parameters() {
         return Map.of(
             "commandAvailabilityOutcome", this.config.getParameterValue(ConfigPage.COMMAND),
-            "requestLocatorName", this.config.getParameterValue(ConfigPage.REQUEST)
+            "requestLocatorName", this.config.getParameterValue(ConfigPage.REQUEST),
+            "tableDelimiter", this.config.getParameterValue(ConfigPage.DELIMITER)
         );
     }
 

@@ -23,9 +23,11 @@
  */
 package ru.ewc.checklogic;
 
+import java.net.URI;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import ru.ewc.decisions.input.CombinedCsvFileReader;
 
 /**
  * I am a context for the web server.
@@ -49,7 +51,8 @@ public final class ServerConfiguration {
             Map.of(
                 "request", "request",
                 "command", "available",
-                "function", "function"
+                "function", "function",
+                "delimiter", ","
             )
         );
     }
@@ -88,6 +91,10 @@ public final class ServerConfiguration {
 
     public String getRoot() {
         return this.root;
+    }
+
+    public CombinedCsvFileReader csvReader(final URI path) {
+        return new CombinedCsvFileReader(path, ".csv", this.getParameterValue("delimiter"));
     }
 
     public String functionsLocatorName() {

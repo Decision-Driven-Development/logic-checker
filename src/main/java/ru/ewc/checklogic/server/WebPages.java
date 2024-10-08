@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
 import ru.ewc.checklogic.ServerConfiguration;
 import ru.ewc.checklogic.testing.CheckSuite;
 import ru.ewc.checklogic.testing.TestResult;
-import ru.ewc.decisions.input.CombinedCsvFileReader;
 
 /**
  * I am a collection of template processors that render the pages to be served.
@@ -80,7 +79,7 @@ public final class WebPages {
 
     public Response testPage() {
         final CheckSuite suite = CheckSuite.using(
-            new CombinedCsvFileReader(Path.of(this.root, "tests").toUri(), ".csv", ";"),
+            this.config.csvReader(Path.of(this.root, "tests").toUri()),
             this.root,
             this.config.requestLocatorName()
         );

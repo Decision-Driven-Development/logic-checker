@@ -28,12 +28,10 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
-import ru.ewc.checklogic.testing.CheckSuite;
 import ru.ewc.decisions.api.ComputationContext;
 import ru.ewc.decisions.api.DecisionTables;
 import ru.ewc.decisions.api.DecitaException;
 import ru.ewc.decisions.api.InMemoryLocator;
-import ru.ewc.decisions.input.CombinedCsvFileReader;
 import ru.ewc.state.State;
 
 /**
@@ -162,11 +160,7 @@ public final class ServerInstance {
         return function && !this.states.functionSpecified(args[1]) || request;
     }
 
-    public void createState(final String include, final CheckSuite suite) {
-        suite.findAndPerform(include, this.context);
-    }
-
     private DecisionTables getAllTables() {
-        return DecisionTables.using(new CombinedCsvFileReader(this.tables, ".csv", ";"));
+        return DecisionTables.using(this.server.csvReader(this.tables));
     }
 }

@@ -26,6 +26,7 @@ package ru.ewc.checklogic;
 import java.net.URI;
 import java.nio.file.Path;
 import ru.ewc.decisions.api.ComputationContext;
+import ru.ewc.decisions.api.DecisionTables;
 
 /**
  * I am a factory for creating server contexts.
@@ -86,7 +87,10 @@ public final class ServerContextFactory {
     }
 
     public ComputationContext context() {
-        return new ComputationContext(this.factory.initialState(), this.tablesFolder());
+        return new ComputationContext(
+            this.factory.initialState(),
+            DecisionTables.using(this.config.csvReader(this.tablesFolder()))
+        );
     }
 
     public ServerConfiguration configuration() {

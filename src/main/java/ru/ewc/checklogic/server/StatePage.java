@@ -27,7 +27,6 @@ import com.renomad.minum.web.Request;
 import com.renomad.minum.web.RequestLine;
 import com.renomad.minum.web.Response;
 import com.renomad.minum.web.WebFramework;
-import java.net.URI;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +36,6 @@ import ru.ewc.checklogic.ServerInstance;
 import ru.ewc.checklogic.testing.CheckSuite;
 import ru.ewc.decisions.api.ComputationContext;
 import ru.ewc.decisions.api.OutputTracker;
-import ru.ewc.decisions.input.CombinedCsvFileReader;
 
 /**
  * I am a class providing access to the state page.
@@ -149,14 +147,10 @@ public final class StatePage implements Endpoints {
 
     private CheckSuite testSuite() {
         return CheckSuite.using(
-            new CombinedCsvFileReader(this.testsFolder(), ".csv", ";"),
+            this.config.csvReader(Path.of(this.context.getRoot(), "tests").toUri()),
             this.context.getRoot(),
             this.config.requestLocatorName()
         );
-    }
-
-    private URI testsFolder() {
-        return Path.of(this.context.getRoot(), "tests").toUri();
     }
 
     private String listOfIncludes() {

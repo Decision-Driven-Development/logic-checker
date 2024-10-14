@@ -25,13 +25,9 @@ package ru.ewc.checklogic.server;
 
 import com.renomad.minum.web.Response;
 import java.nio.file.Path;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import ru.ewc.checklogic.ServerConfiguration;
 import ru.ewc.checklogic.testing.CheckSuite;
-import ru.ewc.checklogic.testing.TestResult;
 
 /**
  * I am a collection of template processors that render the pages to be served.
@@ -74,39 +70,42 @@ public final class WebPages {
     }
 
     public Response uninitializedPage() {
-        return Response.htmlOk(this.renderInLayout("templates/uninitialized.html", Map.of()));
-    }
-
-    public Response testPage() {
-        final CheckSuite suite = CheckSuite.using(
-            this.config.csvReader(Path.of(this.root, "tests").toUri()),
-            this.root,
-            this.config.requestLocatorName()
-        );
-        final long start = System.currentTimeMillis();
-        final List<TestResult> results = suite.perform();
-        final String rows = results.stream()
-            .sorted(Comparator.naturalOrder())
-            .map(TestResult::asHtmlTableRow)
-            .collect(Collectors.joining());
-        final double elapsed = (System.currentTimeMillis() - start) / 1000.0;
         return Response.htmlOk(
-            this.renderInLayout(
-                "templates/test.html",
-                Map.of(
-                    "tests", "%s".formatted(rows),
-                    "stats", "%d test(s) performed in %.3f second(s), %d passed, %d failed".formatted(
-                        results.size(),
-                        elapsed,
-                        results.stream().filter(TestResult::successful).count(),
-                        results.stream().filter(result -> !result.successful()).count()
-                    )
-                )
+            this.processors.renderInLayout(
+                "templates/uninitialized.html",
+                Map.of()
             )
         );
     }
 
+    public Response testPage() {
+        final long start = System.currentTimeMillis();
+        final CheckSuite suite = this.createSuiteAndPerformChecks();
+        final double elapsed = (System.currentTimeMillis() - start) / 1000.0;
+        return this.okResponseFor(suite, elapsed);
+    }
+
     public String renderInLayout(final String template, final Map<String, String> values) {
         return this.processors.renderInLayout(template, values);
+    }
+
+    private CheckSuite createSuiteAndPerformChecks() {
+        return CheckSuite.using(
+            this.config.csvReader(Path.of(this.root, "tests").toUri()),
+            this.root,
+            this.config.requestLocatorName()
+        ).perform();
+    }
+
+    private Response okResponseFor(final CheckSuite suite, final double elapsed) {
+        return Response.htmlOk(
+            this.processors.renderInLayout(
+                "templates/test.html",
+                Map.of(
+                    "tests", suite.resultAsHtmlRows(),
+                    "stats", suite.statsAsHtmlDiv(elapsed)
+                )
+            )
+        );
     }
 }

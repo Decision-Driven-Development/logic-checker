@@ -24,8 +24,11 @@
 
 package ru.ewc.checklogic.testing;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 import ru.ewc.decisions.api.ComputationContext;
 import ru.ewc.decisions.input.ContentsReader;
 
@@ -43,12 +46,18 @@ public final class CheckSuite {
     private final Collection<CheckFile> tests;
 
     /**
+     * Collection of test results.
+     */
+    private final List<TestResult> results;
+
+    /**
      * The root directory of the business logic source files.
      */
     private final String root;
 
     private CheckSuite(final Collection<CheckFile> tests, final String root) {
         this.tests = tests;
+        this.results = new ArrayList<>(tests.size());
         this.root = root;
     }
 
@@ -65,11 +74,22 @@ public final class CheckSuite {
         );
     }
 
-    public List<TestResult> perform() {
-        return this.tests.stream()
+    public String statsAsHtmlDiv(final double elapsed) {
+        return "%d test(s) performed in %.3f second(s), %d passed, %d failed".formatted(
+            this.results.size(),
+            elapsed,
+            this.results.stream().filter(TestResult::successful).count(),
+            this.results.stream().filter(result -> !result.successful()).count()
+        );
+    }
+
+    public CheckSuite perform() {
+        this.results.addAll(this.tests.stream()
             .map(test -> test.performChecks(this.root, this))
             .flatMap(List::stream)
-            .toList();
+            .toList()
+        );
+        return this;
     }
 
     public void findAndPerform(final String file, final ComputationContext ctx) {
@@ -80,5 +100,12 @@ public final class CheckSuite {
 
     public List<String> checkNames() {
         return this.tests.stream().map(CheckFile::getFile).toList();
+    }
+
+    public String resultAsHtmlRows() {
+        return this.results.stream()
+            .sorted(Comparator.naturalOrder())
+            .map(TestResult::asHtmlTableRow)
+            .collect(Collectors.joining());
     }
 }

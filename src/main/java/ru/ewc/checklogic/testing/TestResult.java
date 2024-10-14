@@ -29,7 +29,9 @@ public record TestResult(
     String file,
     boolean successful,
     String error,
-    List<String> log
+    List<String> log,
+    long context,
+    long elapsed
 ) implements Comparable<TestResult> {
 
     public String result() {
@@ -44,12 +46,17 @@ public record TestResult(
 
     public String asHtmlTableRow() {
         return String.format(
-            "<tr class=\"%s\"><td>%s</td><td>%s</td><td>%s</td></tr>",
+            "<tr class=\"%s\"><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>",
             this.classBasedOnSuccess(),
             this.file,
             this.result(),
+            this.time(),
             this.errorMessages()
         );
+    }
+
+    private String time() {
+        return "C: %d ms, T: %d ms".formatted(this.context, this.elapsed);
     }
 
     private String errorMessages() {

@@ -55,10 +55,16 @@ public final class CheckSuite {
      */
     private final String root;
 
-    private CheckSuite(final Collection<CheckFile> tests, final String root) {
+    /**
+     * Milliseconds elapsed to read all the test files.
+     */
+    private final long reading;
+
+    private CheckSuite(final Collection<CheckFile> tests, final String root, final long reading) {
         this.tests = tests;
         this.results = new ArrayList<>(tests.size());
         this.root = root;
+        this.reading = reading;
     }
 
     public static CheckSuite using(
@@ -66,20 +72,26 @@ public final class CheckSuite {
         final String root,
         final String request
     ) {
-        return new CheckSuite(
-            reader.readAll().stream()
-                .map(sl -> new CheckFile(sl.fileName(), sl.specifiedRulesFragments(), request))
-                .toList(),
-            root
-        );
+        final long start = System.currentTimeMillis();
+        final List<CheckFile> files = reader.readAll().stream()
+            .map(sl -> new CheckFile(sl.fileName(), sl.specifiedRulesFragments(), request))
+            .toList();
+        final long elapsed = System.currentTimeMillis() - start;
+        return new CheckSuite(files, root, elapsed);
     }
 
     public String statsAsHtmlDiv(final double elapsed) {
-        return "%d test(s) performed in %.3f second(s), %d passed, %d failed".formatted(
+        return """
+            %d test(s) performed in %.3f second(s) (read time: %.3f), %d passed, %d failed</br>
+            %d milliseconds spent creating context, %d milliseconds spent in the tests
+            """.formatted(
             this.results.size(),
             elapsed,
+            this.reading / 1000.0,
             this.results.stream().filter(TestResult::successful).count(),
-            this.results.stream().filter(result -> !result.successful()).count()
+            this.results.stream().filter(result -> !result.successful()).count(),
+            this.results.stream().reduce(0L, (acc, result) -> acc + result.context(), Long::sum),
+            this.results.stream().reduce(0L, (acc, result) -> acc + result.elapsed(), Long::sum)
         );
     }
 

@@ -75,17 +75,28 @@ public final class CheckFile {
         this.suite = files;
         return this.tests.stream()
             .filter(rule -> rule.getFragments().stream().anyMatch(f -> f.nonEmptyOfType("CND")))
-            .map(rule -> this.getTestResult(rule, ServerContextFactory.create(root).context()))
-            .toList();
+            .map(
+                rule -> {
+                    final long start = System.currentTimeMillis();
+                    final ComputationContext context = ServerContextFactory.create(root).context();
+                    final long elapsed = System.currentTimeMillis() - start;
+                    return this.getTestResult(rule, context, elapsed);
+                }
+            ).toList();
     }
 
     public void performInSameContext(final ComputationContext ctx, final CheckSuite files) {
         this.suite = files;
-        this.getTestResult(this.tests.getFirst(), ctx);
+        this.getTestResult(this.tests.getFirst(), ctx, 0);
     }
 
-    private TestResult getTestResult(final RuleFragments rule, final ComputationContext ctx) {
+    private TestResult getTestResult(
+        final RuleFragments rule,
+        final ComputationContext ctx,
+        final long time
+    ) {
         logCheckpoint(ctx, "%s - started".formatted(rule.header()));
+        final long start = System.currentTimeMillis();
         final OutputTracker<String> tracker = ctx.startTracking();
         final List<CheckFailure> failures = new ArrayList<>(1);
         for (final RuleFragment fragment : rule.getFragments()) {
@@ -112,11 +123,14 @@ public final class CheckFile {
             }
         }
         logCheckpoint(ctx, "%s - %s".formatted(rule.header(), CheckFile.desc(failures)));
+        final long elapsed = System.currentTimeMillis() - start;
         return new TestResult(
             rule.header().replace("::", " - "),
             failures.isEmpty(),
             resultAsUnorderedList(failures),
-            tracker.events()
+            tracker.events(),
+            time,
+            elapsed
         );
     }
 
